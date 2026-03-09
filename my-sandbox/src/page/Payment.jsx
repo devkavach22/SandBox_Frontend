@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +8,8 @@ import {
 import toast from "react-hot-toast";
 import { getAllPaymentsAPI, getCustomerPaymentsAPI } from "../services/payment.service";
 import { getAllUsersAPI } from "../services/admin.service";
-import Navbar from "./Navbar"; // ← reusable navbar
+import Navbar from "./Navbar";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 const infoToast = (msg) =>
     toast.custom((t) => (
@@ -383,11 +385,11 @@ export default function Payment() {
         loadData();
     }, []);
 
-    const [search,          setSearch]          = useState("");
-    const [filterCustomer,  setFilterCustomer]  = useState("ALL");
-    const [filterAmount,    setFilterAmount]    = useState("ALL");
-    const [filterMonth,     setFilterMonth]     = useState("ALL");
-    const [filterDate,      setFilterDate]      = useState("ALL");
+    const [search,         setSearch]         = useState("");
+    const [filterCustomer, setFilterCustomer] = useState("ALL");
+    const [filterAmount,   setFilterAmount]   = useState("ALL");
+    const [filterMonth,    setFilterMonth]    = useState("ALL");
+    const [filterDate,     setFilterDate]     = useState("ALL");
 
     const handleMonthChange = (val) => { setFilterMonth(val); setFilterDate("ALL"); };
 
@@ -444,11 +446,12 @@ export default function Payment() {
         setFilterAmount("ALL"); setFilterMonth("ALL"); setFilterDate("ALL");
     };
 
+    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        infoToast("Logged out.");
-        setTimeout(() => navigate("/login"), 800);
+        triggerAuthChange(); // ← same-tab state update trigger
+        navigate("/login");
     };
 
     const stats = [
@@ -463,11 +466,9 @@ export default function Payment() {
     return (
         <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-x-hidden">
 
-            {/* Ambient glows */}
             <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
             <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-900/10 blur-[120px] rounded-full z-0 pointer-events-none" />
 
-            {/* ─── REUSABLE NAVBAR ─── */}
             <Navbar
                 showBack
                 badge="Payments"
@@ -477,7 +478,6 @@ export default function Payment() {
 
             <main className="relative z-10 pt-24 px-6 md:px-10 pb-16 max-w-6xl mx-auto">
 
-                {/* Title */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-black tracking-tight text-white mb-1">
                         {isAdmin ? "All Customers'" : "Your"}{" "}
@@ -494,7 +494,6 @@ export default function Payment() {
                     </div>
                 ) : (
                     <>
-                        {/* Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                             {stats.map((s, i) => (
                                 <div key={i} className="rounded-[1.5rem] p-5 transition-all group relative overflow-hidden"
@@ -513,7 +512,6 @@ export default function Payment() {
                             ))}
                         </div>
 
-                        {/* Filters */}
                         <div className="flex flex-col gap-4 mb-6 p-5 rounded-[1.5rem]"
                             style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)", overflow: "visible" }}>
 
@@ -542,7 +540,6 @@ export default function Payment() {
                                 )}
                             </div>
 
-                            {/* Amount filters */}
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider flex-shrink-0 w-16">
                                     <IndianRupee size={10} /> Amt
@@ -561,7 +558,6 @@ export default function Payment() {
                                 })}
                             </div>
 
-                            {/* Date filters */}
                             <div className="flex items-center gap-2 flex-wrap" style={{ overflow: "visible" }}>
                                 <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider flex-shrink-0 w-16">
                                     <Calendar size={10} /> Date
@@ -572,7 +568,6 @@ export default function Payment() {
                                 )}
                             </div>
 
-                            {/* Active filters */}
                             {(filterMonth !== "ALL" || filterDate !== "ALL") && (
                                 <div className="flex gap-2 flex-wrap pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
                                     <span className="text-[9px] font-bold text-slate-600 uppercase self-center">Active:</span>

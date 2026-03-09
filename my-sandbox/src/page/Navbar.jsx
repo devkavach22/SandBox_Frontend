@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Zap, ArrowLeft, LogOut, ShieldCheck, History, CreditCard } from "lucide-react";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 export default function Navbar({
     showBack       = false,
@@ -21,6 +22,7 @@ export default function Navbar({
         if (onLogout) { onLogout(); return; }
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        triggerAuthChange(); // ← same-tab state update trigger
         navigate("/login");
     };
 

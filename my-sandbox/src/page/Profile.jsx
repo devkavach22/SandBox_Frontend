@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCustomer } from "../hooks/useCustomer";
-import Navbar from "./Navbar"; // ← reusable navbar
+import Navbar from "./Navbar";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 const showToast = (msg, type = "info") =>
     toast.custom((t) => (
@@ -231,8 +232,11 @@ export default function Profile() {
         showToast("ID Copied", "success");
     };
 
+    // ── Logout fix ──
     const handleLogout = () => {
-        localStorage.clear();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        triggerAuthChange(); // ← same-tab state update trigger
         navigate("/login");
     };
 
@@ -253,11 +257,9 @@ export default function Profile() {
     return (
         <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-x-hidden">
 
-            {/* Ambient glows */}
             <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
             <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-900/10 blur-[120px] rounded-full z-0 pointer-events-none" />
 
-            {/* ─── REUSABLE NAVBAR ─── */}
             <Navbar
                 showBack
                 badge="Profile"
@@ -273,11 +275,9 @@ export default function Profile() {
                 ) : (
                     <div className="space-y-5">
 
-                        {/* ─── Profile Card ─── */}
                         <div className="rounded-[2rem] p-7"
                             style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.07)" }}>
 
-                            {/* Header */}
                             <div className="flex items-start justify-between mb-8 pb-6"
                                 style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                                 <div className="flex items-center gap-5">
@@ -305,7 +305,6 @@ export default function Profile() {
                                     </div>
                                 </div>
 
-                                {/* Edit / Save button */}
                                 <button onClick={() => editMode ? handleSave() : setEditMode(true)} disabled={saving}
                                     className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase transition-all active:scale-95"
                                     style={editMode
@@ -315,7 +314,6 @@ export default function Profile() {
                                 </button>
                             </div>
 
-                            {/* Stats */}
                             <div className={`grid grid-cols-${stats.length} gap-3 mb-8`}>
                                 {stats.map((s, i) => (
                                     <div key={i} className="rounded-2xl p-4 group relative overflow-hidden transition-all"
@@ -332,10 +330,8 @@ export default function Profile() {
                                 ))}
                             </div>
 
-                            {/* Form */}
                             <div className="space-y-5">
 
-                                {/* Avatar picker in edit mode */}
                                 {editMode && (
                                     <div className="pb-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-3">Update Photo</label>
@@ -343,7 +339,6 @@ export default function Profile() {
                                     </div>
                                 )}
 
-                                {/* Unique ID */}
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Unique ID</label>
                                     <div className="relative group">
@@ -358,7 +353,6 @@ export default function Profile() {
                                     </div>
                                 </div>
 
-                                {/* Full Name */}
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Full Name</label>
                                     <div className="relative">
@@ -378,7 +372,6 @@ export default function Profile() {
                                     </div>
                                 </div>
 
-                                {/* Phone */}
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Phone Number</label>
                                     <div className="relative">
@@ -407,7 +400,6 @@ export default function Profile() {
                                     )}
                                 </div>
 
-                                {/* Cancel */}
                                 {editMode && (
                                     <button
                                         onClick={() => { setEditMode(false); setAvatar(null); loadProfile(); }}

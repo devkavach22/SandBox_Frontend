@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,6 +8,7 @@ import {
 import Navbar from "./Navbar";
 import toast from "react-hot-toast";
 import { getAllHistoryAPI, getCustomerHistoryAPI, getAllUsersAPI } from "../services/admin.service";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 const METHOD_COLORS = {
     GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
@@ -331,11 +333,12 @@ export default function APIHistory() {
     const successCalls = filtered.filter((r) => r.status === "success").length;
     const totalSpent   = filtered.reduce((s, r) => s + (parseFloat(r.amountDeducted || r.amount) || 0), 0);
 
+    // ── Logout fix: triggerAuthChange + navigate ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        infoToast("Logged out.");
-        setTimeout(() => navigate("/login"), 800);
+        triggerAuthChange(); // ← same-tab state update trigger
+        navigate("/login");
     };
 
     return (
@@ -375,10 +378,10 @@ export default function APIHistory() {
                         {/* Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                             {[
-                                { label: "Total Calls",  value: totalCalls,                color: "#FF3B8E",  glow: "rgba(255,59,142,0.12)" },
-                                { label: "Successful",   value: successCalls,              color: "#4ade80",  glow: "rgba(34,197,94,0.12)" },
-                                { label: "Failed",       value: totalCalls - successCalls, color: "#f87171",  glow: "rgba(239,68,68,0.12)" },
-                                { label: "Total Spent",  value: `₹${totalSpent.toFixed(2)}`, color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
+                                { label: "Total Calls",  value: totalCalls,                   color: "#FF3B8E",  glow: "rgba(255,59,142,0.12)" },
+                                { label: "Successful",   value: successCalls,                 color: "#4ade80",  glow: "rgba(34,197,94,0.12)" },
+                                { label: "Failed",       value: totalCalls - successCalls,    color: "#f87171",  glow: "rgba(239,68,68,0.12)" },
+                                { label: "Total Spent",  value: `₹${totalSpent.toFixed(2)}`,  color: "#A78BFA",  glow: "rgba(167,139,250,0.12)" },
                             ].map((s, i) => (
                                 <div key={i} className="rounded-[1.5rem] p-5 transition-all group relative overflow-hidden"
                                     style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)" }}>

@@ -9,6 +9,7 @@ import {
 import { usePayment } from "../hooks/usepayment";
 import { useCustomer } from "../hooks/useCustomer";
 import { getCustomerHistoryAPI } from "../services/customer.service";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 const METHOD_COLORS = {
     GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
@@ -54,9 +55,11 @@ export default function Dashboard() {
             .catch(() => {});
     }, []);
 
+    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        triggerAuthChange(); // ← same-tab state update trigger
         navigate("/login");
     };
 
@@ -192,7 +195,6 @@ export default function Dashboard() {
                                     style={{ background: card.glow, border: `1px solid ${card.color}30` }}>
                                     <span style={{ color: card.color }}>{card.icon}</span>
                                 </div>
-                
                             </div>
                             <p className="text-3xl font-black mb-1.5" style={{ color: card.color }}>{card.value}</p>
                             <p className="text-[10px] text-slate-500 tracking-[0.2em] font-bold uppercase">{card.label}</p>

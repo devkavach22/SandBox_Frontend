@@ -4,6 +4,7 @@ import { ArrowRight, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCustomer } from "../hooks/useCustomer";
 import Navbar from "./Navbar";
+import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
 
 const METHOD_COLORS = {
     GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
@@ -55,7 +56,6 @@ const mkToast = (msg, shadow, iconBg) =>
 
 const successToast = (msg) => mkToast(msg, "0 0 0 1px rgba(255,59,142,0.3), 0 8px 32px rgba(255,59,142,0.12)", "#FF3B8E");
 const errorToast   = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.3), 0 8px 32px rgba(239,68,68,0.12)", null);
-const infoToast    = (msg) => mkToast(msg, "0 0 0 1px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.5)", null);
 
 export default function Apis() {
     const navigate = useNavigate();
@@ -92,11 +92,12 @@ export default function Apis() {
         setTimeout(() => navigate("/dashboard"), 800);
     };
 
+    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        infoToast("Logged out.");
-        setTimeout(() => navigate("/login"), 800);
+        triggerAuthChange(); // ← same-tab state update trigger
+        navigate("/login");
     };
 
     const toggleSection = (sectionApis) => {
@@ -143,7 +144,6 @@ export default function Apis() {
 
             <main className="relative z-10 max-w-5xl mx-auto px-6 md:px-10 pt-28 pb-36">
 
-                {/* Hero Header */}
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-[10px] font-black uppercase tracking-[0.2em]"
                         style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.2)", color: "#FF3B8E" }}>
@@ -159,7 +159,6 @@ export default function Apis() {
                     </p>
                 </div>
 
-                {/* Loading */}
                 {loading && (
                     <div className="text-center py-20">
                         <div className="w-9 h-9 border-2 border-white/5 border-t-[#FF3B8E] rounded-full animate-spin mx-auto mb-4" />
@@ -167,7 +166,6 @@ export default function Apis() {
                     </div>
                 )}
 
-                {/* No APIs */}
                 {!loading && apis.length === 0 && (
                     <div className="text-center py-16 rounded-[2rem]"
                         style={{ border: "1px dashed rgba(255,255,255,0.08)" }}>
@@ -180,10 +178,8 @@ export default function Apis() {
                     </div>
                 )}
 
-                {/* API Grid — grouped by category */}
                 {!loading && apis.length > 0 && (
                     <>
-                        {/* Toolbar */}
                         <div className="flex items-center justify-between mb-6 px-5 py-3 rounded-2xl"
                             style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)" }}>
                             <div className="flex items-center gap-3">
@@ -215,7 +211,6 @@ export default function Apis() {
                             </div>
                         </div>
 
-                        {/* Sections */}
                         <div className="space-y-10 mb-10">
                             {SECTIONS.map((section) => {
                                 const sectionApis = apis.filter((a) =>
@@ -229,7 +224,6 @@ export default function Apis() {
 
                                 return (
                                     <div key={section.key}>
-                                        {/* Section Header */}
                                         <div className="flex items-center gap-3 mb-4">
                                             <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl"
                                                 style={{ background: section.glow, border: `1px solid ${section.border}` }}>
@@ -250,7 +244,6 @@ export default function Apis() {
                                             </button>
                                         </div>
 
-                                        {/* Cards */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {sectionApis.map((api) => {
                                                 const mc         = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
@@ -325,7 +318,6 @@ export default function Apis() {
                 )}
             </main>
 
-            {/* ─── STICKY BOTTOM CTA ─── */}
             {!loading && apis.length > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/5 backdrop-blur-3xl bg-black/60 px-6 md:px-10 py-4">
                     <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
