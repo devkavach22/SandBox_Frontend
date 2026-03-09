@@ -19,12 +19,19 @@ export default function Sandbox() {
     const user      = userStr ? JSON.parse(userStr) : null;
     const { callApi } = useCustomer();
 
+    // Load last response for this specific API from localStorage
+    const lastResponseKey = api ? `sandbox_last_response_${api._id}` : null;
+    const savedLastResponse = lastResponseKey
+        ? (() => { try { return JSON.parse(localStorage.getItem(lastResponseKey)); } catch { return null; } })()
+        : null;
+
     const [requestBody,    setRequestBody]    = useState(
         api?.sampleBody ? JSON.stringify(api.sampleBody, null, 2) : ""
     );
     const [authToken,      setAuthToken]      = useState("");
     const [sandboxResult,  setSandboxResult]  = useState(null);
     const [sandboxLoading, setSandboxLoading] = useState(false);
+    const [lastResponse,   setLastResponse]   = useState(savedLastResponse);
 
     if (!api) { navigate("/dashboard"); return null; }
 
@@ -46,15 +53,40 @@ export default function Sandbox() {
                 headers,
             });
             setSandboxResult(res);
+
+            // Save last response to localStorage with timestamp
+            const responseWithMeta = {
+                ...res,
+                _savedAt: new Date().toISOString(),
+            };
+            setLastResponse(responseWithMeta);
+            if (lastResponseKey) {
+                localStorage.setItem(lastResponseKey, JSON.stringify(responseWithMeta));
+            }
         } catch (err) {
-            setSandboxResult({
+            const errResult = {
                 success: false,
                 message: err.response?.data?.message || "Something went wrong!",
-            });
+                _savedAt: new Date().toISOString(),
+            };
+            setSandboxResult(errResult);
+            setLastResponse(errResult);
+            if (lastResponseKey) {
+                localStorage.setItem(lastResponseKey, JSON.stringify(errResult));
+            }
         } finally {
             setSandboxLoading(false);
         }
     };
+
+    const formatSavedAt = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+    };
+
+    // The response to render in the right panel
+    const displayResult = sandboxResult || null;
 
     return (
         <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-hidden">
@@ -165,26 +197,52 @@ export default function Sandbox() {
                             : <><Play size={16} fill="white" /> RUN API — ₹{api.pricePerCall} will be deducted</>
                         }
                     </button>
+
+
                 </div>
 
                 {/* ── RIGHT PANEL — Response ── */}
                 <div className="p-6 overflow-y-auto space-y-5">
 
-                    {/* Sample Response */}
-                    {!sandboxResult && api.sampleResponse && (
+                    {/* Sample Response OR Last Response — last response overwrites sample */}
+                    {!sandboxResult && !sandboxLoading && (lastResponse || api.sampleResponse) && (
                         <div className="rounded-2xl overflow-hidden"
-                            style={{ boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" }}>
+                            style={{ boxShadow: `0 0 0 1px ${lastResponse ? "rgba(255,59,142,0.2)" : "rgba(255,255,255,0.06)"}` }}>
                             <div className="flex items-center justify-between px-5 py-3"
                                 style={{ background: "#0f0f0f", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Sample Response</span>
-                                <span className="text-[9px] font-black text-[#A78BFA] px-2.5 py-1 rounded-full"
-                                    style={{ background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)" }}>
-                                    PREVIEW
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                                    {lastResponse ? "Last Response" : "Sample Response"}
                                 </span>
+                                <div className="flex items-center gap-2">
+                                    {lastResponse ? (
+                                        <>
+                                            {lastResponse._savedAt && (
+                                                <span className="text-[9px] text-slate-600">{formatSavedAt(lastResponse._savedAt)}</span>
+                                            )}
+                                            {lastResponse.data?.statusCode && (
+                                                <span className="text-[9px] font-black px-2.5 py-1 rounded-full"
+                                                    style={lastResponse.data.status === "success"
+                                                        ? { background: "rgba(34,197,94,0.1)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.2)" }
+                                                        : { background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }
+                                                    }>
+                                                    {lastResponse.data.statusCode}
+                                                </span>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <span className="text-[9px] font-black text-[#A78BFA] px-2.5 py-1 rounded-full"
+                                            style={{ background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)" }}>
+                                            PREVIEW
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <pre className="p-5 text-[12px] text-slate-400 overflow-x-auto leading-relaxed"
                                 style={{ background: "#080808", fontFamily: "monospace" }}>
-                                {JSON.stringify(api.sampleResponse, null, 2)}
+                                {lastResponse
+                                    ? JSON.stringify(lastResponse.data?.response || lastResponse, null, 2)
+                                    : JSON.stringify(api.sampleResponse, null, 2)
+                                }
                             </pre>
                         </div>
                     )}
@@ -198,29 +256,29 @@ export default function Sandbox() {
                     )}
 
                     {/* Actual Response */}
-                    {sandboxResult && !sandboxLoading && (
+                    {displayResult && !sandboxLoading && (
                         <div className="rounded-2xl overflow-hidden"
-                            style={{ boxShadow: `0 0 0 1px ${sandboxResult.success === false ? "rgba(239,68,68,0.2)" : "rgba(255,59,142,0.2)"}` }}>
+                            style={{ boxShadow: `0 0 0 1px ${displayResult.success === false ? "rgba(239,68,68,0.2)" : "rgba(255,59,142,0.2)"}` }}>
                             {/* Response Header */}
                             <div className="flex items-center justify-between px-5 py-3"
                                 style={{ background: "#0f0f0f", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Response</span>
                                 <div className="flex items-center gap-3">
-                                    {sandboxResult.data && (
+                                    {displayResult.data && (
                                         <>
                                             <span className="text-[10px] font-black px-2.5 py-1 rounded-full"
-                                                style={sandboxResult.data.status === "success"
+                                                style={displayResult.data.status === "success"
                                                     ? { background: "rgba(34,197,94,0.1)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.2)" }
                                                     : { background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }
                                                 }>
-                                                {sandboxResult.data.statusCode}
+                                                {displayResult.data.statusCode}
                                             </span>
-                                            <span className="text-[10px] text-slate-500">{sandboxResult.data.responseTime}</span>
-                                            <span className="text-[10px] text-[#F87171]">-₹{sandboxResult.data.amountDeducted}</span>
-                                            <span className="text-[10px] text-slate-500">Balance: ₹{sandboxResult.data.remainingBalance}</span>
+                                            <span className="text-[10px] text-slate-500">{displayResult.data.responseTime}</span>
+                                            <span className="text-[10px] text-[#F87171]">-₹{displayResult.data.amountDeducted}</span>
+                                            <span className="text-[10px] text-slate-500">Balance: ₹{displayResult.data.remainingBalance}</span>
                                         </>
                                     )}
-                                    {!sandboxResult.success && (
+                                    {!displayResult.success && (
                                         <span className="text-[10px] font-black text-[#F87171] flex items-center gap-1">
                                             <X size={10} /> ERROR
                                         </span>
@@ -230,13 +288,13 @@ export default function Sandbox() {
                             {/* Response Body */}
                             <pre className="p-5 text-[12px] text-slate-300 overflow-x-auto leading-relaxed"
                                 style={{ background: "#080808", fontFamily: "monospace" }}>
-                                {JSON.stringify(sandboxResult.data?.response || sandboxResult, null, 2)}
+                                {JSON.stringify(displayResult.data?.response || displayResult, null, 2)}
                             </pre>
                         </div>
                     )}
 
                     {/* Empty State */}
-                    {!sandboxResult && !sandboxLoading && !api.sampleResponse && (
+                    {!displayResult && !sandboxLoading && !api.sampleResponse && (
                         <div className="flex flex-col items-center justify-center py-24 gap-3 rounded-2xl"
                             style={{ border: "1px dashed rgba(255,255,255,0.07)" }}>
                             <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
