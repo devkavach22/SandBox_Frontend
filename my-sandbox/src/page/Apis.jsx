@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCustomer } from "../hooks/useCustomer";
-import Navbar from "./Navbar"; // ← reusable navbar
+import Navbar from "./Navbar";
 
 const METHOD_COLORS = {
     GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
@@ -11,6 +11,25 @@ const METHOD_COLORS = {
     PUT:    { bg: "rgba(99,102,241,0.08)",  border: "#6366F1", text: "#818CF8" },
     DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#F87171" },
 };
+
+const SECTIONS = [
+    {
+        key:       "konverthr_node",
+        label:     "KonvertHR Node.js APIs",
+        color:     "#FF3B8E",
+        border:    "rgba(255,59,142,0.15)",
+        glow:      "rgba(255,59,142,0.06)",
+        lineColor: "rgba(255,59,142,0.1)",
+    },
+    {
+        key:       "konverthr_odoo",
+        label:     "KonvertHR Odoo APIs",
+        color:     "#A78BFA",
+        border:    "rgba(167,139,250,0.15)",
+        glow:      "rgba(167,139,250,0.06)",
+        lineColor: "rgba(167,139,250,0.1)",
+    },
+];
 
 const mkToast = (msg, shadow, iconBg) =>
     toast.custom((t) => (
@@ -80,38 +99,33 @@ export default function Apis() {
         setTimeout(() => navigate("/login"), 800);
     };
 
-    // Custom right-side content for the navbar
+    const toggleSection = (sectionApis) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            const allSelected = sectionApis.every((a) => prev.has(a._id));
+            sectionApis.forEach((a) => allSelected ? next.delete(a._id) : next.add(a._id));
+            return next;
+        });
+    };
+
     const navRightContent = (
         <div className="flex items-center gap-2">
-            {/* Proceed button — only when something is selected */}
             {selected.size > 0 && (
-                <button
-                    onClick={handleProceed}
+                <button onClick={handleProceed}
                     className="flex items-center gap-2 text-white font-black text-xs px-5 py-2.5 rounded-full active:scale-95 transition-all shadow-lg shadow-pink-500/20"
-                    style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)" }}
-                >
+                    style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)" }}>
                     <ArrowRight size={14} strokeWidth={3} />
                     Dashboard ({selected.size})
                 </button>
             )}
-
-            {/* Skip to dashboard */}
-            <button
-                onClick={() => navigate("/dashboard")}
-                className="flex items-center gap-2 text-slate-500 hover:text-white text-xs px-4 py-2.5 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all font-bold"
-            >
+            <button onClick={() => navigate("/dashboard")}
+                className="flex items-center gap-2 text-slate-500 hover:text-white text-xs px-4 py-2.5 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all font-bold">
                 Dashboard →
             </button>
-
-            {/* User pill */}
-            <div
-                className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/10"
-                style={{ background: "rgba(255,255,255,0.02)" }}
-            >
-                <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white"
-                    style={{ background: "linear-gradient(135deg, #FF3B8E, #8E44AD)" }}
-                >
+            <div className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/10"
+                style={{ background: "rgba(255,255,255,0.02)" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white"
+                    style={{ background: "linear-gradient(135deg, #FF3B8E, #8E44AD)" }}>
                     {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-xs font-bold text-white hidden sm:inline">{user?.name}</span>
@@ -122,18 +136,11 @@ export default function Apis() {
     return (
         <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-x-hidden">
 
-            {/* Ambient glows */}
             <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
             <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-900/10 blur-[120px] rounded-full z-0 pointer-events-none" />
 
-            {/* ─── REUSABLE NAVBAR ─── */}
-            <Navbar
-                showBack={false}
-                rightContent={navRightContent}
-                onLogout={handleLogout}
-            />
+            <Navbar showBack={false} rightContent={navRightContent} onLogout={handleLogout} />
 
-            {/* ─── MAIN ─── */}
             <main className="relative z-10 max-w-5xl mx-auto px-6 md:px-10 pt-28 pb-36">
 
                 {/* Hero Header */}
@@ -143,12 +150,9 @@ export default function Apis() {
                         <div className="w-1.5 h-1.5 rounded-full bg-[#FF3B8E] animate-pulse" />
                         Step 1 of 2 — Select APIs
                     </div>
-
                     <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-4 text-white">
                         Choose Your{" "}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B8E] to-[#A29BFE]">
-                            APIs
-                        </span>
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B8E] to-[#A29BFE]">APIs</span>
                     </h1>
                     <p className="text-slate-500 text-base max-w-md mx-auto leading-relaxed">
                         Select the APIs you want to test and integrate. Each call deducts from your wallet balance.
@@ -176,11 +180,11 @@ export default function Apis() {
                     </div>
                 )}
 
-                {/* API Grid */}
+                {/* API Grid — grouped by category */}
                 {!loading && apis.length > 0 && (
                     <>
                         {/* Toolbar */}
-                        <div className="flex items-center justify-between mb-5 px-5 py-3 rounded-2xl"
+                        <div className="flex items-center justify-between mb-6 px-5 py-3 rounded-2xl"
                             style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)" }}>
                             <div className="flex items-center gap-3">
                                 <span className="text-sm">
@@ -211,72 +215,109 @@ export default function Apis() {
                             </div>
                         </div>
 
-                        {/* Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10">
-                            {apis.map((api) => {
-                                const mc         = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
-                                const isSelected = selected.has(api._id);
+                        {/* Sections */}
+                        <div className="space-y-10 mb-10">
+                            {SECTIONS.map((section) => {
+                                const sectionApis = apis.filter((a) =>
+                                    section.key === "konverthr_node"
+                                        ? (a.category === "konverthr_node" || !a.category)
+                                        : a.category === section.key
+                                );
+                                if (sectionApis.length === 0) return null;
+                                const sectionSelected = sectionApis.filter((a) => selected.has(a._id)).length;
+                                const allInSection    = sectionApis.every((a) => selected.has(a._id));
+
                                 return (
-                                    <button key={api._id} onClick={() => toggleSelect(api._id)}
-                                        className="text-left p-5 rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-200 group"
-                                        style={{
-                                            background: isSelected
-                                                ? "linear-gradient(135deg, rgba(255,59,142,0.07), rgba(142,68,173,0.04))"
-                                                : "#0c0c0c",
-                                            boxShadow: isSelected
-                                                ? "inset 0 1px 0 rgba(255,59,142,0.15), 0 0 0 1px rgba(255,59,142,0.3), 0 8px 24px rgba(255,59,142,0.06)"
-                                                : "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06)",
-                                            transform: isSelected ? "translateY(-1px)" : "translateY(0)",
-                                        }}>
-
-                                        {isSelected && (
-                                            <div className="absolute top-0 left-[20%] right-[20%] h-px"
-                                                style={{ background: "linear-gradient(90deg, transparent, #FF3B8E, transparent)" }} />
-                                        )}
-
-                                        <div className="absolute inset-0 pointer-events-none transition-opacity duration-200 rounded-2xl opacity-0 group-hover:opacity-100"
-                                            style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
-
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[9px] font-black px-2 py-1 rounded-lg"
-                                                    style={{ background: mc.bg, color: mc.text, border: `1px solid ${mc.border}${isSelected ? "60" : "40"}` }}>
-                                                    {api.method}
+                                    <div key={section.key}>
+                                        {/* Section Header */}
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl"
+                                                style={{ background: section.glow, border: `1px solid ${section.border}` }}>
+                                                <div className="w-2 h-2 rounded-full" style={{ background: section.color }} />
+                                                <span className="text-xs font-black uppercase tracking-widest" style={{ color: section.color }}>
+                                                    {section.label}
                                                 </span>
-                                                <span className="text-sm font-black transition-colors duration-200"
-                                                    style={{ color: isSelected ? "#fff" : "#e2e8f0" }}>
-                                                    {api.name}
+                                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full"
+                                                    style={{ background: `${section.color}25`, color: section.color }}>
+                                                    {sectionSelected}/{sectionApis.length}
                                                 </span>
                                             </div>
-
-                                            <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200"
-                                                style={{
-                                                    background: isSelected ? "linear-gradient(135deg, #FF3B8E, #8E44AD)" : "transparent",
-                                                    border: `2px solid ${isSelected ? "#FF3B8E" : "rgba(255,255,255,0.15)"}`,
-                                                    boxShadow: isSelected ? "0 0 12px rgba(255,59,142,0.4)" : "none",
-                                                }}>
-                                                {isSelected && <Check size={10} color="#fff" strokeWidth={3} />}
-                                            </div>
+                                            <div className="flex-1 h-px" style={{ background: section.lineColor }} />
+                                            <button onClick={() => toggleSection(sectionApis)}
+                                                className="text-[10px] font-black px-3 py-1.5 rounded-full transition-all flex-shrink-0"
+                                                style={{ background: section.glow, border: `1px solid ${section.border}`, color: section.color }}>
+                                                {allInSection ? "Deselect All" : "Select All"}
+                                            </button>
                                         </div>
 
-                                        <p className="text-xs text-slate-500 mb-4 leading-relaxed group-hover:text-slate-400 transition-colors">
-                                            {api.description}
-                                        </p>
+                                        {/* Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {sectionApis.map((api) => {
+                                                const mc         = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
+                                                const isSelected = selected.has(api._id);
+                                                return (
+                                                    <button key={api._id} onClick={() => toggleSelect(api._id)}
+                                                        className="text-left p-5 rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-200 group"
+                                                        style={{
+                                                            background: isSelected
+                                                                ? "linear-gradient(135deg, rgba(255,59,142,0.07), rgba(142,68,173,0.04))"
+                                                                : "#0c0c0c",
+                                                            boxShadow: isSelected
+                                                                ? "inset 0 1px 0 rgba(255,59,142,0.15), 0 0 0 1px rgba(255,59,142,0.3), 0 8px 24px rgba(255,59,142,0.06)"
+                                                                : "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06)",
+                                                            transform: isSelected ? "translateY(-1px)" : "translateY(0)",
+                                                        }}>
 
-                                        <div className="flex items-center justify-between">
-                                            <code className="text-[10px] text-slate-600 px-2.5 py-1.5 rounded-xl truncate max-w-[60%] block"
-                                                style={{ fontFamily: "monospace", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                                                {api.url}
-                                            </code>
-                                            <div className="text-right">
-                                                <div className="text-base font-black leading-none transition-colors duration-200"
-                                                    style={{ color: isSelected ? "#FF3B8E" : "#64748b" }}>
-                                                    ₹{api.pricePerCall}
-                                                </div>
-                                                <div className="text-[9px] text-slate-600 mt-0.5">per call</div>
-                                            </div>
+                                                        {isSelected && (
+                                                            <div className="absolute top-0 left-[20%] right-[20%] h-px"
+                                                                style={{ background: "linear-gradient(90deg, transparent, #FF3B8E, transparent)" }} />
+                                                        )}
+                                                        <div className="absolute inset-0 pointer-events-none transition-opacity duration-200 rounded-2xl opacity-0 group-hover:opacity-100"
+                                                            style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
+
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[9px] font-black px-2 py-1 rounded-lg"
+                                                                    style={{ background: mc.bg, color: mc.text, border: `1px solid ${mc.border}${isSelected ? "60" : "40"}` }}>
+                                                                    {api.method}
+                                                                </span>
+                                                                <span className="text-sm font-black transition-colors duration-200"
+                                                                    style={{ color: isSelected ? "#fff" : "#e2e8f0" }}>
+                                                                    {api.name}
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                                                                style={{
+                                                                    background: isSelected ? "linear-gradient(135deg, #FF3B8E, #8E44AD)" : "transparent",
+                                                                    border: `2px solid ${isSelected ? "#FF3B8E" : "rgba(255,255,255,0.15)"}`,
+                                                                    boxShadow: isSelected ? "0 0 12px rgba(255,59,142,0.4)" : "none",
+                                                                }}>
+                                                                {isSelected && <Check size={10} color="#fff" strokeWidth={3} />}
+                                                            </div>
+                                                        </div>
+
+                                                        <p className="text-xs text-slate-500 mb-4 leading-relaxed group-hover:text-slate-400 transition-colors">
+                                                            {api.description}
+                                                        </p>
+
+                                                        <div className="flex items-center justify-between">
+                                                            <code className="text-[10px] text-slate-600 px-2.5 py-1.5 rounded-xl truncate max-w-[60%] block"
+                                                                style={{ fontFamily: "monospace", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                                                                {api.url}
+                                                            </code>
+                                                            <div className="text-right">
+                                                                <div className="text-base font-black leading-none transition-colors duration-200"
+                                                                    style={{ color: isSelected ? "#FF3B8E" : "#64748b" }}>
+                                                                    ₹{api.pricePerCall}
+                                                                </div>
+                                                                <div className="text-[9px] text-slate-600 mt-0.5">per call</div>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
-                                    </button>
+                                    </div>
                                 );
                             })}
                         </div>
@@ -293,13 +334,11 @@ export default function Apis() {
                                 ? "Select APIs to begin, or go directly to dashboard"
                                 : <><span className="text-[#FF3B8E] font-black">{selected.size}</span> of {apis.length} APIs ready</>}
                         </span>
-
                         <div className="flex gap-3">
                             <button onClick={() => navigate("/dashboard")}
                                 className="flex items-center gap-2 text-slate-500 hover:text-white text-xs px-5 py-3 rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all font-bold">
                                 Skip →
                             </button>
-
                             <button onClick={handleProceed} disabled={selected.size === 0}
                                 className="flex items-center gap-2 text-white font-black text-xs px-6 py-3 rounded-full active:scale-95 transition-all"
                                 style={selected.size > 0
