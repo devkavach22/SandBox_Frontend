@@ -9,7 +9,7 @@ import {
 import { usePayment } from "../hooks/usepayment";
 import { useCustomer } from "../hooks/useCustomer";
 import { getCustomerHistoryAPI } from "../services/customer.service";
-import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
+import { triggerAuthChange } from "../routes/AppRoutes";
 
 const METHOD_COLORS = {
     GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
@@ -55,11 +55,10 @@ export default function Dashboard() {
             .catch(() => {});
     }, []);
 
-    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        triggerAuthChange(); // ← same-tab state update trigger
+        triggerAuthChange();
         navigate("/login");
     };
 
@@ -312,6 +311,72 @@ export default function Dashboard() {
                                         <code className="bg-white/5 px-1.5 py-0.5 rounded text-[#A78BFA]">&lt;token&gt;</code> for all subsequent KonvertHR API calls.
                                     </p>
                                 </div>
+
+                                {/* Step 4 — user_id info */}
+                                <div className="rounded-2xl overflow-hidden"
+                                    style={{ background: "rgba(167,139,250,0.04)", border: "1px solid rgba(167,139,250,0.18)" }}>
+
+                                    {/* Step 4 Header */}
+                                    <div className="flex items-center gap-3 px-5 py-4"
+                                        style={{ borderBottom: "1px solid rgba(167,139,250,0.1)" }}>
+                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-[#A78BFA] flex-shrink-0"
+                                            style={{ background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)" }}>4</span>
+                                        <div className="flex items-center gap-2 flex-1">
+                                            <p className="text-[11px] font-black text-white">
+                                                Where to find your{" "}
+                                                <code className="bg-black/60 px-1.5 py-0.5 rounded text-[#A78BFA]">user_id</code>?
+                                            </p>
+                                            <span className="text-[9px] font-black px-2 py-0.5 rounded-full text-[#A78BFA]"
+                                                style={{ background: "rgba(167,139,250,0.12)", border: "1px solid rgba(167,139,250,0.25)" }}>
+                                                IMPORTANT
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="px-5 py-4 space-y-4">
+                                        {/* Description */}
+                                        <div className="flex items-start gap-3 rounded-xl px-4 py-3"
+                                            style={{ background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.1)" }}>
+                                            <Info size={13} className="text-[#A78BFA] mt-0.5 flex-shrink-0" />
+                                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                                                When you <span className="text-white font-bold">sign up</span> or{" "}
+                                                <span className="text-white font-bold">log in</span> to KonvertHR, the API response
+                                                returns your unique <code className="mx-1 bg-black/60 px-1.5 py-0.5 rounded text-[#A78BFA]">user_id</code>.
+                                                Always use your <span className="text-[#A78BFA] font-bold">real user_id</span> from this
+                                                response in any KonvertHR API call that requires it —{" "}
+                                                <span className="text-red-400 font-bold">never</span> use a placeholder or test value.
+                                            </p>
+                                        </div>
+
+                                        {/* Example response */}
+                                        <div>
+                                            <p className="text-[9px] font-bold text-slate-500 tracking-[0.18em] uppercase mb-2 px-1">
+                                                Example Signup / Login Response
+                                            </p>
+                                            <div className="rounded-xl p-4"
+                                                style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
+                                                <pre className="text-[11px] leading-relaxed whitespace-pre-wrap">
+{`{
+  "status": `}<span className="text-green-400">"success"</span>{`,
+  "user_id": `}<span className="text-[#A78BFA] font-bold">"64f3a1c2e8b12d0017a9c3f5"</span>{`,
+  "user_name": `}<span className="text-[#FF3B8E]">"Komal"</span>{`,
+  "token": `}<span className="text-[#FF3B8E]">"4c16f70193749be219adb0ad6f9dd840"</span>{`
+}`}
+                                                </pre>
+                                            </div>
+                                        </div>
+
+                                        {/* Tip */}
+                                        <div className="flex items-center gap-2 px-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#A78BFA] flex-shrink-0" />
+                                            <p className="text-[10px] text-slate-500 leading-relaxed">
+                                                💡 Save this <code className="bg-black/60 px-1.5 py-0.5 rounded text-[#A78BFA]">user_id</code>{" "}
+                                                after login — you'll need it as a required parameter in subsequent KonvertHR API requests.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         )}
                     </div>
