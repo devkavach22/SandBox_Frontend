@@ -10,7 +10,8 @@ import {
 import toast from "react-hot-toast";
 import { useCustomer } from "../hooks/useCustomer";
 import Navbar from "./Navbar";
-import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
+import { triggerAuthChange } from "../routes/AppRoutes";
+import { getCustomerHistoryAPI } from "../services/customer.service"; // ← import history API
 
 const showToast = (msg, type = "info") =>
     toast.custom((t) => (
@@ -166,12 +167,13 @@ export default function Profile() {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const isAdmin    = storedUser?.role === "admin";
 
-    const [profile,  setProfile]  = useState(null);
-    const [loading,  setLoading]  = useState(true);
-    const [saving,   setSaving]   = useState(false);
-    const [editMode, setEditMode] = useState(false);
-    const [avatar,   setAvatar]   = useState(null);
-    const [form,     setForm]     = useState({ name: "", email: "", phone: "", client_id: "" });
+    const [profile,      setProfile]      = useState(null);
+    const [loading,      setLoading]      = useState(true);
+    const [saving,       setSaving]       = useState(false);
+    const [editMode,     setEditMode]     = useState(false);
+    const [avatar,       setAvatar]       = useState(null);
+    const [form,         setForm]         = useState({ name: "", email: "", phone: "", client_id: "" });
+    const [actualApiCallCount, setActualApiCallCount] = useState(null); // ← real count from history
 
     useEffect(() => {
         if (!storedUser) { navigate("/login"); return; }
@@ -181,15 +183,36 @@ export default function Profile() {
     const loadProfile = async () => {
         try {
             setLoading(true);
-            const data = await fetchUserProfile(storedUser.id || storedUser._id);
-            setProfile(data);
+            const userId = storedUser.id || storedUser._id;
+
+            // Fetch profile + history in parallel
+            const [data, historyRes] = await Promise.allSettled([
+                fetchUserProfile(userId),
+                getCustomerHistoryAPI(userId),
+            ]);
+
+            // Handle profile
+            const profileData = data.status === "fulfilled" ? data.value : storedUser;
+            setProfile(profileData);
             setForm({
-                name:      data.name || "",
-                email:     data.email || "",
-                phone:     data.phone || "",
-                client_id: data.client_id || (isAdmin ? "SYSTEM_ADMIN" : "PENDING"),
+                name:      profileData.name || "",
+                email:     profileData.email || "",
+                phone:     profileData.phone || "",
+                client_id: profileData.client_id || (isAdmin ? "SYSTEM_ADMIN" : "PENDING"),
             });
-            if (data.avatar) setAvatar(data.avatar);
+            if (profileData.avatar) setAvatar(profileData.avatar);
+
+            // ✅ Use history count as the real API call count
+            if (historyRes.status === "fulfilled") {
+                const historyData = historyRes.value;
+                // API returns { success, message, count, data: [...] }
+                const count = historyData?.count ?? historyData?.data?.length ?? 0;
+                setActualApiCallCount(count);
+            } else {
+                // Fallback to profile value if history fetch fails
+                setActualApiCallCount(profileData?.totalApiCalls ?? 0);
+            }
+
         } catch {
             setProfile(storedUser);
             setForm({
@@ -198,6 +221,7 @@ export default function Profile() {
                 phone:     storedUser.phone || "",
                 client_id: storedUser.client_id || "N/A",
             });
+            setActualApiCallCount(storedUser?.totalApiCalls ?? 0);
         } finally {
             setLoading(false);
         }
@@ -232,11 +256,10 @@ export default function Profile() {
         showToast("ID Copied", "success");
     };
 
-    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        triggerAuthChange(); // ← same-tab state update trigger
+        triggerAuthChange();
         navigate("/login");
     };
 
@@ -245,13 +268,32 @@ export default function Profile() {
         ? new Date(profile.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
         : "—";
 
+    // ✅ Use actualApiCallCount (from history) instead of profile.totalApiCalls
     const stats = isAdmin ? [
         { icon: <ShieldCheck size={16} />, label: "Access Level", value: "Full Admin", color: "#FF3B8E",  glow: "rgba(255,59,142,0.12)" },
         { icon: <Calendar size={16} />,    label: "Joined On",    value: joinDate,     color: "#A78BFA",  glow: "rgba(167,139,250,0.12)" },
     ] : [
-        { icon: <Activity size={16} />, label: "API Calls", value: profile?.totalApiCalls || 0,          color: "#FF3B8E", glow: "rgba(255,59,142,0.12)" },
-        { icon: <Wallet size={16} />,   label: "Balance",   value: `₹${profile?.balance || 0}`,          color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
-        { icon: <Code2 size={16} />,    label: "APIs Used", value: profile?.selectedApis?.length || 0,   color: "#818CF8", glow: "rgba(99,102,241,0.12)" },
+        {
+            icon: <Activity size={16} />,
+            label: "API Calls",
+            value: actualApiCallCount !== null ? actualApiCallCount : "—",
+            color: "#FF3B8E",
+            glow: "rgba(255,59,142,0.12)"
+        },
+        {
+            icon: <Wallet size={16} />,
+            label: "Balance",
+            value: `₹${profile?.balance || 0}`,
+            color: "#A78BFA",
+            glow: "rgba(167,139,250,0.12)"
+        },
+        {
+            icon: <Code2 size={16} />,
+            label: "APIs Used",
+            value: profile?.selectedApis?.length || 0,
+            color: "#818CF8",
+            glow: "rgba(99,102,241,0.12)"
+        },
     ];
 
     return (
