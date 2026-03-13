@@ -1,23 +1,28 @@
+// baseURL: "http://localhost:5000/api"
+// baseURL: "http://192.168.11.241:6001/api"
+
+
 import axios from "axios";
 const axiosInstance = axios.create({
-  // baseURL: "http://localhost:5000/api",
-  baseURL: "http://192.168.11.241:6001/api",
+  // baseURL: "http://localhost:5000/api"
+  baseURL: "http://192.168.11.241:6001/api"
 
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-// ✅ Har request me client_id auto attach
 axiosInstance.interceptors.request.use(
   (config) => {
+    // client_id attach
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-
     if (user?.client_id) {
       config.params = {
         ...config.params,
         client_id: user.client_id,
       };
+    }
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    } else if (config.data) {
+      config.headers["Content-Type"] = "application/json";
     }
 
     return config;
@@ -26,4 +31,3 @@ axiosInstance.interceptors.request.use(
 );
 
 export default axiosInstance;
-

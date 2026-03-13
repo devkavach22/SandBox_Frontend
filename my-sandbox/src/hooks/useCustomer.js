@@ -28,10 +28,10 @@ export const useCustomer = () => {
         }
     };
 
-    // API select karo — seedha throw karo, try/catch nahi
+    // API select karo
     const selectApi = (userId, apiId) => selectApiAPI(userId, apiId);
 
-    // API deselect karo — seedha throw karo, try/catch nahi
+    // API deselect karo
     const deselectApi = (userId, apiId) => deselectApiAPI(userId, apiId);
 
     useEffect(() => {
@@ -41,28 +41,29 @@ export const useCustomer = () => {
     const fetchUserProfile = async (userId) => {
         try {
             const res = await getUserProfileAPI(userId);
-            return res.data; // { ...user, selectedApis: [...] }
+            return res.data;
         } catch (err) {
             setError(err.response?.data?.message || "Failed to fetch profile");
         }
     };
 
-    // Replace karo ye pura block
-    const callApi = ({ userId, apiId, requestBody = null, headers = {} }) =>
-        callSandboxAPI({ userId, apiId, requestBody, headers });
+
+    const callApi = ({ userId, apiId, requestBody = null, headers = {}, isFormData = false, urlOverride = null }) =>
+        callSandboxAPI({ userId, apiId, requestBody, headers, isFormData, urlOverride });
     const updateUserProfile = async (userId, data) => {
         try {
             setLoading(true);
             setError(null);
             const res = await updateUserProfileAPI(userId, data);
-            return res; // { ...updatedUser }
+            return res;
         } catch (err) {
             setError(err.response?.data?.message || "Failed to update profile");
-            throw err; // Profile page mein catch ho sake
+            throw err;
         } finally {
             setLoading(false);
         }
     };
+
     return {
         apis,
         loading,

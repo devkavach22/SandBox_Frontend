@@ -46,11 +46,11 @@ const showToast = (msg, type = "info") =>
 
 // ─── Avatar Picker ────────────────────────────────────────────────────────────
 function AvatarPicker({ value, onChange }) {
-    const fileRef   = useRef();
-    const videoRef  = useRef();
+    const fileRef = useRef();
+    const videoRef = useRef();
     const canvasRef = useRef();
     const streamRef = useRef(null);
-    const [mode,  setMode]  = useState("idle");
+    const [mode, setMode] = useState("idle");
     const [error, setError] = useState("");
 
     const startCamera = async () => {
@@ -165,14 +165,14 @@ export default function Profile() {
     const { fetchUserProfile, updateUserProfile } = useCustomer();
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const isAdmin    = storedUser?.role === "admin";
+    const isAdmin = storedUser?.role === "admin";
 
-    const [profile,      setProfile]      = useState(null);
-    const [loading,      setLoading]      = useState(true);
-    const [saving,       setSaving]       = useState(false);
-    const [editMode,     setEditMode]     = useState(false);
-    const [avatar,       setAvatar]       = useState(null);
-    const [form,         setForm]         = useState({ name: "", email: "", phone: "", client_id: "" });
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [avatar, setAvatar] = useState(null);
+    const [form, setForm] = useState({ name: "", email: "", phone: "", client_id: "" });
     const [actualApiCallCount, setActualApiCallCount] = useState(null); // ← real count from history
 
     useEffect(() => {
@@ -195,9 +195,9 @@ export default function Profile() {
             const profileData = data.status === "fulfilled" ? data.value : storedUser;
             setProfile(profileData);
             setForm({
-                name:      profileData.name || "",
-                email:     profileData.email || "",
-                phone:     profileData.phone || "",
+                name: profileData.name || "",
+                email: profileData.email || "",
+                phone: profileData.phone || "",
                 client_id: profileData.client_id || (isAdmin ? "SYSTEM_ADMIN" : "PENDING"),
             });
             if (profileData.avatar) setAvatar(profileData.avatar);
@@ -216,9 +216,9 @@ export default function Profile() {
         } catch {
             setProfile(storedUser);
             setForm({
-                name:      storedUser.name || "",
-                email:     storedUser.email || "",
-                phone:     storedUser.phone || "",
+                name: storedUser.name || "",
+                email: storedUser.email || "",
+                phone: storedUser.phone || "",
                 client_id: storedUser.client_id || "N/A",
             });
             setActualApiCallCount(storedUser?.totalApiCalls ?? 0);
@@ -235,8 +235,8 @@ export default function Profile() {
         try {
             setSaving(true);
             const res = await updateUserProfile(storedUser.id || storedUser._id, {
-                name:   form.name,
-                phone:  form.phone,
+                name: form.name,
+                phone: form.phone,
                 avatar: avatar || profile?.avatar || null,
             });
             const updated = res.data || res;
@@ -264,14 +264,14 @@ export default function Profile() {
     };
 
     const initials = profile?.name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-    const joinDate  = profile?.createdAt
+    const joinDate = profile?.createdAt
         ? new Date(profile.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
         : "—";
 
     // ✅ Use actualApiCallCount (from history) instead of profile.totalApiCalls
     const stats = isAdmin ? [
-        { icon: <ShieldCheck size={16} />, label: "Access Level", value: "Full Admin", color: "#FF3B8E",  glow: "rgba(255,59,142,0.12)" },
-        { icon: <Calendar size={16} />,    label: "Joined On",    value: joinDate,     color: "#A78BFA",  glow: "rgba(167,139,250,0.12)" },
+        { icon: <ShieldCheck size={16} />, label: "Access Level", value: "Full Admin", color: "#FF3B8E", glow: "rgba(255,59,142,0.12)" },
+        { icon: <Calendar size={16} />, label: "Joined On", value: joinDate, color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
     ] : [
         {
             icon: <Activity size={16} />,

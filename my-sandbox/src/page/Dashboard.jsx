@@ -12,10 +12,10 @@ import { getCustomerHistoryAPI } from "../services/customer.service";
 import { triggerAuthChange } from "../routes/AppRoutes";
 
 const METHOD_COLORS = {
-    GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
-    POST:   { bg: "rgba(255,59,142,0.08)",  border: "#FF3B8E", text: "#FF3B8E" },
-    PUT:    { bg: "rgba(99,102,241,0.08)",  border: "#6366F1", text: "#818CF8" },
-    DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#F87171" },
+    GET: { bg: "rgba(139,92,246,0.08)", border: "#8B5CF6", text: "#A78BFA" },
+    POST: { bg: "rgba(255,59,142,0.08)", border: "#FF3B8E", text: "#FF3B8E" },
+    PUT: { bg: "rgba(99,102,241,0.08)", border: "#6366F1", text: "#818CF8" },
+    DELETE: { bg: "rgba(239,68,68,0.08)", border: "#EF4444", text: "#F87171" },
 };
 
 const METHOD_FILTERS = ["ALL", "GET", "POST", "PUT", "DELETE"];
@@ -24,6 +24,7 @@ function getSectionKey(api) {
     const cat = (api.category || "").trim().toLowerCase();
     if (cat === "konverthr_odoo") return "konverthr_odoo";
     if (cat === "konverthr_node") return "konverthr_node";
+    if (cat === "konverthr_other") return "konverthr_other";
     const url = (api.url || "").toLowerCase();
     if (url.includes("odoo") || url.includes("/web/") || url.includes("jsonrpc")) return "konverthr_odoo";
     return "konverthr_node";
@@ -31,7 +32,8 @@ function getSectionKey(api) {
 
 const SECTIONS = [
     { key: "konverthr_node", label: "Node.js APIs", color: "#FF3B8E", border: "rgba(255,59,142,0.15)", glow: "rgba(255,59,142,0.06)" },
-    { key: "konverthr_odoo", label: "Odoo APIs",    color: "#A78BFA", border: "rgba(167,139,250,0.15)", glow: "rgba(167,139,250,0.06)" },
+    { key: "konverthr_odoo", label: "Odoo APIs", color: "#A78BFA", border: "rgba(167,139,250,0.15)", glow: "rgba(167,139,250,0.06)" },
+    { key: "konverthr_other", label: "Other APIs", color: "#34D399", border: "rgba(52,211,153,0.15)", glow: "rgba(52,211,153,0.06)" },
 ];
 
 export default function Dashboard() {
@@ -39,16 +41,16 @@ export default function Dashboard() {
     const { createOrder, verifyPayment, loading: paymentLoading } = usePayment();
     const { fetchUserProfile, deselectApi } = useCustomer();
 
-    const [user, setUser]                 = useState(null);
+    const [user, setUser] = useState(null);
     const [selectedApis, setSelectedApis] = useState([]);
-    const [showPayment, setShowPayment]   = useState(false);
-    const [amount, setAmount]             = useState(0);
-    const [balance, setBalance]           = useState(0);
+    const [showPayment, setShowPayment] = useState(false);
+    const [amount, setAmount] = useState(0);
+    const [balance, setBalance] = useState(0);
     const [apiCallCount, setApiCallCount] = useState(0);
     const [showAuthInfo, setShowAuthInfo] = useState(true);
-    const [copied, setCopied]             = useState(null);
-    const [toast, setToast]               = useState(null);
-    const [sandboxSearch,       setSandboxSearch]       = useState("");
+    const [copied, setCopied] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [sandboxSearch, setSandboxSearch] = useState("");
     const [sandboxMethodFilter, setSandboxMethodFilter] = useState("ALL");
 
     const quickAmounts = [100, 200, 500, 1000, 2000, 5000];
@@ -68,7 +70,7 @@ export default function Dashboard() {
         });
         getCustomerHistoryAPI(storedUser.id)
             .then((res) => setApiCallCount(res?.count ?? res?.data?.length ?? 0))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const handleLogout = () => {
@@ -135,13 +137,14 @@ export default function Dashboard() {
         return matchesSearch && matchesMethod;
     });
 
-    const nodeApis   = filteredApis.filter((a) => getSectionKey(a) === "konverthr_node");
-    const odooApis   = filteredApis.filter((a) => getSectionKey(a) === "konverthr_odoo");
+    const nodeApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_node");
+    const odooApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_odoo");
+    const otherApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_other");
     const isFiltering = sandboxSearch.trim() || sandboxMethodFilter !== "ALL";
 
-    const authRequestBody  = `{\n  "user_name": "Komal"\n}`;
+    const authRequestBody = `{\n  "user_name": "Komal"\n}`;
     const authResponseBody = `{\n  "status": "success",\n  "token": "4c16f70193749be219adb0ad6f9dd840",\n  "user_name": "Komal",\n  "message": "Existing valid token returned"\n}`;
-    const authEndpoint     = "https://staging.konverthr.com/api/auth";
+    const authEndpoint = "https://staging.konverthr.com/api/auth";
 
     // ── API Card ──
     const ApiCard = ({ api }) => {
@@ -259,7 +262,7 @@ export default function Dashboard() {
                             ? <img src={user.avatar} className="w-6 h-6 rounded-full object-cover border border-white/20" alt="" />
                             : <div className="w-6 h-6 bg-gradient-to-br from-[#FF3B8E]/30 to-[#8E44AD]/30 rounded-full flex items-center justify-center">
                                 <User size={12} className="text-[#FF3B8E]" />
-                              </div>}
+                            </div>}
                         <div>
                             <p className="text-xs font-black text-white">{user?.name}</p>
                             <p className="text-[10px] text-slate-500 capitalize">{user?.role}</p>
@@ -277,10 +280,10 @@ export default function Dashboard() {
                 {/* ─── STATS ─── */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {[
-                        { icon: <Activity size={20} />, value: apiCallCount,        label: "API CALLS",      color: "#FF3B8E", glow: "rgba(255,59,142,0.15)" },
-                        { icon: <Wallet   size={20} />, value: `₹${balance}`,       label: "WALLET BALANCE", color: "#A78BFA", glow: "rgba(167,139,250,0.15)" },
-                        { icon: <Code2    size={20} />, value: selectedApis.length, label: "MY APIS",        color: "#FF3B8E", glow: "rgba(255,59,142,0.15)" },
-                        { icon: <Timer    size={20} />, value: "124ms",             label: "AVG RESPONSE",   color: "#A78BFA", glow: "rgba(167,139,250,0.15)" },
+                        { icon: <Activity size={20} />, value: apiCallCount, label: "API CALLS", color: "#FF3B8E", glow: "rgba(255,59,142,0.15)" },
+                        { icon: <Wallet size={20} />, value: `₹${balance}`, label: "WALLET BALANCE", color: "#A78BFA", glow: "rgba(167,139,250,0.15)" },
+                        { icon: <Code2 size={20} />, value: selectedApis.length, label: "MY APIS", color: "#FF3B8E", glow: "rgba(255,59,142,0.15)" },
+                        { icon: <Timer size={20} />, value: "124ms", label: "AVG RESPONSE", color: "#A78BFA", glow: "rgba(167,139,250,0.15)" },
                     ].map((card, i) => (
                         <div key={i} style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.06)" }}
                             className="bg-[#0f0f0f] rounded-[1.5rem] p-6 hover:bg-[#141414] transition-all group relative overflow-hidden">
@@ -371,7 +374,7 @@ export default function Dashboard() {
                                         </div>
                                         <div className="rounded-2xl p-4" style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
                                             <pre className="text-[11px] leading-relaxed whitespace-pre-wrap">
-{`{
+                                                {`{
   "status": `}<span className="text-green-400">"success"</span>{`,
   "token": `}<span className="text-[#FF3B8E]">"4c16f70193749be219adb0ad6f9dd840"</span>{`,
   "user_name": `}<span className="text-[#A78BFA]">"Komal"</span>{`,
@@ -416,7 +419,7 @@ export default function Dashboard() {
                                             <p className="text-[9px] font-bold text-slate-500 tracking-[0.18em] uppercase mb-2 px-1">Example Signup / Login Response</p>
                                             <div className="rounded-xl p-4" style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
                                                 <pre className="text-[11px] leading-relaxed whitespace-pre-wrap">
-{`{
+                                                    {`{
   "status": `}<span className="text-green-400">"success"</span>{`,
   "user_id": `}<span className="text-[#A78BFA] font-bold">"64f3a1c2e8b12d0017a9c3f5"</span>{`,
   "user_name": `}<span className="text-[#FF3B8E]">"Komal"</span>{`,
@@ -495,18 +498,19 @@ export default function Dashboard() {
                         </div>
                     )}
 
-                    {/* ── Filter result pill — properly styled ── */}
+                    {/* ── Filter result pill ── */}
                     {selectedApis.length > 0 && isFiltering && (
                         <div className="flex items-center gap-2 mb-5">
-                            {/* Count badge */}
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
                                 style={{
                                     background: filteredApis.length > 0 ? "rgba(255,59,142,0.08)" : "rgba(100,116,139,0.08)",
                                     border: `1px solid ${filteredApis.length > 0 ? "rgba(255,59,142,0.2)" : "rgba(100,116,139,0.15)"}`,
                                 }}>
                                 <div className="w-1.5 h-1.5 rounded-full"
-                                    style={{ background: filteredApis.length > 0 ? "#FF3B8E" : "#64748b",
-                                             boxShadow: filteredApis.length > 0 ? "0 0 6px #FF3B8E" : "none" }} />
+                                    style={{
+                                        background: filteredApis.length > 0 ? "#FF3B8E" : "#64748b",
+                                        boxShadow: filteredApis.length > 0 ? "0 0 6px #FF3B8E" : "none"
+                                    }} />
                                 <span className="text-[11px] font-black"
                                     style={{ color: filteredApis.length > 0 ? "#FF3B8E" : "#64748b" }}>
                                     {filteredApis.length === 0
@@ -514,8 +518,6 @@ export default function Dashboard() {
                                         : `${filteredApis.length} of ${selectedApis.length} APIs`}
                                 </span>
                             </div>
-
-                            {/* Active filter tags */}
                             {sandboxMethodFilter !== "ALL" && (() => {
                                 const mc = METHOD_COLORS[sandboxMethodFilter];
                                 return (
@@ -539,8 +541,6 @@ export default function Dashboard() {
                                     </button>
                                 </div>
                             )}
-
-                            {/* Clear all */}
                             <button onClick={() => { setSandboxSearch(""); setSandboxMethodFilter("ALL"); }}
                                 className="flex items-center gap-1 text-[10px] font-black px-3 py-1.5 rounded-full transition-all"
                                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#64748b" }}
@@ -563,9 +563,16 @@ export default function Dashboard() {
                             </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                            <SectionColumn section={SECTIONS[0]} apis={nodeApis} />
-                            <SectionColumn section={SECTIONS[1]} apis={odooApis} />
+                        <div>
+                            {/* ── TOP ROW: Node.js | Odoo ── */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+                                <SectionColumn section={SECTIONS[0]} apis={nodeApis} />
+                                <SectionColumn section={SECTIONS[1]} apis={odooApis} />
+                            </div>
+                            {/* ── BOTTOM ROW: Other (full width) ── */}
+                            <div className="grid grid-cols-1 gap-5">
+                                <SectionColumn section={SECTIONS[2]} apis={otherApis} />
+                            </div>
                         </div>
                     )}
                 </div>
@@ -606,11 +613,10 @@ export default function Dashboard() {
                             <div className="grid grid-cols-3 gap-2">
                                 {quickAmounts.map((q) => (
                                     <button key={q} onClick={() => setAmount(q)}
-                                        className={`py-2.5 rounded-2xl text-xs font-black border transition-all ${
-                                            amount === q
+                                        className={`py-2.5 rounded-2xl text-xs font-black border transition-all ${amount === q
                                                 ? "bg-gradient-to-r from-[#FF3B8E]/20 to-[#8E44AD]/20 border-[#FF3B8E]/50 text-[#FF3B8E]"
                                                 : "bg-white/[0.02] border-white/[0.06] text-slate-500 hover:border-[#FF3B8E]/20 hover:text-white"
-                                        }`}>₹{q}
+                                            }`}>₹{q}
                                     </button>
                                 ))}
                             </div>

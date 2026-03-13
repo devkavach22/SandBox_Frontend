@@ -31,6 +31,14 @@ const SECTIONS = [
         glow:      "rgba(167,139,250,0.06)",
         lineColor: "rgba(167,139,250,0.1)",
     },
+    {
+        key:       "konverthr_other",
+        label:     "KonvertHR Other APIs",
+        color:     "#34D399",
+        border:    "rgba(52,211,153,0.15)",
+        glow:      "rgba(52,211,153,0.06)",
+        lineColor: "rgba(52,211,153,0.1)",
+    },
 ];
 
 const mkToast = (msg, shadow, iconBg) =>
@@ -60,8 +68,9 @@ const errorToast   = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.3), 0 8px
 
 function getSectionKey(api) {
     const cat = (api.category || "").trim().toLowerCase();
-    if (cat === "konverthr_odoo") return "konverthr_odoo";
-    if (cat === "konverthr_node") return "konverthr_node";
+    if (cat === "konverthr_odoo")  return "konverthr_odoo";
+    if (cat === "konverthr_node")  return "konverthr_node";
+    if (cat === "konverthr_other") return "konverthr_other";
     const url = (api.url || "").toLowerCase();
     if (url.includes("odoo") || url.includes("/web/") || url.includes("jsonrpc")) return "konverthr_odoo";
     return "konverthr_node";
@@ -86,9 +95,9 @@ export default function Apis() {
         );
     });
 
-    // Pre-split into two columns
-    const nodeApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_node");
-    const odooApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_odoo");
+    const nodeApis  = filteredApis.filter((a) => getSectionKey(a) === "konverthr_node");
+    const odooApis  = filteredApis.filter((a) => getSectionKey(a) === "konverthr_odoo");
+    const otherApis = filteredApis.filter((a) => getSectionKey(a) === "konverthr_other");
 
     const toggleSelect = async (apiId) => {
         const isSelected = selected.has(apiId);
@@ -207,7 +216,6 @@ export default function Apis() {
         );
     };
 
-    // Section column header
     const SectionHeader = ({ section, sectionApis }) => {
         const sectionSelected = sectionApis.filter((a) => selected.has(a._id)).length;
         const allInSection    = sectionApis.length > 0 && sectionApis.every((a) => selected.has(a._id));
@@ -388,12 +396,10 @@ export default function Apis() {
                             </div>
                         )}
 
-                        {/* ════════════════════════════════════════════════════
-                            ── TWO COLUMNS: Node.js (left) | Odoo (right) ──
-                        ════════════════════════════════════════════════════ */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                        {/* ── TOP ROW: Node.js | Odoo ── */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-                            {/* ── LEFT: Node.js ── */}
+                            {/* ── Node.js ── */}
                             <div className="rounded-[1.5rem] p-5"
                                 style={{ background: "#0a0a0a", border: "1px solid rgba(255,59,142,0.1)", boxShadow: "0 0 40px rgba(255,59,142,0.03)" }}>
                                 <SectionHeader section={SECTIONS[0]} sectionApis={nodeApis} />
@@ -407,7 +413,7 @@ export default function Apis() {
                                 )}
                             </div>
 
-                            {/* ── RIGHT: Odoo ── */}
+                            {/* ── Odoo ── */}
                             <div className="rounded-[1.5rem] p-5"
                                 style={{ background: "#0a0a0a", border: "1px solid rgba(167,139,250,0.1)", boxShadow: "0 0 40px rgba(167,139,250,0.03)" }}>
                                 <SectionHeader section={SECTIONS[1]} sectionApis={odooApis} />
@@ -421,6 +427,22 @@ export default function Apis() {
                                 )}
                             </div>
 
+                        </div>
+
+                        {/* ── BOTTOM ROW: Other (full width) ── */}
+                        <div className="mb-10">
+                            <div className="rounded-[1.5rem] p-5"
+                                style={{ background: "#0a0a0a", border: "1px solid rgba(52,211,153,0.1)", boxShadow: "0 0 40px rgba(52,211,153,0.03)" }}>
+                                <SectionHeader section={SECTIONS[2]} sectionApis={otherApis} />
+                                {otherApis.length === 0 ? (
+                                    <p className="text-slate-600 text-xs text-center py-10">No Other APIs match your search.</p>
+                                ) : (
+                                    <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1"
+                                        style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(52,211,153,0.2) transparent" }}>
+                                        {otherApis.map((api) => <ApiCard key={api._id} api={api} />)}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </>
                 )}
