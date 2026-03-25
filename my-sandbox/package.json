@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 6002",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start":"npx serve -s dist -l 6000"
+    "start": "npx serve -s dist -l 6002"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
