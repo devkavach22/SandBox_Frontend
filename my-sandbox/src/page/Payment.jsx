@@ -5,29 +5,10 @@ import {
     CreditCard, Search, User,
     X, ChevronDown, CheckCircle2, IndianRupee, TrendingUp, Wallet, Calendar
 } from "lucide-react";
-import toast from "react-hot-toast";
 import { getAllPaymentsAPI, getCustomerPaymentsAPI } from "../services/payment.service";
 import { getAllUsersAPI } from "../services/admin.service";
 import Navbar from "./Navbar";
-import { triggerAuthChange } from "../routes/AppRoutes"; // apna path adjust karein
-
-const infoToast = (msg) =>
-    toast.custom((t) => (
-        <div style={{
-            display: "flex", alignItems: "center", gap: "10px",
-            background: "#0a0a0a", color: "#fff", fontFamily: "Urbanist, sans-serif",
-            fontSize: "13px", padding: "12px 16px", borderRadius: "16px",
-            boxShadow: "0 0 0 1px rgba(255,59,142,0.2), 0 8px 32px rgba(0,0,0,0.5)",
-            maxWidth: "400px", opacity: t.visible ? 1 : 0,
-            transform: t.visible ? "translateY(0)" : "translateY(-8px)", transition: "all 0.2s ease",
-        }}>
-            <span style={{ flex: 1 }}>{msg}</span>
-            <button onClick={() => toast.dismiss(t.id)} style={{
-                background: "none", border: "none", color: "#888",
-                cursor: "pointer", padding: "2px", display: "flex", alignItems: "center",
-            }}><X size={13} /></button>
-        </div>
-    ), { duration: 3000 });
+import { triggerAuthChange } from "../routes/AppRoutes";
 
 const formatDate = (iso) =>
     new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
@@ -56,22 +37,23 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
             <button onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 px-3 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"
                 style={{
-                    background: "#0f0f0f",
-                    border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(255,255,255,0.08)"}`,
-                    color: value !== "ALL" ? "#FF3B8E" : "#64748b",
+                    background: "white",
+                    border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
+                    color: value !== "ALL" ? "#FF3B8E" : "#94a3b8",
                     minWidth: "130px",
+                    boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
                 }}>
-                {Icon && <Icon size={12} className="flex-shrink-0" style={{ color: value !== "ALL" ? "#FF3B8E" : "#64748b" }} />}
+                {Icon && <Icon size={12} className="flex-shrink-0" style={{ color: value !== "ALL" ? "#FF3B8E" : "#94a3b8" }} />}
                 <span className="flex-1 text-left truncate">{selected?.label || placeholder}</span>
-                <ChevronDown size={11} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-600"}`} />
+                <ChevronDown size={11} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
             </button>
             {open && (
                 <div style={{
                     position: "absolute", top: "calc(100% + 6px)", left: 0, minWidth: "100%",
-                    zIndex: 9999, background: "#0f0f0f",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    zIndex: 9999, background: "white",
+                    border: "1px solid rgba(0,0,0,0.08)",
                     borderRadius: "16px", overflow: "hidden",
-                    boxShadow: "0 16px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,59,142,0.08)",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,59,142,0.06)",
                 }}>
                     {options.map((opt, idx) => {
                         const isSel = value === opt.value;
@@ -79,14 +61,14 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
                             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
                                 style={{
-                                    background: isSel ? "rgba(255,59,142,0.08)" : "transparent",
+                                    background: isSel ? "rgba(255,59,142,0.05)" : "transparent",
                                     borderLeft: isSel ? "2px solid #FF3B8E" : "2px solid transparent",
-                                    borderBottom: idx < options.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                                    borderBottom: idx < options.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
                                     whiteSpace: "nowrap",
                                 }}
-                                onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                                onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                                 onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
-                                <p className="text-xs font-bold" style={{ color: isSel ? "#FF3B8E" : "#fff" }}>{opt.label}</p>
+                                <p className="text-xs font-bold" style={{ color: isSel ? "#FF3B8E" : "#1e293b" }}>{opt.label}</p>
                                 {isSel && <span className="ml-auto text-[#FF3B8E] text-xs font-black">✓</span>}
                             </button>
                         );
@@ -120,28 +102,29 @@ function CustomerDropdown({ customers, value, onChange }) {
             <button onClick={() => setOpen(!open)}
                 className="w-full flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all"
                 style={{
-                    background: "#0f0f0f",
-                    border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(255,255,255,0.08)"}`,
-                    color: selected ? "#FF3B8E" : "#64748b",
+                    background: "white",
+                    border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
+                    color: selected ? "#FF3B8E" : "#94a3b8",
+                    boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
                 }}>
                 {selected?.avatar
                     ? <img src={selected.avatar} className="w-5 h-5 rounded-full object-cover flex-shrink-0" alt="" />
                     : selected
                         ? <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                            style={{ background: "rgba(255,59,142,0.15)", border: "1px solid rgba(255,59,142,0.3)" }}>
+                            style={{ background: "rgba(255,59,142,0.12)", border: "1px solid rgba(255,59,142,0.3)" }}>
                             <span className="text-[7px] font-black text-[#FF3B8E]">{initials}</span>
                           </div>
-                        : <User size={12} className="text-slate-600 flex-shrink-0" />}
+                        : <User size={12} className="text-slate-400 flex-shrink-0" />}
                 <span className="flex-1 text-left truncate">{label}</span>
-                <ChevronDown size={12} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-600"}`} />
+                <ChevronDown size={12} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
             </button>
             {open && (
                 <div style={{
                     position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-                    zIndex: 9999, background: "#0f0f0f",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    zIndex: 9999, background: "white",
+                    border: "1px solid rgba(0,0,0,0.08)",
                     borderRadius: "16px", overflow: "hidden",
-                    boxShadow: "0 16px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,59,142,0.1)",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,59,142,0.06)",
                 }}>
                     {allOpts.map((opt, idx) => {
                         const isSel = value === opt.value;
@@ -150,29 +133,29 @@ function CustomerDropdown({ customers, value, onChange }) {
                             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
                                 style={{
-                                    background: isSel ? "rgba(255,59,142,0.08)" : "transparent",
+                                    background: isSel ? "rgba(255,59,142,0.05)" : "transparent",
                                     borderLeft: isSel ? "2px solid #FF3B8E" : "2px solid transparent",
-                                    borderBottom: idx < allOpts.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                                    borderBottom: idx < allOpts.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
                                 }}
-                                onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                                onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                                 onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
                                 {opt.value === "ALL"
                                     ? <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-                                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                                        <User size={13} className="text-slate-500" />
+                                        style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
+                                        <User size={13} className="text-slate-400" />
                                       </div>
                                     : opt.avatar
                                         ? <img src={opt.avatar} className="w-7 h-7 rounded-xl object-cover flex-shrink-0" alt="" />
                                         : <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-                                            style={{ background: "rgba(255,59,142,0.1)", border: "1px solid rgba(255,59,142,0.2)" }}>
+                                            style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
                                             <span className="text-[9px] font-black text-[#FF3B8E]">{oi}</span>
                                           </div>}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-bold truncate"
-                                        style={{ color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#64748b" : "#fff" }}>
+                                        style={{ color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>
                                         {opt.label}
                                     </p>
-                                    {opt.email && <p className="text-[10px] truncate text-slate-600" style={{ fontFamily: "monospace" }}>{opt.email}</p>}
+                                    {opt.email && <p className="text-[10px] truncate text-slate-400">{opt.email}</p>}
                                 </div>
                                 {isSel && <span className="text-[#FF3B8E] text-xs font-black">✓</span>}
                             </button>
@@ -186,8 +169,7 @@ function CustomerDropdown({ customers, value, onChange }) {
 
 // ─── Payment Row ──────────────────────────────────────────────────────────────
 function PaymentRow({ record, isAdmin }) {
-    const [hovered, setHovered] = useState(false);
-    const [copied,  setCopied]  = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const paymentId     = record.transaction_id || record.payment_id || "";
     const timestamp     = record.createdAt || record.timestamp || "";
@@ -203,110 +185,85 @@ function PaymentRow({ record, isAdmin }) {
 
     return (
         <div
-            className="relative flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 overflow-hidden cursor-pointer"
-            style={{
-                background: hovered ? "#141414" : "#0c0c0c",
-                boxShadow: hovered
-                    ? "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(255,59,142,0.25), 0 8px 32px rgba(0,0,0,0.3)"
-                    : "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06)",
-                transform: hovered ? "translateY(-1px)" : "translateY(0)",
-            }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+            className="relative flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 overflow-hidden group border hover:shadow-md hover:-translate-y-0.5"
+            style={{ background: "white", borderColor: "rgba(0,0,0,0.06)" }}
         >
-            <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl transition-all duration-300"
-                style={{ background: hovered ? "linear-gradient(to bottom, #FF3B8E, #8E44AD)" : "transparent" }} />
-            <div className="absolute inset-0 pointer-events-none transition-opacity duration-300 rounded-2xl"
-                style={{ background: "radial-gradient(ellipse at left center, rgba(255,59,142,0.08), transparent 60%)", opacity: hovered ? 1 : 0 }} />
+            {/* Hover glow */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
+                style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
+            {/* Bottom accent */}
+            <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
+                style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
 
-            <div className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300"
-                style={{
-                    background: hovered ? "rgba(255,59,142,0.15)" : "rgba(255,59,142,0.08)",
-                    border: "1px solid rgba(255,59,142,0.2)",
-                    transform: hovered ? "scale(1.1)" : "scale(1)",
-                }}>
+            {/* Icon */}
+            <div className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
                 <CheckCircle2 size={16} className="text-[#FF3B8E]" />
             </div>
 
+            {/* Customer info (admin only) */}
             {isAdmin && (
                 <div className="relative flex items-center gap-2 flex-shrink-0 w-36">
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)" }}>
-                        <span className="text-[9px] font-black text-[#A78BFA]">{initials || "?"}</span>
+                        style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.18)" }}>
+                        <span className="text-[9px] font-black text-[#8E44AD]">{initials || "?"}</span>
                     </div>
                     <div className="min-w-0">
-                        <p className="text-xs font-black truncate transition-colors duration-200"
-                            style={{ color: hovered ? "#fff" : "#e2e8f0" }}>{customerName}</p>
-                        <p className="text-[9px] truncate text-slate-600" style={{ fontFamily: "monospace" }}>{customerEmail}</p>
+                        <p className="text-xs font-black truncate text-gray-900">{customerName}</p>
+                        <p className="text-[9px] truncate text-slate-400">{customerEmail}</p>
                     </div>
                 </div>
             )}
 
+            {/* Payment ID */}
             <div className="relative flex-1 min-w-0">
-                <p className="text-[10px] text-slate-600 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
+                <p className="text-[10px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
                 <div className="flex items-center gap-2">
-                    <code className="text-xs text-slate-300 truncate transition-colors duration-200"
-                        style={{ fontFamily: "monospace", color: hovered ? "#94a3b8" : "#475569" }}>
-                        {paymentId || "—"}
-                    </code>
+                    <code className="text-xs text-slate-500 truncate">{paymentId || "—"}</code>
                     <button onClick={copyId}
                         className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-lg border transition-all"
                         style={copied
-                            ? { color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.1)" }
-                            : { color: "#475569", border: "1px solid rgba(255,255,255,0.08)", background: "transparent" }}>
+                            ? { color: "#16a34a", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.08)" }
+                            : { color: "#94a3b8", border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF" }}>
                         {copied ? "✓ Copied" : "Copy"}
                     </button>
                 </div>
             </div>
 
-            <div className="relative flex-shrink-0 text-center px-3 py-2 rounded-2xl transition-all duration-300"
-                style={{
-                    background: hovered ? "rgba(255,59,142,0.1)" : "transparent",
-                    border: hovered ? "1px solid rgba(255,59,142,0.2)" : "1px solid transparent",
-                }}>
-                <p className="text-[9px] text-slate-600 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
+            {/* Amount */}
+            <div className="relative flex-shrink-0 text-center px-3 py-2 rounded-2xl"
+                style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
+                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
                 <div className="flex items-center gap-0.5 justify-center">
-                    <IndianRupee size={13} className="text-[#FF3B8E]" />
-                    <span className="text-base font-black text-[#FF3B8E]" style={{ fontFamily: "monospace" }}>
+                    <IndianRupee size={12} className="text-[#FF3B8E]" />
+                    <span className="text-base font-black text-[#FF3B8E]">
                         {parseFloat(record.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </span>
                 </div>
             </div>
 
+            {/* Status */}
             <div className="relative flex-shrink-0 text-center hidden md:block">
-                <p className="text-[9px] text-slate-600 mb-0.5 uppercase tracking-wider font-bold">Status</p>
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full transition-all duration-300"
-                    style={{
-                        background: hovered ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.08)",
-                        color: "#4ade80",
-                        border: "1px solid rgba(34,197,94,0.25)",
-                        boxShadow: hovered ? "0 0 10px rgba(34,197,94,0.2)" : "none",
-                    }}>
+                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Status</p>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>
                     {record.status || "Success"}
                 </span>
             </div>
 
+            {/* Date */}
             <div className="relative flex-shrink-0 text-right hidden sm:block">
-                <p className="text-[9px] text-slate-600 mb-0.5 uppercase tracking-wider font-bold">Date</p>
-                <p className="text-[11px] font-bold transition-colors duration-200"
-                    style={{ fontFamily: "monospace", color: hovered ? "#94a3b8" : "#475569" }}>
-                    {timestamp ? formatDate(timestamp) : "—"}
-                </p>
+                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Date</p>
+                <p className="text-[11px] font-bold text-slate-500">{timestamp ? formatDate(timestamp) : "—"}</p>
             </div>
 
+            {/* Time ago */}
             <div className="relative flex-shrink-0 flex flex-col items-end gap-1">
-                <span className="text-[10px] font-bold px-3 py-1.5 rounded-full transition-all duration-300"
-                    style={{
-                        background: hovered ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        color: hovered ? "#94a3b8" : "#475569",
-                    }}>
+                <span className="text-[10px] font-bold px-3 py-1.5 rounded-full text-slate-400"
+                    style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
                     {timestamp ? timeAgo(timestamp) : "—"}
                 </span>
-                <span className="text-[9px] transition-colors duration-200"
-                    style={{ fontFamily: "monospace", color: hovered ? "#64748b" : "#374151" }}>
-                    {timestamp ? formatTime(timestamp) : ""}
-                </span>
+                <span className="text-[9px] text-slate-400">{timestamp ? formatTime(timestamp) : ""}</span>
             </div>
         </div>
     );
@@ -446,84 +403,96 @@ export default function Payment() {
         setFilterAmount("ALL"); setFilterMonth("ALL"); setFilterDate("ALL");
     };
 
-    // ── Logout fix ──
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        triggerAuthChange(); // ← same-tab state update trigger
+        triggerAuthChange();
         navigate("/login");
     };
 
     const stats = [
-        { label: "Total Transactions", value: totalTxns,   icon: <CreditCard size={18} />, color: "#FF3B8E",  glow: "rgba(255,59,142,0.12)" },
-        { label: "Total Collected",    value: `₹${totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, icon: <TrendingUp size={18} />, color: "#4ade80", glow: "rgba(34,197,94,0.12)" },
-        { label: "Avg Transaction",    value: `₹${avgAmount.toFixed(2)}`, icon: <Wallet size={18} />, color: "#818CF8", glow: "rgba(99,102,241,0.12)" },
+        { label: "Total Transactions", value: totalTxns,   color: "#FF3B8E", glow: "rgba(255,59,142,0.1)",  icon: <CreditCard size={18} /> },
+        { label: "Total Collected",    value: `₹${totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#16a34a", glow: "rgba(34,197,94,0.1)", icon: <TrendingUp size={18} /> },
+        { label: "Avg Transaction",    value: `₹${avgAmount.toFixed(2)}`, color: "#4F46E5", glow: "rgba(99,102,241,0.1)", icon: <Wallet size={18} /> },
         isAdmin
-            ? { label: "Unique Customers", value: uniqueCustomers, icon: <User size={18} />, color: "#A78BFA", glow: "rgba(167,139,250,0.12)" }
-            : { label: "Total Added",      value: `₹${totalAmount.toFixed(2)}`, icon: <Wallet size={18} />, color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
+            ? { label: "Unique Customers", value: uniqueCustomers, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <User size={18} /> }
+            : { label: "Total Added",      value: `₹${totalAmount.toFixed(2)}`, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <Wallet size={18} /> },
     ];
 
     return (
-        <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-x-hidden">
+        <div className="min-h-screen relative overflow-x-hidden"
+            style={{ background: "#F8F7FF", color: "#334155", fontFamily: "'Urbanist', sans-serif" }}>
 
-            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-900/10 blur-[120px] rounded-full z-0 pointer-events-none" />
+            {/* Glow blobs */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
+                style={{ background: "rgba(255,59,142,0.12)", filter: "blur(80px)" }} />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
+                style={{ background: "rgba(142,68,173,0.1)", filter: "blur(80px)" }} />
 
+            {/* ─── NAVBAR ─── */}
             <Navbar
-                showBack
-                badge="Payments"
-                badgeIcon={<CreditCard size={12} />}
+                showDashboardLinks
+                showLogout
+                user={user}
                 onLogout={handleLogout}
             />
 
-            <main className="relative z-10 pt-24 px-6 md:px-10 pb-16 max-w-6xl mx-auto">
+            <div className="relative z-10 px-6 md:px-10 pt-24 pb-16 max-w-6xl mx-auto">
 
+                {/* Page Title */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-black tracking-tight text-white mb-1">
+                    <h1 className="text-3xl font-black tracking-tight text-gray-900 mb-1">
                         {isAdmin ? "All Customers'" : "Your"}{" "}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FF3B8E] to-[#A29BFE]">Payment History</span>
+                        <span style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                            Payment History
+                        </span>
                     </h1>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-slate-400 text-sm">
                         {isAdmin ? "Complete payment log of all customers" : "All your wallet top-up transactions"}
                     </p>
                 </div>
 
                 {pageLoading ? (
                     <div className="flex items-center justify-center py-32">
-                        <div className="w-8 h-8 border-2 border-white/5 border-t-[#FF3B8E] rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-black/5 border-t-[#FF3B8E] rounded-full animate-spin" />
                     </div>
                 ) : (
                     <>
+                        {/* ─── Stats ─── */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                            {stats.map((s, i) => (
-                                <div key={i} className="rounded-[1.5rem] p-5 transition-all group relative overflow-hidden"
-                                    style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)" }}>
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-[1.5rem]"
-                                        style={{ background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%)` }} />
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="w-9 h-9 rounded-2xl flex items-center justify-center"
-                                            style={{ background: s.glow, border: `1px solid ${s.color}30` }}>
-                                            <span style={{ color: s.color }}>{s.icon}</span>
+                            {stats.map((card, i) => (
+                                <div key={i}
+                                    className="bg-white rounded-2xl p-6 border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group relative overflow-hidden cursor-default">
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
+                                        style={{ background: `radial-gradient(ellipse at top left, ${card.glow}, transparent 70%)` }} />
+                                    <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
+                                        style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
+                                    <div className="flex justify-between items-start mb-5">
+                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                                            style={{ background: card.glow, border: `1px solid ${card.color}30` }}>
+                                            <span style={{ color: card.color }}>{card.icon}</span>
                                         </div>
                                     </div>
-                                    <p className="text-2xl font-black mb-1.5" style={{ color: s.color }}>{s.value}</p>
-                                    <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">{s.label}</p>
+                                    <p className="text-3xl font-black mb-1.5" style={{ color: card.color }}>{card.value}</p>
+                                    <p className="text-[10px] text-slate-400 tracking-[0.2em] font-bold uppercase">{card.label}</p>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="flex flex-col gap-4 mb-6 p-5 rounded-[1.5rem]"
-                            style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)", overflow: "visible" }}>
+                        {/* ─── Filters ─── */}
+                        <div className="flex flex-col gap-4 mb-6 p-5 rounded-2xl bg-white border border-black/[0.06] shadow-sm"
+                            style={{ overflow: "visible" }}>
 
+                            {/* Row 1: Search + Customer */}
                             <div className="flex gap-3 items-center flex-wrap" style={{ overflow: "visible" }}>
                                 <div className="relative flex-1 min-w-[180px]">
-                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
+                                    <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     <input type="text" placeholder="Search payment ID or customer..." value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="w-full rounded-2xl pl-9 pr-4 py-2.5 text-white text-xs outline-none transition-all placeholder-slate-600"
-                                        style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)", fontFamily: "monospace" }}
-                                        onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                                        onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.06)"}
+                                        className="w-full rounded-2xl pl-9 pr-4 py-2.5 text-gray-900 text-sm outline-none transition-all placeholder-slate-400"
+                                        style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", fontFamily: "'Urbanist', sans-serif", caretColor: "#FF3B8E" }}
+                                        onFocus={e => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
+                                        onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
                                     />
                                 </div>
                                 {isAdmin && (
@@ -534,14 +503,15 @@ export default function Payment() {
                                 {hasFilters && (
                                     <button onClick={clearAll}
                                         className="flex items-center gap-1 text-[10px] font-bold px-3 py-2 rounded-full transition-all flex-shrink-0"
-                                        style={{ color: "#f87171", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                                        <X size={11} /> Clear All
+                                        style={{ color: "#dc2626", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                                        <X size={10} /> Clear All
                                     </button>
                                 )}
                             </div>
 
+                            {/* Row 2: Amount pills */}
                             <div className="flex items-center gap-2 flex-wrap">
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider flex-shrink-0 w-16">
+                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
                                     <IndianRupee size={10} /> Amt
                                 </div>
                                 {AMOUNT_OPTIONS.map((opt) => {
@@ -550,16 +520,17 @@ export default function Payment() {
                                         <button key={opt.value} onClick={() => setFilterAmount(opt.value)}
                                             className="px-3 py-1.5 rounded-full text-[10px] font-black border transition-all"
                                             style={isActive
-                                                ? { background: "rgba(255,59,142,0.1)", border: "1px solid rgba(255,59,142,0.4)", color: "#FF3B8E", boxShadow: "0 0 8px rgba(255,59,142,0.15)" }
-                                                : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#64748b" }}>
+                                                ? { background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.35)", color: "#FF3B8E", boxShadow: "0 0 8px rgba(255,59,142,0.1)" }
+                                                : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }}>
                                             {opt.value === "ALL" ? "All" : opt.label}
                                         </button>
                                     );
                                 })}
                             </div>
 
+                            {/* Row 3: Date dropdowns */}
                             <div className="flex items-center gap-2 flex-wrap" style={{ overflow: "visible" }}>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider flex-shrink-0 w-16">
+                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
                                     <Calendar size={10} /> Date
                                 </div>
                                 <CustomDropdown options={monthOptions} value={filterMonth} onChange={handleMonthChange} icon={Calendar} placeholder="All Months" />
@@ -568,19 +539,20 @@ export default function Payment() {
                                 )}
                             </div>
 
+                            {/* Active date filter pills */}
                             {(filterMonth !== "ALL" || filterDate !== "ALL") && (
-                                <div className="flex gap-2 flex-wrap pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                                    <span className="text-[9px] font-bold text-slate-600 uppercase self-center">Active:</span>
+                                <div className="flex gap-2 flex-wrap pt-2" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase self-center">Active:</span>
                                     {filterMonth !== "ALL" && (
                                         <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                                            style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818CF8" }}>
+                                            style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", color: "#4F46E5" }}>
                                             <Calendar size={9} /> {monthOptions.find(o => o.value === filterMonth)?.label}
                                             <button onClick={() => { setFilterMonth("ALL"); setFilterDate("ALL"); }}><X size={9} /></button>
                                         </span>
                                     )}
                                     {filterDate !== "ALL" && (
                                         <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                                            style={{ background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)", color: "#A78BFA" }}>
+                                            style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.2)", color: "#8E44AD" }}>
                                             <Calendar size={9} /> {dateOptions.find(o => o.value === filterDate)?.label}
                                             <button onClick={() => setFilterDate("ALL")}><X size={9} /></button>
                                         </span>
@@ -589,27 +561,30 @@ export default function Payment() {
                             )}
                         </div>
 
+                        {/* Count + total */}
                         <div className="flex items-center justify-between mb-4">
-                            <p className="text-[11px] text-slate-500">
+                            <p className="text-[11px] text-slate-400">
                                 Showing <span className="text-[#FF3B8E] font-bold">{filtered.length}</span> of {rawPayments.length} transactions
                             </p>
                             {totalAmount > 0 && (
-                                <p className="text-[11px] text-slate-500">
-                                    Filtered Total: <span className="font-bold text-[#FF3B8E]">
+                                <p className="text-[11px] text-slate-400">
+                                    Filtered Total:{" "}
+                                    <span className="font-bold text-[#FF3B8E]">
                                         ₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                                     </span>
                                 </p>
                             )}
                         </div>
 
+                        {/* List */}
                         {filtered.length === 0 ? (
-                            <div className="text-center py-20 rounded-[2rem]"
-                                style={{ border: "1px dashed rgba(255,255,255,0.08)" }}>
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                            <div className="rounded-3xl p-20 flex flex-col items-center justify-center gap-4"
+                                style={{ border: "1px dashed rgba(0,0,0,0.12)", background: "white" }}>
+                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
                                     style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)" }}>
                                     <CreditCard size={24} className="text-[#FF3B8E]" />
                                 </div>
-                                <p className="text-slate-500 text-sm">
+                                <p className="text-slate-400 text-sm">
                                     {rawPayments.length === 0 ? "No payments yet. Add balance to get started!" : "No records match your filters."}
                                 </p>
                             </div>
@@ -622,12 +597,11 @@ export default function Payment() {
                         )}
                     </>
                 )}
-            </main>
+            </div>
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
-                * { font-family: 'Urbanist', sans-serif; }
-                code, pre { font-family: 'JetBrains Mono', 'Fira Code', monospace !important; }
+                * { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; }
             `}</style>
         </div>
     );

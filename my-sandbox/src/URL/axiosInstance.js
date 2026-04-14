@@ -1,11 +1,6 @@
-// baseURL: "http://localhost:5000/api"
-// baseURL: "http://192.168.11.241:6001/api"
-
-
 import axios from "axios";
 const axiosInstance = axios.create({
-  // baseURL: "http://localhost:5000/api"
-  baseURL: "http://192.168.11.241:6001/api"
+  baseURL: "http://192.168.11.53:6001/api",
 
 });
 

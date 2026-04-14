@@ -14,9 +14,10 @@ const mkToast = (msg, shadow, iconBg) =>
     toast.custom((t) => (
         <div style={{
             display: "flex", alignItems: "center", gap: "10px",
-            background: "#0d0d0d", color: "#fff", fontFamily: "Urbanist, sans-serif",
+            background: "#ffffff", color: "#1a1a1a", fontFamily: "Urbanist, sans-serif",
             fontSize: "13px", padding: "12px 16px", borderRadius: "16px",
             boxShadow: shadow, maxWidth: "400px",
+            border: "1px solid rgba(0,0,0,0.06)",
             opacity: t.visible ? 1 : 0,
             transform: t.visible ? "translateY(0)" : "translateY(-8px)",
             transition: "all 0.2s ease",
@@ -31,25 +32,26 @@ const mkToast = (msg, shadow, iconBg) =>
             )}
             <span style={{ flex: 1 }}>{msg}</span>
             <button onClick={() => toast.dismiss(t.id)} style={{
-                background: "none", border: "none", color: "#888",
+                background: "none", border: "none", color: "#aaa",
                 cursor: "pointer", padding: "2px", display: "flex",
                 alignItems: "center", flexShrink: 0
             }}><X size={13} /></button>
         </div>
     ), { duration: 3500 });
 
-const successToast = (msg) => mkToast(msg, "0 0 0 1px #FF3B8E55, 0 8px 32px rgba(255,59,142,0.15)", "#FF3B8E");
-const errorToast   = (msg) => mkToast(msg, "0 0 0 1px #ff4b4b55, 0 8px 32px rgba(255,75,75,0.12)", null);
+const successToast = (msg) => mkToast(msg, "0 0 0 1px #FF3B8E33, 0 8px 32px rgba(255,59,142,0.12)", "#FF3B8E");
+const errorToast   = (msg) => mkToast(msg, "0 0 0 1px #ff4b4b33, 0 8px 32px rgba(255,75,75,0.10)", null);
 const loadingToast = (msg) => toast.custom((t) => (
     <div style={{
         display: "flex", alignItems: "center", gap: "10px",
-        background: "#0d0d0d", color: "#fff", fontFamily: "Urbanist, sans-serif",
+        background: "#ffffff", color: "#1a1a1a", fontFamily: "Urbanist, sans-serif",
         fontSize: "13px", padding: "12px 16px", borderRadius: "16px",
-        boxShadow: "0 0 0 1px #FF3B8E33, 0 8px 32px rgba(0,0,0,0.5)",
+        boxShadow: "0 0 0 1px #FF3B8E22, 0 8px 32px rgba(255,59,142,0.10)",
+        border: "1px solid rgba(0,0,0,0.06)",
         maxWidth: "400px", opacity: t.visible ? 1 : 0, transition: "opacity 0.2s"
     }}>
         <div style={{
-            width: "16px", height: "16px", border: "2px solid #333",
+            width: "16px", height: "16px", border: "2px solid #f3e8ff",
             borderTop: "2px solid #FF3B8E", borderRadius: "50%", flexShrink: 0,
             animation: "spin 0.7s linear infinite"
         }} />
@@ -73,7 +75,7 @@ function getStrength(p) {
         { label: "Weak",        color: "#f97316" },
         { label: "Fair",        color: "#eab308" },
         { label: "Strong",      color: "#FF3B8E" },
-        { label: "Very Strong", color: "#A78BFA" },
+        { label: "Very Strong", color: "#8E44AD" },
     ];
     return { score: s, ...l[s] };
 }
@@ -99,20 +101,20 @@ function PasswordReqs({ password }) {
     if (!password) return null;
     return (
         <div className="grid grid-cols-2 gap-1.5 p-3 rounded-xl mt-1"
-            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            style={{ background: "rgba(255,59,142,0.03)", border: "1px solid rgba(255,59,142,0.1)" }}>
             {reqs.map((r) => (
                 <div key={r.label} className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
                         style={{
-                            background: r.met ? "rgba(255,59,142,0.15)" : "transparent",
-                            border: `1px solid ${r.met ? "#FF3B8E" : "rgba(255,255,255,0.1)"}`,
+                            background: r.met ? "rgba(255,59,142,0.12)" : "transparent",
+                            border: `1px solid ${r.met ? "#FF3B8E" : "rgba(0,0,0,0.12)"}`,
                         }}>
-                        <span style={{ fontSize: "7px", color: r.met ? "#FF3B8E" : "#374151", fontWeight: 900 }}>
+                        <span style={{ fontSize: "7px", color: r.met ? "#FF3B8E" : "#cbd5e1", fontWeight: 900 }}>
                             {r.met ? "✓" : "·"}
                         </span>
                     </div>
                     <span className="text-[10px] transition-colors"
-                        style={{ color: r.met ? "#FF3B8E" : "#374151" }}>
+                        style={{ color: r.met ? "#FF3B8E" : "#94a3b8" }}>
                         {r.label}
                     </span>
                 </div>
@@ -169,19 +171,19 @@ function AvatarPicker({ value, onChange }) {
     if (mode === "preview" && value) {
         return (
             <div className="flex items-center gap-4 p-3 rounded-2xl"
-                style={{ background: "rgba(255,59,142,0.05)", border: "1px solid rgba(255,59,142,0.2)" }}>
+                style={{ background: "rgba(255,59,142,0.04)", border: "1px solid rgba(255,59,142,0.15)" }}>
                 <div className="relative flex-shrink-0">
                     <img src={value} alt="avatar" className="w-14 h-14 rounded-xl object-cover border-2"
-                        style={{ borderColor: "rgba(255,59,142,0.4)" }} />
+                        style={{ borderColor: "rgba(255,59,142,0.3)" }} />
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-lg"
                         style={{ background: "linear-gradient(135deg, #FF3B8E, #8E44AD)" }}>
                         <CheckCircle2 size={10} color="#fff" strokeWidth={3} />
                     </div>
                 </div>
                 <div>
-                    <p className="text-xs font-black text-white mb-1">Photo ready!</p>
+                    <p className="text-xs font-black text-gray-800 mb-1">Photo ready!</p>
                     <button onClick={reset}
-                        className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-red-400 transition-colors">
+                        className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-red-400 transition-colors">
                         <RefreshCw size={9} /> Change photo
                     </button>
                 </div>
@@ -192,7 +194,7 @@ function AvatarPicker({ value, onChange }) {
     if (mode === "camera") {
         return (
             <div className="rounded-2xl overflow-hidden relative"
-                style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
+                style={{ background: "#f1f0f8", border: "1px solid rgba(0,0,0,0.08)" }}>
                 <video ref={videoRef} autoPlay playsInline muted className="w-full h-40 object-cover" />
                 <canvas ref={canvasRef} className="hidden" />
                 <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
@@ -202,8 +204,8 @@ function AvatarPicker({ value, onChange }) {
                         <Camera size={12} /> Capture
                     </button>
                     <button onClick={stopCamera}
-                        className="flex items-center gap-1.5 font-bold text-xs px-4 py-2 rounded-full text-red-400"
-                        style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                        className="flex items-center gap-1.5 font-bold text-xs px-4 py-2 rounded-full text-red-500"
+                        style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
                         <X size={12} /> Cancel
                     </button>
                 </div>
@@ -216,43 +218,43 @@ function AvatarPicker({ value, onChange }) {
             <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => fileRef.current?.click()}
                     className="group flex items-center gap-3 p-3 rounded-2xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    style={{ background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.08)" }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(255,59,142,0.3)"}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"}>
+                    onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"}>
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(255,255,255,0.04)" }}>
-                        <Upload size={14} className="text-slate-500 group-hover:text-white transition-colors" />
+                        style={{ background: "rgba(255,59,142,0.06)" }}>
+                        <Upload size={14} className="text-slate-400 group-hover:text-[#FF3B8E] transition-colors" />
                     </div>
                     <div className="text-left">
-                        <p className="text-xs font-black text-slate-400 group-hover:text-white transition-colors">Upload</p>
-                        <p className="text-[9px] text-slate-600">JPG, PNG</p>
+                        <p className="text-xs font-black text-slate-500 group-hover:text-gray-800 transition-colors">Upload</p>
+                        <p className="text-[9px] text-slate-400">JPG, PNG</p>
                     </div>
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
                 <button type="button" onClick={startCamera}
                     className="group flex items-center gap-3 p-3 rounded-2xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    style={{ background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.08)" }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(255,59,142,0.3)"}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"}>
+                    onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(0,0,0,0.08)"}>
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(255,255,255,0.04)" }}>
-                        <Camera size={14} className="text-slate-500 group-hover:text-white transition-colors" />
+                        style={{ background: "rgba(255,59,142,0.06)" }}>
+                        <Camera size={14} className="text-slate-400 group-hover:text-[#FF3B8E] transition-colors" />
                     </div>
                     <div className="text-left">
-                        <p className="text-xs font-black text-slate-400 group-hover:text-white transition-colors">Camera</p>
-                        <p className="text-[9px] text-slate-600">Take selfie</p>
+                        <p className="text-xs font-black text-slate-500 group-hover:text-gray-800 transition-colors">Camera</p>
+                        <p className="text-[9px] text-slate-400">Take selfie</p>
                     </div>
                 </button>
             </div>
-            {error && <p className="text-[10px] text-red-400 mt-1.5">⚠ {error}</p>}
+            {error && <p className="text-[10px] text-red-500 mt-1.5">⚠ {error}</p>}
         </div>
     );
 }
 
 // ─── Main Register Page ───────────────────────────────────────────────────────
 export default function Register() {
-    const navigate            = useNavigate();
+    const navigate              = useNavigate();
     const { register, loading } = useAuth();
 
     const [form,        setForm]        = useState({ name:"", email:"", phone:"", password:"", confirm:"" });
@@ -263,8 +265,6 @@ export default function Register() {
     const [focused,     setFocused]     = useState("");
 
     const strength = getStrength(form.password);
-
-    // ✅ Password valid hai ki nahi
     const isPasswordValid = validatePassword(form.password) === "";
 
     const handleChange = (e) => {
@@ -294,7 +294,6 @@ export default function Register() {
 
         if (Object.keys(e2).length > 0) {
             setErrors(e2);
-            // ✅ Pehli error toast me dikhao — specific error
             const firstError = Object.values(e2)[0];
             errorToast(firstError);
             return;
@@ -315,48 +314,57 @@ export default function Register() {
             setTimeout(() => navigate("/login"), 1200);
         } catch (err) {
             toast.dismiss("loading-toast");
-            // ✅ Backend ka exact error
             errorToast(err.response?.data?.message || "Something went wrong!");
         }
     };
 
+    // ─── Light-theme input style ──────────────────────────────────────────────
     const inputBase = (field, extra = "") => ({
-        className: `w-full border rounded-2xl py-4 text-white text-sm placeholder-slate-700 outline-none transition-all ${extra}`,
+        className: `w-full border rounded-2xl py-4 text-slate-800 text-sm placeholder-slate-400 outline-none transition-all ${extra}`,
         style: {
-            background: "rgba(0,0,0,0.4)",
+            background: "rgba(255,255,255,0.85)",
             borderColor: errors[field]
                 ? "rgba(239,68,68,0.5)"
                 : focused === field
-                    ? "rgba(255,59,142,0.5)"
-                    : "rgba(255,255,255,0.05)",
+                    ? "rgba(255,59,142,0.45)"
+                    : "rgba(0,0,0,0.08)",
+            boxShadow: focused === field
+                ? `0 0 0 3px rgba(255,59,142,0.08)`
+                : "0 2px 8px rgba(0,0,0,0.04)",
         },
     });
 
     return (
-        <div className="min-h-screen bg-[#050505] text-slate-300 font-sans relative overflow-hidden flex items-center justify-center px-6 py-10">
+        <div className="min-h-screen bg-[#F8F7FF] text-slate-700 font-sans relative overflow-hidden flex items-center justify-center px-6 py-10">
 
-            {/* Ambient glows */}
-            <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] bg-violet-900/20 blur-[130px] rounded-full z-0 pointer-events-none" />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-rose-900/15 blur-[130px] rounded-full z-0 pointer-events-none" />
+            {/* Background blobs — same as landing page */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-pink-200/40 blur-[120px] rounded-full z-0 pointer-events-none" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-200/40 blur-[120px] rounded-full z-0 pointer-events-none" />
 
             <div className="relative z-10 w-full max-w-2xl">
-                <div className="bg-white/[0.03] border border-white/10 backdrop-blur-3xl p-8 rounded-[2.5rem] shadow-2xl">
+                <div className="p-8 rounded-[2.5rem]" style={{
+                    background: "rgba(255,255,255,0.75)",
+                    border: "1px solid rgba(255,255,255,0.9)",
+                    backdropFilter: "blur(40px)",
+                    WebkitBackdropFilter: "blur(40px)",
+                    boxShadow: "0 8px 48px rgba(255,59,142,0.08), 0 2px 16px rgba(0,0,0,0.06)",
+                }}>
 
                     {/* Header */}
                     <div className="flex items-center gap-3 mb-6 pb-6"
-                        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#FF3B8E] to-[#8E44AD] rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
+                        style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#FF3B8E] to-[#8E44AD] rounded-xl flex items-center justify-center shadow-md shadow-pink-200">
                             <Zap size={18} className="text-white fill-current" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="text-xl font-black text-white tracking-tight leading-tight">Create Account</h2>
-                            <p className="text-[11px] text-slate-500 mt-0.5">
+                            <h2 className="text-xl font-black text-gray-900 tracking-tight leading-tight">Create Account</h2>
+                            <p className="text-[11px] text-slate-400 mt-0.5">
                                 Sandbox<span className="text-[#FF3B8E]">Hub</span>
-                                <span className="text-slate-600"> · API Playground</span>
+                                <span className="text-slate-300"> · API Playground</span>
                             </p>
                         </div>
                         <Link to="/login"
-                            className="text-xs font-black text-[#FF3B8E] hover:opacity-80 transition-opacity uppercase tracking-tight">
+                            className="text-xs font-black text-[#FF3B8E] hover:opacity-70 transition-opacity uppercase tracking-tight">
                             Sign In →
                         </Link>
                     </div>
@@ -365,91 +373,90 @@ export default function Register() {
 
                         {/* Avatar */}
                         <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">
                                 Profile Photo
-                                <span className="text-slate-700 normal-case font-normal tracking-normal ml-1">— optional</span>
+                                <span className="text-slate-300 normal-case font-normal tracking-normal ml-1">— optional</span>
                             </label>
                             <AvatarPicker value={avatar} onChange={setAvatar} />
                         </div>
 
-                        <div style={{ height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)" }} />
+                        <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent)" }} />
 
                         {/* Name + Email + Phone */}
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">Full Name</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">Full Name</label>
                                 <div className="relative">
                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={15}
-                                        style={{ color: focused === "name" ? "#FF3B8E" : "#475569" }} />
+                                        style={{ color: focused === "name" ? "#FF3B8E" : "#94a3b8" }} />
                                     <input type="text" name="name" placeholder="Your name" value={form.name}
                                         onChange={handleChange}
                                         onFocus={() => setFocused("name")} onBlur={() => setFocused("")}
                                         {...inputBase("name", "pl-11 pr-4")} />
                                 </div>
-                                {errors.name && <p className="text-[9px] text-red-400 mt-1">{errors.name}</p>}
+                                {errors.name && <p className="text-[9px] text-red-500 mt-1">{errors.name}</p>}
                             </div>
 
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">Email</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">Email</label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={15}
-                                        style={{ color: focused === "email" ? "#FF3B8E" : "#475569" }} />
+                                        style={{ color: focused === "email" ? "#FF3B8E" : "#94a3b8" }} />
                                     <input type="email" name="email" placeholder="name@co.com" value={form.email}
                                         onChange={handleChange} maxLength={80}
                                         onFocus={() => setFocused("email")} onBlur={() => setFocused("")}
                                         {...inputBase("email", "pl-11 pr-4")} />
                                 </div>
-                                {errors.email && <p className="text-[9px] text-red-400 mt-1">{errors.email}</p>}
+                                {errors.email && <p className="text-[9px] text-red-500 mt-1">{errors.email}</p>}
                             </div>
 
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">Phone Number</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">Phone Number</label>
                                 <div className="relative">
                                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={15}
-                                        style={{ color: focused === "phone" ? "#FF3B8E" : "#475569" }} />
+                                        style={{ color: focused === "phone" ? "#FF3B8E" : "#94a3b8" }} />
                                     <input type="tel" name="phone" placeholder="10-digit" value={form.phone}
                                         onChange={handleChange} maxLength={10}
                                         onFocus={() => setFocused("phone")} onBlur={() => setFocused("")}
                                         {...inputBase("phone", "pl-11 pr-14")} />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold"
-                                        style={{ color: form.phone.length === 10 ? "#FF3B8E" : "#374151" }}>
+                                        style={{ color: form.phone.length === 10 ? "#FF3B8E" : "#cbd5e1" }}>
                                         {form.phone.length}/10
                                     </span>
                                 </div>
-                                {errors.phone && <p className="text-[9px] text-red-400 mt-1">{errors.phone}</p>}
+                                {errors.phone && <p className="text-[9px] text-red-500 mt-1">{errors.phone}</p>}
                             </div>
                         </div>
 
-                        <div style={{ height:"1px", background:"linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)" }} />
+                        <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent)" }} />
 
                         {/* Password + Confirm */}
                         <div className="grid grid-cols-2 gap-4">
 
                             {/* Password */}
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">Password</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">Password</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={15}
-                                        style={{ color: focused === "password" ? "#FF3B8E" : "#475569" }} />
+                                        style={{ color: focused === "password" ? "#FF3B8E" : "#94a3b8" }} />
                                     <input type={showPass ? "text" : "password"} name="password"
                                         placeholder="Min 8 · Max 18" value={form.password}
                                         onChange={handleChange} maxLength={18}
                                         onFocus={() => setFocused("password")} onBlur={() => setFocused("")}
                                         {...inputBase("password", "pl-11 pr-11")} />
                                     <button type="button" onClick={() => setShowPass(!showPass)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#FF3B8E] transition-colors">
-                                        {showPass ? <EyeOff size={14}/> : <Eye size={14}/>}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF3B8E] transition-colors">
+                                        {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                                     </button>
                                 </div>
-                                {/* ✅ Error OR strength bar */}
                                 {errors.password
-                                    ? <p className="text-[9px] text-red-400 mt-1">{errors.password}</p>
+                                    ? <p className="text-[9px] text-red-500 mt-1">{errors.password}</p>
                                     : form.password && (
                                         <div className="mt-1.5">
                                             <div className="flex gap-0.5 mb-1">
-                                                {[1,2,3,4,5].map((i) => (
+                                                {[1, 2, 3, 4, 5].map((i) => (
                                                     <div key={i} className="h-1 flex-1 rounded-full transition-all duration-300"
-                                                        style={{ background: i <= strength.score ? strength.color : "rgba(255,255,255,0.06)" }}/>
+                                                        style={{ background: i <= strength.score ? strength.color : "rgba(0,0,0,0.08)" }} />
                                                 ))}
                                             </div>
                                             <p className="text-[9px] font-black" style={{ color: strength.color }}>{strength.label}</p>
@@ -460,41 +467,42 @@ export default function Register() {
 
                             {/* Confirm */}
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2">Confirm</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">Confirm</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={15}
-                                        style={{ color: focused === "confirm" ? "#FF3B8E" : "#475569" }} />
+                                        style={{ color: focused === "confirm" ? "#FF3B8E" : "#94a3b8" }} />
                                     <input type={showConfirm ? "text" : "password"} name="confirm"
                                         placeholder="Re-enter password" value={form.confirm}
                                         onChange={handleChange} maxLength={18}
                                         onFocus={() => setFocused("confirm")} onBlur={() => setFocused("")}
-                                        className="w-full border rounded-2xl py-4 pl-11 pr-11 text-white text-sm placeholder-slate-700 outline-none transition-all"
+                                        className="w-full border rounded-2xl py-4 pl-11 pr-11 text-slate-800 text-sm placeholder-slate-400 outline-none transition-all"
                                         style={{
-                                            background: "rgba(0,0,0,0.4)",
+                                            background: "rgba(255,255,255,0.85)",
                                             borderColor: errors.confirm
                                                 ? "rgba(239,68,68,0.5)"
                                                 : form.confirm && isPasswordValid && form.password === form.confirm
                                                     ? "rgba(255,59,142,0.4)"
                                                     : focused === "confirm"
-                                                        ? "rgba(255,59,142,0.5)"
-                                                        : "rgba(255,255,255,0.05)",
+                                                        ? "rgba(255,59,142,0.45)"
+                                                        : "rgba(0,0,0,0.08)",
+                                            boxShadow: focused === "confirm"
+                                                ? "0 0 0 3px rgba(255,59,142,0.08)"
+                                                : "0 2px 8px rgba(0,0,0,0.04)",
                                         }} />
                                     <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#FF3B8E] transition-colors">
-                                        {showConfirm ? <EyeOff size={14}/> : <Eye size={14}/>}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF3B8E] transition-colors">
+                                        {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
                                     </button>
                                 </div>
-
-                                {/* ✅ Match sirf tab dikhao jab password bhi valid ho */}
                                 {errors.confirm
-                                    ? <p className="text-[9px] text-red-400 mt-1">{errors.confirm}</p>
+                                    ? <p className="text-[9px] text-red-500 mt-1">{errors.confirm}</p>
                                     : form.confirm && isPasswordValid && form.password === form.confirm
                                         ? <p className="text-[9px] text-[#FF3B8E] font-bold mt-1 flex items-center gap-1">
-                                            <CheckCircle2 size={9}/> Match
+                                            <CheckCircle2 size={9} /> Match
                                           </p>
                                         : form.confirm && form.password !== form.confirm
-                                            ? <p className="text-[9px] text-red-400 mt-1 flex items-center gap-1">
-                                                <X size={9}/> No match
+                                            ? <p className="text-[9px] text-red-500 mt-1 flex items-center gap-1">
+                                                <X size={9} /> No match
                                               </p>
                                             : null
                                 }
@@ -506,10 +514,11 @@ export default function Register() {
 
                         {/* Submit */}
                         <button type="submit" disabled={loading}
-                            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF3B8E] to-[#8E44AD] text-white font-black text-base flex items-center justify-center gap-2 shadow-xl shadow-pink-500/10 active:scale-95 transition-all mt-2 disabled:opacity-60">
+                            className="w-full py-4 rounded-2xl text-white font-black text-base flex items-center justify-center gap-2 shadow-lg shadow-pink-200 active:scale-95 transition-all mt-2 disabled:opacity-60"
+                            style={{ background: "linear-gradient(135deg, #FF3B8E, #8E44AD)" }}>
                             {loading
-                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
-                                : <><Rocket size={16}/> Create Account</>
+                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <><Rocket size={16} /> Create Account</>
                             }
                         </button>
                     </form>
@@ -518,7 +527,7 @@ export default function Register() {
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
-                body { font-family: 'Urbanist', sans-serif; }
+                body { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; }
             `}</style>
         </div>
     );
