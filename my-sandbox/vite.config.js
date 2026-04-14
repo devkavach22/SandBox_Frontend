@@ -1,27 +1,25 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [
+    react(),    
     tailwindcss(),
   ],
 
   server: {
-    host: true, // Allow external access
+    host: '0.0.0.0', // allow access from localhost + IP + domain
+    port: 8080,
+    strictPort: true,
 
-    // All domains you listed
     allowedHosts: [
       'sandbox.kavachglobal.com',
-      '110.226.96.148'
+      '110.226.96.148',
+      '192.168.11.226',
+      '172.18.16.1',
+      'localhost',
+      '*'
     ],
-
-    // Useful for HMR when accessed through proxy/other domain
-    hmr: {
-      host: 'sandbox.kavachglobal.com',
-      protocol: 'https'
-    },
-
-    // Optional: set main origin for generated asset URLs
-    origin: 'https://sandbox.kavachglobal.com:5173'
   }
 })
