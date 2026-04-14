@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Zap, ArrowLeft, LogOut, ShieldCheck, History,
-    CreditCard, Plus, User, Menu, X
+    CreditCard, Plus, User, Menu, X, LayoutDashboard
 } from "lucide-react";
 import { triggerAuthChange } from "../routes/AppRoutes";
 
@@ -107,7 +107,7 @@ export default function Navbar({
                 .nb-drawer {
                     position: fixed;
                     top: 57px;
-                    left: 0; right: 0;   /* full width */
+                    left: 0; right: 0;
                     z-index: 49;
                     background: white;
                     border-bottom: 1px solid rgba(0,0,0,0.07);
@@ -240,6 +240,11 @@ export default function Navbar({
                 <div className="nb-desktop">
                     {showDashboardLinks && (
                         <>
+                            {/* ── DASHBOARD BUTTON (NEW) ── */}
+                            <button className="nb-btn" onClick={() => navigate("/dashboard")}>
+                                <LayoutDashboard size={13} /> DASHBOARD
+                            </button>
+
                             <button className="nb-btn-primary" onClick={onAddBalance}>
                                 <Plus size={13} /> ADD BALANCE
                             </button>
@@ -311,7 +316,7 @@ export default function Navbar({
                     {/* Dim overlay — click to close */}
                     <div className="nb-overlay" onClick={() => setMenuOpen(false)} />
 
-                    {/* Drawer panel — stretches edge to edge */}
+                    {/* Drawer panel */}
                     <div className="nb-drawer">
 
                         {/* User info */}
@@ -338,6 +343,15 @@ export default function Navbar({
                         {/* Dashboard links */}
                         {showDashboardLinks && (
                             <>
+                                {/* ── DASHBOARD BUTTON (NEW) ── */}
+                                <button className="nb-dr-item" onClick={() => go("/dashboard")}>
+                                    <div className="nb-dr-icon"><LayoutDashboard size={17} /></div>
+                                    <div>
+                                        <div className="nb-dr-label">Dashboard</div>
+                                        <div className="nb-dr-sublabel">Go to your sandbox</div>
+                                    </div>
+                                </button>
+
                                 <button className="nb-dr-item nb-dr-item-primary" onClick={() => { setMenuOpen(false); onAddBalance?.(); }}>
                                     <div className="nb-dr-icon nb-dr-icon-primary"><Plus size={17} /></div>
                                     <div>

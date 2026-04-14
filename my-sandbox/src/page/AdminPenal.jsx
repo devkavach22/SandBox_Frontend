@@ -5,7 +5,8 @@ import {
     LogOut, Plus, X, Trash2, Edit3,
     ShieldCheck, ToggleLeft, ToggleRight,
     IndianRupee, Save, Users, Eye, History, CreditCard,
-    Upload, FileText, Image, File, CheckCircle2
+    Upload, FileText, Image, File, CheckCircle2, Activity,
+    TrendingUp, AlertCircle, Wallet, User
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAdmin } from "../hooks/useAdmin";
@@ -13,26 +14,27 @@ import Navbar from "./Navbar";
 import { triggerAuthChange } from "../routes/AppRoutes";
 
 const METHOD_COLORS = {
-    GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#A78BFA" },
+    GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#7C3AED" },
     POST:   { bg: "rgba(255,59,142,0.08)",  border: "#FF3B8E", text: "#FF3B8E" },
-    PUT:    { bg: "rgba(99,102,241,0.08)",  border: "#6366F1", text: "#818CF8" },
-    DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#F87171" },
+    PUT:    { bg: "rgba(99,102,241,0.08)",  border: "#6366F1", text: "#4F46E5" },
+    DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#DC2626" },
 };
 
 const CATEGORIES = [
-    { value: "konverthr_node",  label: "KonvertHR Node.js APIs", color: "#FF3B8E", glow: "rgba(255,59,142,0.12)" },
-    { value: "konverthr_odoo",  label: "KonvertHR Odoo APIs",    color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
-    { value: "konverthr_other", label: "KonvertHR Other APIs",   color: "#34D399", glow: "rgba(52,211,153,0.12)"  },
+    { value: "konverthr_node",  label: "KonvertHR Node.js APIs", color: "#FF3B8E", glow: "rgba(255,59,142,0.08)" },
+    { value: "konverthr_odoo",  label: "KonvertHR Odoo APIs",    color: "#8B5CF6", glow: "rgba(139,92,246,0.08)" },
+    { value: "konverthr_other", label: "KonvertHR Other APIs",   color: "#16a34a", glow: "rgba(34,197,94,0.08)"  },
 ];
 
 const mkToast = (msg, shadow, iconBg) =>
     toast.custom((t) => (
         <div style={{
             display: "flex", alignItems: "center", gap: "10px",
-            background: "#0a0a0a", color: "#fff", fontFamily: "Urbanist, sans-serif",
+            background: "#fff", color: "#0f172a", fontFamily: "Urbanist, sans-serif",
             fontSize: "13px", padding: "12px 16px", borderRadius: "16px",
             boxShadow: shadow, maxWidth: "400px", opacity: t.visible ? 1 : 0,
             transform: t.visible ? "translateY(0)" : "translateY(-8px)", transition: "all 0.2s ease",
+            border: "1px solid rgba(0,0,0,0.07)",
         }}>
             {iconBg && <span style={{
                 width: "20px", height: "20px", borderRadius: "50%", background: iconBg,
@@ -41,14 +43,14 @@ const mkToast = (msg, shadow, iconBg) =>
             }}>✓</span>}
             <span style={{ flex: 1 }}>{msg}</span>
             <button onClick={() => toast.dismiss(t.id)} style={{
-                background: "none", border: "none", color: "#888", cursor: "pointer", padding: "2px",
+                background: "none", border: "none", color: "#94a3b8", cursor: "pointer", padding: "2px",
             }}><X size={13} /></button>
         </div>
     ), { duration: 3000 });
 
-const successToast = (msg) => mkToast(msg, "0 0 0 1px rgba(255,59,142,0.3), 0 8px 32px rgba(255,59,142,0.12)", "#FF3B8E");
-const errorToast   = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.3), 0 8px 32px rgba(239,68,68,0.12)", null);
-const infoToast    = (msg) => mkToast(msg, "0 0 0 1px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.5)", null);
+const successToast = (msg) => mkToast(msg, "0 0 0 1px rgba(255,59,142,0.2), 0 8px 32px rgba(255,59,142,0.12)", "#FF3B8E");
+const errorToast   = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.2), 0 8px 32px rgba(239,68,68,0.12)", null);
+const infoToast    = (msg) => mkToast(msg, "0 0 0 1px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)", null);
 
 const EMPTY_FORM = {
     name: "", url: "", method: "POST", price: "0.10",
@@ -64,7 +66,6 @@ function getFileIcon(file) {
     if (file.type === "application/pdf" || file.name.endsWith(".pdf")) return <FileText size={14} />;
     return <File size={14} />;
 }
-
 function formatBytes(bytes) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -77,88 +78,130 @@ function FileUploadZone({ files, onChange }) {
     const [dragging, setDragging] = useState(false);
 
     const handleDrop = (e) => {
-        e.preventDefault();
-        setDragging(false);
-        const dropped = Array.from(e.dataTransfer.files);
-        onChange([...files, ...dropped]);
+        e.preventDefault(); setDragging(false);
+        onChange([...files, ...Array.from(e.dataTransfer.files)]);
     };
-
     const handleFileInput = (e) => {
-        const selected = Array.from(e.target.files);
-        onChange([...files, ...selected]);
+        onChange([...files, ...Array.from(e.target.files)]);
         e.target.value = "";
     };
-
-    const removeFile = (idx) => {
-        onChange(files.filter((_, i) => i !== idx));
-    };
+    const removeFile = (idx) => onChange(files.filter((_, i) => i !== idx));
 
     return (
         <div>
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">
-                Attachments <span className="text-slate-700 normal-case font-normal">(optional)</span>
+            <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>
+                Attachments <span style={{ color: "#cbd5e1", textTransform: "none", fontWeight: 400 }}>(optional)</span>
             </label>
-
-            {/* Drop Zone */}
             <div
                 onClick={() => inputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
-                className="w-full rounded-2xl flex flex-col items-center justify-center gap-2 py-6 cursor-pointer transition-all"
                 style={{
-                    background: dragging ? "rgba(255,59,142,0.06)" : "#080808",
-                    border: `1.5px dashed ${dragging ? "#FF3B8E" : "rgba(255,255,255,0.1)"}`,
+                    width: "100%", borderRadius: 16, display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: 8, padding: "24px 0",
+                    cursor: "pointer", transition: "all 0.18s ease", boxSizing: "border-box",
+                    background: dragging ? "rgba(255,59,142,0.04)" : "#F8F7FF",
+                    border: `1.5px dashed ${dragging ? "#FF3B8E" : "rgba(0,0,0,0.1)"}`,
                 }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
-                    style={{
-                        background: dragging ? "rgba(255,59,142,0.15)" : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${dragging ? "rgba(255,59,142,0.4)" : "rgba(255,255,255,0.08)"}`,
-                    }}>
-                    <Upload size={16} style={{ color: dragging ? "#FF3B8E" : "#475569" }} />
+                <div style={{
+                    width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: dragging ? "rgba(255,59,142,0.1)" : "white",
+                    border: `1px solid ${dragging ? "rgba(255,59,142,0.3)" : "rgba(0,0,0,0.08)"}`,
+                    transition: "all 0.18s ease",
+                }}>
+                    <Upload size={15} style={{ color: dragging ? "#FF3B8E" : "#94a3b8" }} />
                 </div>
-                <p className="text-[11px] font-bold text-slate-500">
+                <p style={{ fontSize: 11, fontWeight: 700, color: dragging ? "#FF3B8E" : "#94a3b8", margin: 0 }}>
                     {dragging ? "Drop files here" : "Click or drag & drop files"}
                 </p>
-                <p className="text-[9px] text-slate-700">Any file type · Max 10MB each</p>
-                <input
-                    ref={inputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileInput}
-                />
+                <p style={{ fontSize: 9, color: "#cbd5e1", margin: 0 }}>Any file type · Max 10MB each</p>
+                <input ref={inputRef} type="file" multiple style={{ display: "none" }} onChange={handleFileInput} />
             </div>
-
-            {/* File List */}
             {files.length > 0 && (
-                <div className="mt-2.5 space-y-1.5">
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
                     {files.map((file, idx) => (
-                        <div key={idx}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-                            style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.07)" }}>
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)", color: "#FF3B8E" }}>
-                                {getFileIcon(file)}
+                        <div key={idx} style={{
+                            display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
+                            borderRadius: 12, background: "white", border: "1px solid rgba(0,0,0,0.07)",
+                        }}>
+                            <div style={{
+                                width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+                                flexShrink: 0, background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)", color: "#FF3B8E",
+                            }}>{getFileIcon(file)}</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, color: "#0f172a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file.name}</p>
+                                <p style={{ fontSize: 9, color: "#94a3b8", margin: 0 }}>{formatBytes(file.size)}</p>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-bold text-white truncate">{file.name}</p>
-                                <p className="text-[9px] text-slate-600">{formatBytes(file.size)}</p>
-                            </div>
-                            <CheckCircle2 size={13} className="text-[#34D399] flex-shrink-0" />
-                            <button
-                                type="button"
-                                onClick={() => removeFile(idx)}
-                                className="w-5 h-5 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
-                                style={{ color: "#f87171" }}
-                                onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.12)"}
-                                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                                <X size={10} strokeWidth={3} />
-                            </button>
+                            <CheckCircle2 size={13} style={{ color: "#16a34a", flexShrink: 0 }} />
+                            <button type="button" onClick={() => removeFile(idx)} style={{
+                                width: 20, height: 20, borderRadius: 6, display: "flex", alignItems: "center",
+                                justifyContent: "center", border: "none", background: "transparent", cursor: "pointer", color: "#dc2626",
+                            }}><X size={10} strokeWidth={3} /></button>
                         </div>
                     ))}
                 </div>
             )}
+        </div>
+    );
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+function StatCard({ label, value, Icon, accentColor, glowColor, borderHover, badge, subtext, subtext2, loading }) {
+    const [hovered, setHovered] = useState(false);
+    return (
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                background: "white", border: `1px solid ${hovered ? borderHover : "rgba(0,0,0,0.06)"}`,
+                borderRadius: 20, padding: "18px 20px 16px", cursor: "default",
+                position: "relative", overflow: "hidden", transition: "transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease",
+                transform: hovered ? "translateY(-3px)" : "translateY(0)",
+                boxShadow: hovered ? `0 12px 32px ${glowColor}` : "0 1px 4px rgba(0,0,0,0.04)",
+            }}
+        >
+            <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                background: accentColor, borderRadius: "20px 20px 0 0",
+                opacity: hovered ? 1 : 0, transition: "opacity 0.22s ease",
+            }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div style={{
+                    width: 34, height: 34, borderRadius: 11, background: glowColor, border: `1px solid ${borderHover}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                    <Icon size={15} style={{ color: accentColor }} />
+                </div>
+                {badge && (
+                    <span style={{
+                        fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 100,
+                        background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`,
+                        letterSpacing: "0.04em", whiteSpace: "nowrap",
+                    }}>{badge.text}</span>
+                )}
+            </div>
+            <p style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, margin: "0 0 4px", color: accentColor }}>
+                {loading ? "—" : value}
+            </p>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", margin: "0 0 12px" }}>
+                {label}
+            </p>
+            <div style={{ height: 1, background: "rgba(0,0,0,0.05)", margin: "0 0 10px" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {subtext && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext.label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext.color || "#64748b" }}>{subtext.value}</span>
+                    </div>
+                )}
+                {subtext2 && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext2.label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext2.color || "#64748b" }}>{subtext2.value}</span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -169,20 +212,23 @@ function ApiFormModal({ initial, onClose, onSave }) {
     const [files, setFiles] = useState([]);
     const methods = ["GET", "POST", "PUT", "DELETE"];
 
+    const inputStyle = {
+        width: "100%", borderRadius: 12, padding: "10px 14px", fontSize: 13,
+        color: "#0f172a", outline: "none", background: "#F8F7FF",
+        border: "1px solid rgba(0,0,0,0.08)", fontFamily: "monospace",
+        boxSizing: "border-box", transition: "border-color 0.18s, box-shadow 0.18s",
+    };
+    const focusStyle = (e) => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; };
+    const blurStyle  = (e) => { e.target.style.borderColor = "rgba(0,0,0,0.08)";   e.target.style.boxShadow = "none"; };
+
     const handleSave = () => {
         if (!form.name.trim()) { errorToast("API name required."); return; }
         if (!form.url.trim())  { errorToast("API URL required."); return; }
         const price = parseFloat(form.price);
         if (isNaN(price) || price < 0) { errorToast("Valid price required."); return; }
-
-        // Validate file sizes (max 10MB each)
         for (const file of files) {
-            if (file.size > 10 * 1024 * 1024) {
-                errorToast(`"${file.name}" exceeds 10MB limit.`);
-                return;
-            }
+            if (file.size > 10 * 1024 * 1024) { errorToast(`"${file.name}" exceeds 10MB limit.`); return; }
         }
-
         let parsedSampleBody = null, parsedSampleResponse = null;
         if (form.sampleBody.trim()) {
             try { parsedSampleBody = JSON.parse(form.sampleBody); }
@@ -192,172 +238,171 @@ function ApiFormModal({ initial, onClose, onSave }) {
             try { parsedSampleResponse = JSON.parse(form.sampleResponse); }
             catch { errorToast("Sample Response valid JSON nahi hai!"); return; }
         }
-        onSave({
-            ...form,
-            price: parseFloat(form.price),
-            sampleBody: parsedSampleBody,
-            sampleResponse: parsedSampleResponse,
-            files,
-        });
+        onSave({ ...form, price: parseFloat(form.price), sampleBody: parsedSampleBody, sampleResponse: parsedSampleResponse, files });
         onClose();
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-            style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}
-            onClick={(e) => e.target === e.currentTarget && onClose()}>
-
-            <div className="w-full max-w-3xl rounded-[2rem] p-7 max-h-[90vh] overflow-y-auto"
-                style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.8)" }}>
-
+        <div style={{
+            position: "fixed", inset: 0, zIndex: 100, display: "flex",
+            alignItems: "center", justifyContent: "center", padding: 16,
+            background: "rgba(15,23,42,0.6)", backdropFilter: "blur(12px)",
+        }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div style={{
+                width: "100%", maxWidth: 760, borderRadius: 28, padding: 28,
+                maxHeight: "90vh", overflowY: "auto", background: "white",
+                boxShadow: "0 0 0 1px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.2)",
+            }}>
                 {/* Header */}
-                <div className="flex items-center justify-between mb-7">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
                     <div>
-                        <h2 className="text-lg font-black text-white">{initial ? "Edit API" : "Add New API"}</h2>
-                        <p className="text-[11px] text-slate-500 mt-0.5">Fill in the API details below</p>
+                        <div style={{
+                            display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700,
+                            letterSpacing: "0.08em", textTransform: "uppercase", color: "#FF3B8E",
+                            background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.18)",
+                            borderRadius: 100, padding: "3px 10px", marginBottom: 8,
+                        }}>
+                            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF3B8E", display: "inline-block" }} />
+                            {initial ? "Edit API" : "New API"}
+                        </div>
+                        <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: 0 }}>{initial ? "Edit API Details" : "Add New API"}</h2>
+                        <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>Fill in the details below to {initial ? "update" : "register"} an API</p>
                     </div>
-                    <button onClick={onClose}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-red-400 transition-all"
-                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <X size={14} />
-                    </button>
+                    <button onClick={onClose} style={{
+                        width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF", cursor: "pointer", color: "#94a3b8",
+                    }}><X size={14} /></button>
                 </div>
 
-                <div className="space-y-4">
-
-                    {/* Row 1 — Name + Price */}
-                    <div className="grid grid-cols-2 gap-4">
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Row 1 – Name + Price */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                         <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">API Name *</label>
+                            <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>API Name *</label>
                             <input type="text" placeholder="e.g. Send SMS" value={form.name}
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                className="w-full rounded-2xl px-4 py-3 text-white text-sm outline-none transition-all placeholder-slate-700"
-                                style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace" }}
-                                onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                                style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">Price per Call (₹) *</label>
-                            <div className="relative">
-                                <IndianRupee size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+                            <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>Price per Call (₹) *</label>
+                            <div style={{ position: "relative" }}>
+                                <IndianRupee size={13} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
                                 <input type="number" min="0" step="0.01" placeholder="0.50" value={form.price}
                                     onChange={(e) => setForm({ ...form, price: e.target.value })}
-                                    className="w-full rounded-2xl pl-10 pr-4 py-3 text-white text-sm outline-none transition-all placeholder-slate-700"
-                                    style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace" }}
-                                    onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                                    style={{ ...inputStyle, paddingLeft: 32 }} onFocus={focusStyle} onBlur={blurStyle} />
                             </div>
                         </div>
                     </div>
 
-                    {/* Row 2 — Method + URL */}
+                    {/* Row 2 – Method + URL */}
                     <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">Method & Endpoint *</label>
-                        <div className="flex gap-2">
-                            <div className="flex gap-1 flex-shrink-0">
+                        <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>Method & Endpoint *</label>
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
                                 {methods.map((m) => {
                                     const c = METHOD_COLORS[m];
                                     return (
                                         <button key={m} type="button" onClick={() => setForm({ ...form, method: m })}
-                                            className="px-2.5 py-2.5 rounded-xl text-[9px] font-black border transition-all"
-                                            style={form.method === m
-                                                ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
-                                                : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", color: "#64748b" }}>
-                                            {m}
-                                        </button>
+                                            style={{
+                                                padding: "8px 10px", borderRadius: 10, fontSize: 9, fontWeight: 900, cursor: "pointer",
+                                                transition: "all 0.15s ease", fontFamily: "Urbanist, sans-serif", letterSpacing: "0.04em",
+                                                ...(form.method === m
+                                                    ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
+                                                    : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }),
+                                            }}>{m}</button>
                                     );
                                 })}
                             </div>
                             <input type="text" placeholder="https://api.example.com/endpoint" value={form.url}
                                 onChange={(e) => setForm({ ...form, url: e.target.value })}
-                                className="flex-1 rounded-2xl px-3 py-3 text-white text-xs outline-none transition-all min-w-0 placeholder-slate-700"
-                                style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace" }}
-                                onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                                onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                                style={{ ...inputStyle, flex: 1, minWidth: 0 }} onFocus={focusStyle} onBlur={blurStyle} />
                         </div>
                     </div>
 
-                    {/* Row 3 — Description */}
+                    {/* Row 3 – Description */}
                     <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">Description</label>
+                        <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>Description</label>
                         <input type="text" placeholder="What does this API do?" value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            className="w-full rounded-2xl px-4 py-3 text-white text-sm outline-none transition-all placeholder-slate-700"
-                            style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace" }}
-                            onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                            onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                            style={inputStyle} onFocus={focusStyle} onBlur={blurStyle} />
                     </div>
 
-                    {/* Row 4 — Sample Body + Sample Response */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Row 4 – Sample Body + Response */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                         {[
                             { label: "Sample Request Body", key: "sampleBody", placeholder: '{\n  "key": "value"\n}' },
                             { label: "Sample Response", key: "sampleResponse", placeholder: '{\n  "status": "ok",\n  "data": {}\n}' },
                         ].map(({ label, key, placeholder }) => (
                             <div key={key}>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-1.5">
-                                    {label} <span className="text-slate-700 normal-case font-normal">(JSON)</span>
+                                <label style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", display: "block", marginBottom: 6 }}>
+                                    {label} <span style={{ color: "#cbd5e1", textTransform: "none", fontWeight: 400 }}>(JSON)</span>
                                 </label>
-                                <textarea rows={8} placeholder={placeholder}
-                                    value={form[key]}
+                                <textarea rows={8} placeholder={placeholder} value={form[key]}
                                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                                    className="w-full rounded-2xl px-4 py-3 text-white text-xs outline-none transition-all resize-none placeholder-slate-700"
-                                    style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace" }}
-                                    onFocus={e => e.target.style.borderColor = "rgba(255,59,142,0.4)"}
-                                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"} />
+                                    style={{ ...inputStyle, resize: "none", lineHeight: 1.6 }}
+                                    onFocus={focusStyle} onBlur={blurStyle} />
                             </div>
                         ))}
                     </div>
 
-                    {/* Row 5 — File Upload */}
+                    {/* Row 5 – File Upload */}
                     <FileUploadZone files={files} onChange={setFiles} />
 
-                    {/* Row 6 — Category + Toggle + Save */}
-                    <div className="flex items-center gap-3 mt-2">
-
-                        {/* Category Pills */}
-                        <div className="flex gap-1.5 flex-shrink-0">
+                    {/* Row 6 – Category + Toggle + Save */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                        {/* Category pills */}
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                             {CATEGORIES.map((cat) => (
                                 <button key={cat.value} type="button"
                                     onClick={() => setForm({ ...form, category: cat.value })}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
-                                    style={form.category === cat.value
-                                        ? { background: `${cat.glow}`, border: `1px solid ${cat.color}50`, color: cat.color }
-                                        : { background: "#080808", border: "1px solid rgba(255,255,255,0.06)", color: "#475569" }
-                                    }>
-                                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                        style={{ background: form.category === cat.value ? cat.color : "#374151" }} />
-                                    {cat.value === "konverthr_node"
-                                        ? "Node.js"
-                                        : cat.value === "konverthr_odoo"
-                                        ? "Odoo"
-                                        : "Other"}
+                                    style={{
+                                        display: "flex", alignItems: "center", gap: 6,
+                                        padding: "6px 12px", borderRadius: 100, fontSize: 10, fontWeight: 800,
+                                        cursor: "pointer", fontFamily: "Urbanist, sans-serif", transition: "all 0.15s ease",
+                                        letterSpacing: "0.04em", textTransform: "uppercase",
+                                        ...(form.category === cat.value
+                                            ? { background: cat.glow, border: `1px solid ${cat.color}50`, color: cat.color }
+                                            : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }),
+                                    }}>
+                                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: form.category === cat.value ? cat.color : "#cbd5e1" }} />
+                                    {cat.value === "konverthr_node" ? "Node.js" : cat.value === "konverthr_odoo" ? "Odoo" : "Other"}
                                 </button>
                             ))}
                         </div>
 
                         {/* Divider */}
-                        <div className="w-px h-8 flex-shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
+                        <div style={{ width: 1, height: 32, background: "rgba(0,0,0,0.07)", flexShrink: 0 }} />
 
                         {/* Toggle */}
-                        <div className="flex items-center justify-between flex-1 p-3 rounded-2xl"
-                            style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
+                        <div style={{
+                            flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between",
+                            padding: "10px 14px", borderRadius: 14, background: "#F8F7FF",
+                            border: "1px solid rgba(0,0,0,0.07)", minWidth: 180,
+                        }}>
                             <div>
-                                <p className="text-xs font-bold text-white">Visible to Customers</p>
-                                <p className="text-[10px] text-slate-500">Enable to show this API</p>
+                                <p style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", margin: 0 }}>Visible to Customers</p>
+                                <p style={{ fontSize: 10, color: "#94a3b8", margin: 0 }}>Enable to show this API</p>
                             </div>
-                            <button type="button" onClick={() => setForm({ ...form, enabled: !form.enabled })}>
+                            <button type="button" onClick={() => setForm({ ...form, enabled: !form.enabled })} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                                 {form.enabled
-                                    ? <ToggleRight size={26} className="text-[#FF3B8E]" />
-                                    : <ToggleLeft size={26} className="text-slate-600" />}
+                                    ? <ToggleRight size={26} style={{ color: "#FF3B8E" }} />
+                                    : <ToggleLeft size={26} style={{ color: "#94a3b8" }} />}
                             </button>
                         </div>
 
-                        {/* Save */}
-                        <button onClick={handleSave}
-                            className="flex-shrink-0 text-white font-black rounded-2xl py-3 px-5 text-sm uppercase tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-pink-500/20"
-                            style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)" }}>
-                            <Save size={14} /> {initial ? "Save" : "Add API"}
+                        {/* Save button */}
+                        <button onClick={handleSave} style={{
+                            flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+                            padding: "10px 20px", borderRadius: 100, fontSize: 12, fontWeight: 900,
+                            color: "white", border: "none", cursor: "pointer",
+                            background: "linear-gradient(to right, #FF3B8E, #8E44AD)",
+                            boxShadow: "0 4px 16px rgba(255,59,142,0.3)",
+                            transition: "transform 0.15s, box-shadow 0.15s", letterSpacing: "0.04em",
+                            textTransform: "uppercase", fontFamily: "Urbanist, sans-serif",
+                        }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,59,142,0.4)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(255,59,142,0.3)"; }}>
+                            <Save size={13} /> {initial ? "Save" : "Add API"}
                         </button>
                     </div>
                 </div>
@@ -368,68 +413,78 @@ function ApiFormModal({ initial, onClose, onSave }) {
 
 // ─── API Row ──────────────────────────────────────────────────────────────────
 function ApiRow({ api, onToggle, onEdit, onDelete }) {
+    const [hovered, setHovered] = useState(false);
     const mc = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
     return (
-        <div className="flex items-center gap-4 p-4 rounded-2xl transition-all"
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
             style={{
-                background: api.enabled ? "#0c0c0c" : "#080808",
-                boxShadow: api.enabled
-                    ? "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06)"
-                    : "0 0 0 1px rgba(255,255,255,0.04)",
-                opacity: api.enabled ? 1 : 0.5,
+                display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderRadius: 14,
+                background: hovered ? "rgba(255,59,142,0.02)" : "rgba(248,247,255,0.7)",
+                border: `1px solid ${hovered ? "rgba(255,59,142,0.18)" : "rgba(0,0,0,0.05)"}`,
+                transform: hovered ? "translateX(3px)" : "translateX(0)",
+                transition: "all 0.2s ease", opacity: api.enabled ? 1 : 0.55,
+                position: "relative", overflow: "hidden",
             }}>
-            <span className="text-[9px] font-black px-2 py-1 rounded-lg flex-shrink-0"
-                style={{ background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40` }}>
-                {api.method}
-            </span>
+            {/* Left accent */}
+            <div style={{
+                position: "absolute", left: 0, top: 0, bottom: 0, width: 3,
+                background: api.enabled ? "linear-gradient(180deg,#FF3B8E,#8E44AD)" : "#cbd5e1",
+                borderRadius: "14px 0 0 14px", opacity: hovered ? 1 : 0.4, transition: "opacity 0.2s",
+            }} />
 
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-bold text-sm text-white truncate">{api.name}</p>
+            {/* Method badge */}
+            <span style={{
+                fontSize: 9, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
+                background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`, letterSpacing: "0.04em",
+            }}>{api.method}</span>
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2, flexWrap: "wrap" }}>
+                    <p style={{ fontWeight: 800, fontSize: 13, color: "#0f172a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{api.name}</p>
                     {!api.enabled && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
-                            Hidden
-                        </span>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 100, flexShrink: 0, background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", color: "#dc2626" }}>Hidden</span>
                     )}
                     {api.sampleResponse && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", color: "#4ade80" }}>
-                            Preview ✓
-                        </span>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 100, flexShrink: 0, background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)", color: "#16a34a" }}>Preview ✓</span>
                     )}
                     {api.attachments?.length > 0 && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 flex items-center gap-1"
-                            style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818CF8" }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 100, flexShrink: 0, background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.2)", color: "#4F46E5" }}>
                             <Upload size={8} /> {api.attachments.length}
                         </span>
                     )}
                 </div>
-                <p className="text-[11px] text-slate-500 truncate">{api.description}</p>
-                <code className="text-[10px] text-slate-700" style={{ fontFamily: "monospace" }}>{api.url}</code>
+                <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{api.description}</p>
+                <code style={{ fontSize: 10, color: "#cbd5e1" }}>{api.url}</code>
             </div>
 
-            <div className="text-right flex-shrink-0">
-                <p className="font-black text-[#FF3B8E]" style={{ fontFamily: "monospace" }}>₹{api.pricePerCall}</p>
-                <p className="text-[9px] text-slate-600">per call</p>
+            {/* Price */}
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <p style={{ fontWeight: 900, color: "#FF3B8E", margin: 0, fontFamily: "monospace" }}>₹{api.pricePerCall}</p>
+                <p style={{ fontSize: 9, color: "#94a3b8", margin: 0 }}>per call</p>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
-                <button onClick={() => onToggle(api._id)}>
-                    {api.enabled
-                        ? <ToggleRight size={22} className="text-[#FF3B8E]" />
-                        : <ToggleLeft size={22} className="text-slate-600" />}
+            {/* Actions */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                <button onClick={() => onToggle(api._id)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                    {api.enabled ? <ToggleRight size={22} style={{ color: "#FF3B8E" }} /> : <ToggleLeft size={22} style={{ color: "#94a3b8" }} />}
                 </button>
-                <button onClick={() => onEdit(api)}
-                    className="w-7 h-7 rounded-xl flex items-center justify-center transition-all"
-                    style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", color: "#818CF8" }}
+                <button onClick={() => onEdit(api)} style={{
+                    width: 28, height: 28, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", border: "1px solid rgba(99,102,241,0.2)", background: "rgba(99,102,241,0.07)", color: "#4F46E5",
+                    transition: "border-color 0.15s",
+                }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)"}
                     onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(99,102,241,0.2)"}>
                     <Edit3 size={12} />
                 </button>
-                <button onClick={() => onDelete(api._id)}
-                    className="w-7 h-7 rounded-xl flex items-center justify-center transition-all"
-                    style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}
+                <button onClick={() => onDelete(api._id)} style={{
+                    width: 28, height: 28, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.07)", color: "#dc2626",
+                    transition: "border-color 0.15s",
+                }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(239,68,68,0.5)"}
                     onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)"}>
                     <Trash2 size={12} />
@@ -442,138 +497,129 @@ function ApiRow({ api, onToggle, onEdit, onDelete }) {
 // ─── Customer Card ────────────────────────────────────────────────────────────
 function CustomerCard({ customer, onClick }) {
     const [hovered, setHovered] = useState(false);
-    const initials = customer.name
-        ? customer.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-        : "??";
+    const initials = customer.name ? customer.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "??";
     const joinDate = customer.createdAt
-        ? new Date(customer.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-        : "—";
+        ? new Date(customer.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
     return (
         <div onClick={() => onClick(customer)}
-            className="rounded-2xl p-5 cursor-pointer relative overflow-hidden transition-all duration-200"
-            style={{
-                background: hovered ? "#141414" : "#0c0c0c",
-                boxShadow: hovered
-                    ? "inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 1px rgba(255,59,142,0.25), 0 8px 24px rgba(0,0,0,0.3)"
-                    : "inset 0 1px 0 rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06)",
-                transform: hovered ? "translateY(-2px)" : "translateY(0)",
-            }}
             onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}>
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                borderRadius: 20, padding: 20, cursor: "pointer", position: "relative", overflow: "hidden",
+                background: "white",
+                border: `1px solid ${hovered ? "rgba(255,59,142,0.25)" : "rgba(0,0,0,0.06)"}`,
+                transform: hovered ? "translateY(-3px)" : "translateY(0)",
+                boxShadow: hovered ? "0 12px 32px rgba(255,59,142,0.1)" : "0 1px 4px rgba(0,0,0,0.04)",
+                transition: "all 0.22s ease",
+            }}>
+            {/* Top accent bar */}
+            <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                background: "linear-gradient(to right, #FF3B8E, #8E44AD)", borderRadius: "20px 20px 0 0",
+                opacity: hovered ? 1 : 0, transition: "opacity 0.22s ease",
+            }} />
 
-            <div className="absolute inset-0 pointer-events-none transition-opacity duration-200 rounded-2xl"
-                style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.07), transparent 70%)", opacity: hovered ? 1 : 0 }} />
-            <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl transition-all duration-200"
-                style={{ background: hovered ? "linear-gradient(to bottom, #FF3B8E, #8E44AD)" : "transparent" }} />
-
-            <div className="relative flex items-center gap-3 mb-4">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                 {customer.avatar ? (
                     <img src={customer.avatar} alt={customer.name}
-                        className="w-12 h-12 rounded-2xl object-cover flex-shrink-0 transition-all duration-200"
-                        style={{ border: `2px solid ${hovered ? "rgba(255,59,142,0.4)" : "rgba(255,255,255,0.08)"}` }} />
+                        style={{ width: 48, height: 48, borderRadius: 14, objectFit: "cover", flexShrink: 0, border: `2px solid ${hovered ? "rgba(255,59,142,0.3)" : "rgba(0,0,0,0.07)"}`, transition: "border-color 0.2s" }} />
                 ) : (
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
-                        style={{
-                            background: hovered ? "rgba(255,59,142,0.15)" : "rgba(255,59,142,0.08)",
-                            border: `2px solid ${hovered ? "rgba(255,59,142,0.4)" : "rgba(255,59,142,0.15)"}`,
-                        }}>
-                        <span className="text-sm font-black text-[#FF3B8E]">{initials}</span>
+                    <div style={{
+                        width: 48, height: 48, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                        background: hovered ? "rgba(255,59,142,0.1)" : "rgba(255,59,142,0.06)",
+                        border: `2px solid ${hovered ? "rgba(255,59,142,0.3)" : "rgba(255,59,142,0.12)"}`,
+                        transition: "all 0.2s",
+                    }}>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: "#FF3B8E" }}>{initials}</span>
                     </div>
                 )}
-                <div className="min-w-0 flex-1">
-                    <p className="font-black text-sm truncate transition-colors duration-200"
-                        style={{ color: hovered ? "#fff" : "#e2e8f0" }}>{customer.name}</p>
-                    <p className="text-[11px] text-slate-600 truncate" style={{ fontFamily: "monospace" }}>{customer.email}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 800, fontSize: 14, color: "#0f172a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{customer.name}</p>
+                    <p style={{ fontSize: 11, color: "#94a3b8", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "monospace" }}>{customer.email}</p>
                 </div>
-                <Eye size={14} className="transition-colors duration-200 flex-shrink-0"
-                    style={{ color: hovered ? "#FF3B8E" : "#374151" }} />
+                <Eye size={14} style={{ color: hovered ? "#FF3B8E" : "#cbd5e1", transition: "color 0.2s", flexShrink: 0 }} />
             </div>
 
-            <div className="h-px mb-4" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <div style={{ height: 1, background: "rgba(0,0,0,0.05)", marginBottom: 14 }} />
 
-            <div className="relative grid grid-cols-3 gap-2 text-center">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, textAlign: "center" }}>
                 {[
-                    { value: customer.selectedApis?.length || 0, label: "APIs",    color: "#A78BFA" },
+                    { value: customer.selectedApis?.length || 0, label: "APIs",    color: "#8B5CF6" },
                     { value: `₹${customer.balance || 0}`,        label: "Balance", color: "#FF3B8E" },
-                    { value: customer.totalCalls || 0,           label: "Calls",   color: "#818CF8" },
+                    { value: customer.totalCalls || 0,           label: "Calls",   color: "#4F46E5" },
                 ].map((s, i) => (
-                    <div key={i}>
-                        <p className="text-base font-black" style={{ color: s.color, fontFamily: "monospace" }}>{s.value}</p>
-                        <p className="text-[9px] text-slate-600 uppercase tracking-wider font-bold">{s.label}</p>
+                    <div key={i} style={{ padding: "8px 4px", borderRadius: 10, background: "#F8F7FF" }}>
+                        <p style={{ fontSize: 18, fontWeight: 900, color: s.color, margin: 0, fontFamily: "monospace" }}>{s.value}</p>
+                        <p style={{ fontSize: 9, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, margin: 0 }}>{s.label}</p>
                     </div>
                 ))}
             </div>
-
-            <p className="relative text-[10px] text-slate-700 mt-3" style={{ fontFamily: "monospace" }}>Joined {joinDate}</p>
+            <p style={{ fontSize: 10, color: "#cbd5e1", marginTop: 10, fontFamily: "monospace" }}>Joined {joinDate}</p>
         </div>
     );
 }
 
 // ─── Customer Detail Modal ────────────────────────────────────────────────────
 function CustomerModal({ customer, onClose }) {
-    const initials = customer.name
-        ? customer.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-        : "??";
-
+    const initials = customer.name ? customer.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "??";
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-            style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}
-            onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div className="w-full max-w-md rounded-[2rem] p-7 max-h-[80vh] overflow-y-auto"
-                style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.08), 0 24px 64px rgba(0,0,0,0.8)" }}>
-
-                <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
+        <div style={{
+            position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center",
+            justifyContent: "center", padding: 16, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(12px)",
+        }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div style={{
+                width: "100%", maxWidth: 440, borderRadius: 28, padding: 28, maxHeight: "80vh",
+                overflowY: "auto", background: "white", boxShadow: "0 0 0 1px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.2)",
+            }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                         {customer.avatar ? (
-                            <img src={customer.avatar} alt={customer.name}
-                                className="w-16 h-16 rounded-2xl object-cover border-2"
-                                style={{ borderColor: "rgba(255,59,142,0.3)" }} />
+                            <img src={customer.avatar} alt={customer.name} style={{ width: 64, height: 64, borderRadius: 16, objectFit: "cover", border: "2px solid rgba(255,59,142,0.2)" }} />
                         ) : (
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                                style={{ background: "rgba(255,59,142,0.1)", border: "2px solid rgba(255,59,142,0.2)" }}>
-                                <span className="text-xl font-black text-[#FF3B8E]">{initials}</span>
+                            <div style={{ width: 64, height: 64, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,59,142,0.07)", border: "2px solid rgba(255,59,142,0.15)" }}>
+                                <span style={{ fontSize: 22, fontWeight: 900, color: "#FF3B8E" }}>{initials}</span>
                             </div>
                         )}
                         <div>
-                            <h2 className="text-lg font-black text-white">{customer.name}</h2>
-                            <p className="text-[11px] text-slate-500" style={{ fontFamily: "monospace" }}>{customer.email}</p>
-                            <p className="text-[10px] text-slate-700 mt-0.5" style={{ fontFamily: "monospace" }}>ID: {customer._id || "—"}</p>
+                            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", margin: 0 }}>{customer.name}</h2>
+                            <p style={{ fontSize: 11, color: "#94a3b8", margin: "2px 0 0", fontFamily: "monospace" }}>{customer.email}</p>
+                            <p style={{ fontSize: 10, color: "#cbd5e1", margin: "2px 0 0", fontFamily: "monospace" }}>ID: {customer._id || "—"}</p>
                         </div>
                     </div>
-                    <button onClick={onClose}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-red-400 transition-all flex-shrink-0"
-                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                        <X size={14} />
-                    </button>
+                    <button onClick={onClose} style={{
+                        width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF", cursor: "pointer", color: "#94a3b8", flexShrink: 0,
+                    }}><X size={14} /></button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 24 }}>
                     {[
                         { label: "Wallet",    value: `₹${customer.balance || 0}`, color: "#FF3B8E" },
-                        { label: "API Calls", value: customer.totalCalls || 0,    color: "#818CF8" },
-                        { label: "APIs",      value: customer.selectedApis?.length || 0, color: "#A78BFA" },
+                        { label: "API Calls", value: customer.totalCalls || 0,    color: "#4F46E5" },
+                        { label: "APIs",      value: customer.selectedApis?.length || 0, color: "#8B5CF6" },
                     ].map((s) => (
-                        <div key={s.label} className="rounded-2xl p-3 text-center"
-                            style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.06)" }}>
-                            <p className="font-black text-lg mb-0.5" style={{ color: s.color, fontFamily: "monospace" }}>{s.value}</p>
-                            <p className="text-[9px] text-slate-600 uppercase tracking-wider font-bold">{s.label}</p>
+                        <div key={s.label} style={{ borderRadius: 14, padding: "12px 10px", textAlign: "center", background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.05)" }}>
+                            <p style={{ fontWeight: 900, fontSize: 22, color: s.color, margin: "0 0 2px", fontFamily: "monospace" }}>{s.value}</p>
+                            <p style={{ fontSize: 9, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, margin: 0 }}>{s.label}</p>
                         </div>
                     ))}
                 </div>
 
                 <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Contact Info</p>
-                    <div className="space-y-2">
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>Contact Info</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                         {[
                             { label: "Phone",     value: customer.phone || "—" },
                             { label: "Client ID", value: customer.client_id || "—" },
                             { label: "Role",      value: customer.role || "—" },
                         ].map((row) => (
-                            <div key={row.label} className="flex justify-between p-3 rounded-2xl"
-                                style={{ background: "#080808", border: "1px solid rgba(255,255,255,0.05)" }}>
-                                <span className="text-[11px] text-slate-600">{row.label}</span>
-                                <span className="text-[11px] text-white capitalize" style={{ fontFamily: "monospace" }}>{row.value}</span>
+                            <div key={row.label} style={{
+                                display: "flex", justifyContent: "space-between", alignItems: "center",
+                                padding: "10px 14px", borderRadius: 12, background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.05)",
+                            }}>
+                                <span style={{ fontSize: 11, color: "#94a3b8" }}>{row.label}</span>
+                                <span style={{ fontSize: 11, color: "#0f172a", fontWeight: 700, fontFamily: "monospace", textTransform: "capitalize" }}>{row.value}</span>
                             </div>
                         ))}
                     </div>
@@ -583,35 +629,28 @@ function CustomerModal({ customer, onClose }) {
     );
 }
 
-// ─── Reusable API Section ─────────────────────────────────────────────────────
+// ─── API Section ──────────────────────────────────────────────────────────────
 function ApiSection({ label, apis, color, glow, emptyText, onToggle, onEdit, onDelete }) {
     return (
         <div>
-            <div className="flex items-center gap-3 mb-4">
-                <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl"
-                    style={{ background: `${glow}`, border: `1px solid ${color}26` }}>
-                    <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                    <span className="text-xs font-black uppercase tracking-widest" style={{ color }}>
-                        {label}
-                    </span>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full"
-                        style={{ background: `${color}26`, color }}>
-                        {apis.length}
-                    </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                <div style={{
+                    display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", borderRadius: 100,
+                    background: glow, border: `1px solid ${color}26`,
+                }}>
+                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: color }} />
+                    <span style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color }}>{label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 100, background: `${color}18`, color }}>{apis.length}</span>
                 </div>
-                <div className="flex-1 h-px" style={{ background: `${color}1a` }} />
+                <div style={{ flex: 1, height: 1, background: `${color}18` }} />
             </div>
             {apis.length === 0 ? (
-                <div className="text-center py-10 rounded-2xl"
-                    style={{ border: `1px dashed ${color}26` }}>
-                    <p className="text-slate-600 text-sm">{emptyText}</p>
+                <div style={{ textAlign: "center", padding: "40px 0", borderRadius: 16, border: `1px dashed ${color}26` }}>
+                    <p style={{ color: "#94a3b8", fontSize: 13, margin: 0 }}>{emptyText}</p>
                 </div>
             ) : (
-                <div className="space-y-2.5">
-                    {apis.map((api) => (
-                        <ApiRow key={api._id} api={api}
-                            onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
-                    ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {apis.map((api) => <ApiRow key={api._id} api={api} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />)}
                 </div>
             )}
         </div>
@@ -622,7 +661,6 @@ function ApiSection({ label, apis, color, glow, emptyText, onToggle, onEdit, onD
 export default function AdminPanel() {
     const navigate = useNavigate();
     const { apis, customers, stats, loading, addApi, updateApi, deleteApi, toggleApi } = useAdmin();
-
     const [showForm,         setShowForm]         = useState(false);
     const [editApi,          setEditApi]          = useState(null);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -644,24 +682,16 @@ export default function AdminPanel() {
         try {
             if (formData.files?.length > 0) {
                 const fd = new FormData();
-                fd.append("name", formData.name);
-                fd.append("url", formData.url);
-                fd.append("method", formData.method);
-                fd.append("pricePerCall", formData.price);
-                fd.append("description", formData.description);
-                fd.append("enabled", formData.enabled);
+                fd.append("name", formData.name); fd.append("url", formData.url);
+                fd.append("method", formData.method); fd.append("pricePerCall", formData.price);
+                fd.append("description", formData.description); fd.append("enabled", formData.enabled);
                 fd.append("category", formData.category);
                 if (formData.sampleBody)     fd.append("sampleBody",     JSON.stringify(formData.sampleBody));
                 if (formData.sampleResponse) fd.append("sampleResponse", JSON.stringify(formData.sampleResponse));
                 formData.files.forEach((file) => fd.append("attachments", file));
                 await addApi(fd, true);
             } else {
-                await addApi({
-                    name: formData.name, url: formData.url, method: formData.method,
-                    pricePerCall: formData.price, description: formData.description,
-                    enabled: formData.enabled, sampleBody: formData.sampleBody,
-                    sampleResponse: formData.sampleResponse, category: formData.category,
-                });
+                await addApi({ name: formData.name, url: formData.url, method: formData.method, pricePerCall: formData.price, description: formData.description, enabled: formData.enabled, sampleBody: formData.sampleBody, sampleResponse: formData.sampleResponse, category: formData.category });
             }
             successToast(`"${formData.name}" added!`);
         } catch { errorToast("Failed to add API."); }
@@ -671,24 +701,16 @@ export default function AdminPanel() {
         try {
             if (formData.files?.length > 0) {
                 const fd = new FormData();
-                fd.append("name", formData.name);
-                fd.append("url", formData.url);
-                fd.append("method", formData.method);
-                fd.append("pricePerCall", formData.price);
-                fd.append("description", formData.description);
-                fd.append("enabled", formData.enabled);
+                fd.append("name", formData.name); fd.append("url", formData.url);
+                fd.append("method", formData.method); fd.append("pricePerCall", formData.price);
+                fd.append("description", formData.description); fd.append("enabled", formData.enabled);
                 fd.append("category", formData.category);
                 if (formData.sampleBody)     fd.append("sampleBody",     JSON.stringify(formData.sampleBody));
                 if (formData.sampleResponse) fd.append("sampleResponse", JSON.stringify(formData.sampleResponse));
                 formData.files.forEach((file) => fd.append("attachments", file));
                 await updateApi(editApi._id, fd, true);
             } else {
-                await updateApi(editApi._id, {
-                    name: formData.name, url: formData.url, method: formData.method,
-                    pricePerCall: formData.price, description: formData.description,
-                    enabled: formData.enabled, sampleBody: formData.sampleBody,
-                    sampleResponse: formData.sampleResponse, category: formData.category,
-                });
+                await updateApi(editApi._id, { name: formData.name, url: formData.url, method: formData.method, pricePerCall: formData.price, description: formData.description, enabled: formData.enabled, sampleBody: formData.sampleBody, sampleResponse: formData.sampleResponse, category: formData.category });
             }
             setEditApi(null);
             successToast("API updated!");
@@ -699,38 +721,63 @@ export default function AdminPanel() {
         try { await deleteApi(id); infoToast("API deleted."); }
         catch { errorToast("Failed to delete API."); }
     };
-
     const handleToggle = async (id) => {
         try { await toggleApi(id); }
         catch { errorToast("Failed to toggle API."); }
     };
 
-    const enabledCount = apis.filter((a) => a.enabled).length;
+    const enabledCount  = apis.filter((a) => a.enabled).length;
+    const disabledCount = (stats?.totalApis ?? apis.length) - enabledCount;
 
     const statCards = [
-        { label: "Total APIs",      value: stats?.totalApis ?? apis.length,          color: "#FF3B8E", glow: "rgba(255,59,142,0.12)" },
-        { label: "Active APIs",     value: enabledCount,                              color: "#4ade80", glow: "rgba(34,197,94,0.12)" },
-        { label: "Disabled APIs",   value: (stats?.totalApis ?? apis.length) - enabledCount, color: "#f87171", glow: "rgba(239,68,68,0.12)" },
-        { label: "Total Customers", value: stats?.totalCustomers ?? customers.length, color: "#A78BFA", glow: "rgba(167,139,250,0.12)" },
+        {
+            label: "Total APIs", value: stats?.totalApis ?? apis.length, Icon: Activity,
+            accentColor: "#FF3B8E", glowColor: "rgba(255,59,142,0.08)", borderHover: "rgba(255,59,142,0.25)",
+            badge: { text: "ALL APIS", bg: "rgba(255,59,142,0.07)", color: "#FF3B8E", border: "rgba(255,59,142,0.2)" },
+            subtext:  { label: "Active APIs",   value: enabledCount,  color: "#16a34a" },
+            subtext2: { label: "Disabled APIs",  value: disabledCount, color: "#dc2626" },
+        },
+        {
+            label: "Active APIs", value: enabledCount, Icon: TrendingUp,
+            accentColor: "#16a34a", glowColor: "rgba(34,197,94,0.08)", borderHover: "rgba(34,197,94,0.25)",
+            badge: { text: "LIVE", bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" },
+            subtext:  { label: "Visible to customers", value: enabledCount, color: "#16a34a" },
+            subtext2: { label: "Out of total",          value: stats?.totalApis ?? apis.length, color: "#64748b" },
+        },
+        {
+            label: "Disabled APIs", value: disabledCount, Icon: AlertCircle,
+            accentColor: "#dc2626", glowColor: "rgba(239,68,68,0.08)", borderHover: "rgba(239,68,68,0.25)",
+            badge: disabledCount === 0
+                ? { text: "ALL CLEAR", bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" }
+                : { text: "HIDDEN", bg: "rgba(239,68,68,0.07)", color: "#dc2626", border: "rgba(239,68,68,0.2)" },
+            subtext:  { label: "Hidden from users", value: disabledCount, color: disabledCount > 0 ? "#dc2626" : "#16a34a" },
+            subtext2: { label: "Status", value: disabledCount === 0 ? "All live" : "Toggle to enable", color: "#64748b" },
+        },
+        {
+            label: "Total Customers", value: stats?.totalCustomers ?? customers.length, Icon: Users,
+            accentColor: "#8B5CF6", glowColor: "rgba(139,92,246,0.08)", borderHover: "rgba(139,92,246,0.25)",
+            badge: { text: "USERS", bg: "rgba(139,92,246,0.07)", color: "#8B5CF6", border: "rgba(139,92,246,0.2)" },
+            subtext:  { label: "Registered users", value: stats?.totalCustomers ?? customers.length, color: "#8B5CF6" },
+            subtext2: { label: "Access level", value: "Customer", color: "#64748b" },
+        },
     ];
 
-    // ── Category filters ──
     const nodeApis  = apis.filter((a) => a.category === "konverthr_node" || !a.category);
     const odooApis  = apis.filter((a) => a.category === "konverthr_odoo");
     const otherApis = apis.filter((a) => a.category === "konverthr_other");
 
     const API_SECTIONS = [
         { key: "node",  label: "KonvertHR Node.js APIs", apis: nodeApis,  color: "#FF3B8E", glow: "rgba(255,59,142,0.06)",  emptyText: "No Node.js APIs yet." },
-        { key: "odoo",  label: "KonvertHR Odoo APIs",    apis: odooApis,  color: "#A78BFA", glow: "rgba(167,139,250,0.06)", emptyText: "No Odoo APIs yet." },
-        { key: "other", label: "KonvertHR Other APIs",   apis: otherApis, color: "#34D399", glow: "rgba(52,211,153,0.06)",  emptyText: "No Other APIs yet." },
+        { key: "odoo",  label: "KonvertHR Odoo APIs",    apis: odooApis,  color: "#8B5CF6", glow: "rgba(139,92,246,0.06)", emptyText: "No Odoo APIs yet." },
+        { key: "other", label: "KonvertHR Other APIs",   apis: otherApis, color: "#16a34a", glow: "rgba(34,197,94,0.06)",  emptyText: "No Other APIs yet." },
     ];
 
     return (
-        <div className="min-h-screen bg-[#050505] text-slate-300 relative overflow-x-hidden">
+        <div style={{ minHeight: "100vh", background: "#F8F7FF", color: "#334155", fontFamily: "'Urbanist', sans-serif", position: "relative", overflowX: "hidden" }}>
 
             {/* Ambient glows */}
-            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-900/10 blur-[120px] rounded-full z-0 pointer-events-none" />
+            <div style={{ position: "fixed", top: "-10%", left: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(255,59,142,0.08)", filter: "blur(80px)" }} />
+            <div style={{ position: "fixed", bottom: "-10%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(142,68,173,0.07)", filter: "blur(80px)" }} />
 
             {/* Modals */}
             {(showForm || editApi) && (
@@ -738,8 +785,7 @@ export default function AdminPanel() {
                     initial={editApi ? {
                         name: editApi.name, url: editApi.url, method: editApi.method,
                         price: editApi.pricePerCall?.toString(), description: editApi.description,
-                        enabled: editApi.enabled,
-                        category: editApi.category || "konverthr_node",
+                        enabled: editApi.enabled, category: editApi.category || "konverthr_node",
                         sampleBody:     editApi.sampleBody     ? JSON.stringify(editApi.sampleBody, null, 2)     : "",
                         sampleResponse: editApi.sampleResponse ? JSON.stringify(editApi.sampleResponse, null, 2) : "",
                     } : null}
@@ -751,94 +797,103 @@ export default function AdminPanel() {
                 <CustomerModal customer={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
             )}
 
-            {/* ─── NAVBAR ─── */}
             <Navbar
                 showAdminLinks={true}
                 onLogout={handleLogout}
                 rightContent={
                     activeTab === "apis" && (
-                        <button onClick={() => setShowForm(true)}
-                            className="flex items-center gap-2 text-white font-black rounded-full px-4 py-2 text-xs uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-pink-500/20"
-                            style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)" }}>
-                            <Plus size={14} strokeWidth={3} /><span className="hidden sm:inline">Add API</span>
+                        <button onClick={() => setShowForm(true)} style={{
+                            display: "flex", alignItems: "center", gap: 6,
+                            padding: "8px 18px", borderRadius: 100, fontSize: 12, fontWeight: 900,
+                            color: "white", border: "none", cursor: "pointer",
+                            background: "linear-gradient(to right, #FF3B8E, #8E44AD)",
+                            boxShadow: "0 4px 14px rgba(255,59,142,0.3)",
+                            fontFamily: "Urbanist, sans-serif", letterSpacing: "0.04em", textTransform: "uppercase",
+                        }}>
+                            <Plus size={13} strokeWidth={3} /><span>Add API</span>
                         </button>
                     )
                 }
             />
 
-            <main className="relative z-10 pt-24 px-6 md:px-10 pb-16 max-w-6xl mx-auto">
+            <main style={{ position: "relative", zIndex: 10, padding: "88px 40px 64px", maxWidth: 1100, margin: "0 auto" }}>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    {statCards.map((s, i) => (
-                        <div key={i} className="rounded-[1.5rem] p-5 transition-all group relative overflow-hidden"
-                            style={{ background: "#0f0f0f", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.06)" }}>
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-[1.5rem]"
-                                style={{ background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%)` }} />
-                            <p className="text-2xl font-black mb-1.5" style={{ color: s.color }}>
-                                {loading ? "..." : s.value}
-                            </p>
-                            <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">{s.label}</p>
-                        </div>
-                    ))}
+                {/* Page header */}
+                <div style={{ marginBottom: 28 }}>
+                    <div style={{
+                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700,
+                        letterSpacing: "0.08em", textTransform: "uppercase", color: "#FF3B8E",
+                        background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.18)",
+                        borderRadius: 100, padding: "4px 12px", marginBottom: 10,
+                    }}>
+                        <ShieldCheck size={11} />
+                        Admin Panel
+                    </div>
+                    <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-0.03em", color: "#0f172a", margin: "0 0 6px", lineHeight: 1.15 }}>
+                        Manage{" "}
+                        <span style={{ background: "linear-gradient(to right,#FF3B8E,#8E44AD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                            APIs & Customers
+                        </span>
+                    </h1>
+                    <p style={{ fontSize: 14, color: "#64748b", margin: 0 }}>
+                        Control all APIs, pricing, and customer access — <strong style={{ color: "#0f172a", fontWeight: 700 }}>all in one place.</strong>
+                    </p>
+                </div>
+
+                {/* Stat Cards */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 28 }}>
+                    {statCards.map((s, i) => <StatCard key={i} {...s} loading={loading} />)}
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-1 mb-6" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ display: "flex", gap: 0, marginBottom: 24, borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                     {[
                         { id: "apis",      label: "Manage APIs" },
                         { id: "customers", label: `Customers (${customers.length})` },
                     ].map((tab) => (
-                        <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className="px-5 py-3 text-sm font-black uppercase tracking-wider border-b-2 transition-all"
-                            style={activeTab === tab.id
-                                ? { borderColor: "#FF3B8E", color: "#FF3B8E" }
-                                : { borderColor: "transparent", color: "#475569" }}>
-                            {tab.label}
-                        </button>
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                            padding: "10px 20px", fontSize: 13, fontWeight: 900, cursor: "pointer",
+                            background: "none", border: "none", borderBottom: `2px solid ${activeTab === tab.id ? "#FF3B8E" : "transparent"}`,
+                            color: activeTab === tab.id ? "#FF3B8E" : "#94a3b8",
+                            fontFamily: "Urbanist, sans-serif", letterSpacing: "0.03em",
+                            textTransform: "uppercase", transition: "all 0.18s ease",
+                        }}>{tab.label}</button>
                     ))}
                 </div>
 
                 {/* Loading */}
                 {loading && (
-                    <div className="flex items-center justify-center py-20">
-                        <div className="w-8 h-8 border-2 border-white/5 border-t-[#FF3B8E] rounded-full animate-spin" />
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid rgba(0,0,0,0.05)", borderTopColor: "#FF3B8E", animation: "apSpin 0.7s linear infinite" }} />
                     </div>
                 )}
 
-                {/* ── APIs Tab ── */}
+                {/* APIs Tab */}
                 {!loading && activeTab === "apis" && (
-                    <div className="space-y-8">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
                         {API_SECTIONS.map((section) => (
-                            <ApiSection
-                                key={section.key}
-                                label={section.label}
-                                apis={section.apis}
-                                color={section.color}
-                                glow={section.glow}
-                                emptyText={section.emptyText}
-                                onToggle={handleToggle}
-                                onEdit={setEditApi}
-                                onDelete={handleDelete}
-                            />
+                            <ApiSection key={section.key} {...section}
+                                onToggle={handleToggle} onEdit={setEditApi} onDelete={handleDelete} />
                         ))}
                     </div>
                 )}
 
-                {/* ── Customers Tab ── */}
+                {/* Customers Tab */}
                 {!loading && activeTab === "customers" && (
                     <div>
                         {customers.length === 0 ? (
-                            <div className="text-center py-20 rounded-[2rem]"
-                                style={{ border: "1px dashed rgba(255,255,255,0.08)" }}>
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                                    style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.15)" }}>
-                                    <Users size={24} className="text-[#A78BFA]" />
+                            <div style={{
+                                textAlign: "center", padding: "80px 20px", borderRadius: 20,
+                                border: "1px dashed rgba(0,0,0,0.1)", background: "white",
+                            }}>
+                                <div style={{ width: 52, height: 52, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", background: "rgba(139,92,246,0.07)", border: "1px solid rgba(139,92,246,0.15)" }}>
+                                    <Users size={22} style={{ color: "#8B5CF6" }} />
                                 </div>
-                                <p className="text-slate-500 text-sm">No customers registered yet.</p>
+                                <p style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", margin: "0 0 4px" }}>No customers yet</p>
+                                <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Registered customers will appear here.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
                                 {customers.map((c) => (
                                     <CustomerCard key={c._id} customer={c} onClick={setSelectedCustomer} />
                                 ))}
@@ -849,9 +904,18 @@ export default function AdminPanel() {
             </main>
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
-                * { font-family: 'Urbanist', sans-serif; }
-                code, input, textarea { font-family: 'JetBrains Mono', 'Fira Code', monospace !important; }
+                @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap');
+                *, *::before, *::after { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; box-sizing: border-box; }
+                @keyframes apSpin { to { transform: rotate(360deg); } }
+                @media (max-width: 960px) {
+                    main { padding: 80px 20px 48px !important; }
+                    .ap-stats { grid-template-columns: repeat(2, 1fr) !important; }
+                    .ap-customers { grid-template-columns: repeat(2, 1fr) !important; }
+                }
+                @media (max-width: 560px) {
+                    main { padding: 76px 14px 40px !important; }
+                    .ap-customers { grid-template-columns: 1fr !important; }
+                }
             `}</style>
         </div>
     );

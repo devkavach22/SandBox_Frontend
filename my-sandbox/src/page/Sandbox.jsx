@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-unused-vars */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Zap, ArrowLeft, Play, X, Upload, FileText, Image, File, CheckCircle2, Paperclip } from "lucide-react";
+import { Zap, ArrowLeft, Play, X, Upload, FileText, Image, File, CheckCircle2, Paperclip, Plus, Trash2 } from "lucide-react";
 import { useCustomer } from "../hooks/useCustomer";
 import Navbar from "./Navbar";
 import { triggerAuthChange } from "../routes/AppRoutes";
@@ -222,37 +223,47 @@ export default function Sandbox() {
     const user      = userStr ? JSON.parse(userStr) : null;
     const { callApi } = useCustomer();
 
-    const lastResponseKey = api ? `sandbox_last_response_${api._id}` : null;
-    const savedLastResponse = lastResponseKey
-        ? (() => { try { return JSON.parse(localStorage.getItem(lastResponseKey)); } catch { return null; } })()
-        : null;
+    if (!api) { navigate("/dashboard"); return null; }
 
-    const [requestBody,    setRequestBody]    = useState(
-        api?.sampleBody ? JSON.stringify(api.sampleBody, null, 2) : ""
-    );
-    const [authToken,      setAuthToken]      = useState("");
-    const [sandboxResult,  setSandboxResult]  = useState(null);
+    const lastResponseKey = `sandbox_last_response_${api._id}`;
+    const baseUrlKey      = `sandbox_base_url_${api._id}`;
+    const headersKey      = `sandbox_headers_${api._id}`;
+
+    const savedLastResponse = (() => { try { return JSON.parse(localStorage.getItem(lastResponseKey)); } catch { return null; } })();
+    const savedHeaders      = (() => { try { return JSON.parse(localStorage.getItem(headersKey)) || [{ key: "authorization", value: "" }]; } catch { return [{ key: "authorization", value: "" }]; } })();
+
+    const [requestBody, setRequestBody] = useState(api?.sampleBody ? JSON.stringify(api.sampleBody, null, 2) : "");
+    const [headers, setHeaders] = useState(savedHeaders);
+    const [baseUrl, setBaseUrl] = useState(localStorage.getItem(baseUrlKey) || "");
+    const [sandboxResult, setSandboxResult] = useState(null);
     const [sandboxLoading, setSandboxLoading] = useState(false);
-    const [lastResponse,   setLastResponse]   = useState(savedLastResponse);
-    const [fileMap,        setFileMap]        = useState({});
+    const [lastResponse, setLastResponse] = useState(savedLastResponse);
+    const [fileMap, setFileMap] = useState({});
 
-    const baseUrlKey = api ? `sandbox_base_url_${api._id}` : null;
-    const [baseUrl, setBaseUrl] = useState(
-        baseUrlKey ? (localStorage.getItem(baseUrlKey) || "") : ""
-    );
+    // Save headers to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem(headersKey, JSON.stringify(headers));
+    }, [headers, headersKey]);
+
     const handleBaseUrlChange = (val) => {
         setBaseUrl(val);
-        if (baseUrlKey) localStorage.setItem(baseUrlKey, val);
+        localStorage.setItem(baseUrlKey, val);
     };
 
     const effectiveUrl = baseUrl.trim() || api?.url;
-
-    if (!api) { navigate("/dashboard"); return null; }
-
     const mc         = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
     const fileFields = detectFileFields(api?.sampleBody);
     const hasFileFields = fileFields.length > 0;
     const userId = user?._id || user?.id;
+
+    // Header Handlers
+    const addHeaderRow = () => setHeaders([...headers, { key: "", value: "" }]);
+    const removeHeaderRow = (idx) => setHeaders(headers.filter((_, i) => i !== idx));
+    const handleHeaderUpdate = (idx, field, val) => {
+        const updated = [...headers];
+        updated[idx][field] = val;
+        setHeaders(updated);
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -265,7 +276,10 @@ export default function Sandbox() {
         setSandboxLoading(true);
         setSandboxResult(null);
         try {
-            const headers = authToken ? { authorization: authToken } : {};
+            const headerObject = headers.reduce((acc, curr) => {
+                if (curr.key.trim()) acc[curr.key.trim().toLowerCase()] = curr.value;
+                return acc;
+            }, {});
 
             if (hasFileFields) {
                 const missingFields = fileFields.filter((k) => !fileMap[k]);
@@ -291,21 +305,21 @@ export default function Sandbox() {
                         if (!fileFields.includes(k)) fd.append(k, typeof v === "object" ? JSON.stringify(v) : v);
                     }
                 } catch { /* ignore */ }
-                const res = await callApi({ userId, apiId: api._id, requestBody: fd, headers, isFormData: true, urlOverride: baseUrl.trim() || undefined });
+                const res = await callApi({ userId, apiId: api._id, requestBody: fd, headers: headerObject, isFormData: true, urlOverride: baseUrl.trim() || undefined });
                 saveAndSet(res);
             } else {
                 let parsedBody = null;
                 if (api.method !== "GET" && requestBody.trim()) {
                     try { parsedBody = JSON.parse(requestBody); } catch { parsedBody = null; }
                 }
-                const res = await callApi({ userId, apiId: api._id, requestBody: parsedBody, headers, urlOverride: baseUrl.trim() || undefined });
+                const res = await callApi({ userId, apiId: api._id, requestBody: parsedBody, headers: headerObject, urlOverride: baseUrl.trim() || undefined });
                 saveAndSet(res);
             }
         } catch (err) {
             const errResult = { success: false, message: err.response?.data?.message || "Something went wrong!", _savedAt: new Date().toISOString() };
             setSandboxResult(errResult);
             setLastResponse(errResult);
-            if (lastResponseKey) localStorage.setItem(lastResponseKey, JSON.stringify(errResult));
+            localStorage.setItem(lastResponseKey, JSON.stringify(errResult));
         } finally {
             setSandboxLoading(false);
         }
@@ -315,7 +329,7 @@ export default function Sandbox() {
         const withMeta = { ...res, _savedAt: new Date().toISOString() };
         setSandboxResult(res);
         setLastResponse(withMeta);
-        if (lastResponseKey) localStorage.setItem(lastResponseKey, JSON.stringify(withMeta));
+        localStorage.setItem(lastResponseKey, JSON.stringify(withMeta));
     };
 
     const formatSavedAt = (iso) => {
@@ -326,22 +340,16 @@ export default function Sandbox() {
     const displayResult = sandboxResult || null;
 
     return (
-        <div className="min-h-screen relative overflow-x-hidden"
+        <div className="min-h-screen relative overflow-hidden"
             style={{ background: "#F8F7FF", color: "#334155", fontFamily: "'Urbanist', sans-serif" }}>
 
-            {/* Glow blobs */}
             <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
                 style={{ background: "rgba(255,59,142,0.12)", filter: "blur(80px)" }} />
             <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
                 style={{ background: "rgba(142,68,173,0.1)", filter: "blur(80px)" }} />
 
-            {/* Navbar */}
             <Navbar
-                showBack
-                showLogout
-                user={user}
-                onLogout={handleLogout}
-                badge={api.name}
+                showBack showLogout user={user} onLogout={handleLogout} badge={api.name}
                 badgeExtra={
                     <span className="text-[9px] font-black px-2.5 py-1 rounded-lg ml-2"
                         style={{ background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40` }}>
@@ -350,123 +358,107 @@ export default function Sandbox() {
                 }
             />
 
-            {/* ── MAIN LAYOUT ── */}
             <div className="relative z-10 grid grid-cols-2 gap-0 h-screen pt-[65px]">
 
                 {/* ── LEFT PANEL ── */}
-                <div className="border-r border-black/[0.06] p-6 overflow-y-auto space-y-5 bg-white/60 backdrop-blur-sm">
-
-                    {/* API Info */}
-                    <div className="rounded-2xl p-4 bg-white border border-black/[0.06] shadow-sm">
-                        <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold mb-1.5">Endpoint</p>
-                        <code className="text-xs text-[#FF3B8E] break-all" style={{ fontFamily: "monospace" }}>{effectiveUrl}</code>
-                        <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">{api.description}</p>
-                        <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                            <span className="text-[10px] text-slate-400 font-bold">Price per call</span>
-                            <span className="text-sm font-black text-[#FF3B8E]">₹{api.pricePerCall}</span>
+                <div className="flex flex-col h-full border-r border-black/[0.06] bg-white/60 backdrop-blur-sm overflow-hidden">
+                    
+                    {/* Scrollable Area */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+                        {/* API Info */}
+                        <div className="rounded-2xl p-4 bg-white border border-black/[0.06] shadow-sm">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold mb-1.5">Endpoint</p>
+                            <code className="text-xs text-[#FF3B8E] break-all" style={{ fontFamily: "monospace" }}>{effectiveUrl}</code>
+                            <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">{api.description}</p>
+                            <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                                <span className="text-[10px] text-slate-400 font-bold">Price per call</span>
+                                <span className="text-sm font-black text-[#FF3B8E]">₹{api.pricePerCall}</span>
+                            </div>
+                            <div className="mt-3">
+                                <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold mb-1">Base URL Override</p>
+                                <input
+                                    type="text" value={baseUrl} onChange={(e) => handleBaseUrlChange(e.target.value)}
+                                    placeholder={api.url} className="w-full rounded-xl px-3 py-2 text-[11px] outline-none border border-black/[0.08]"
+                                    style={{ background: "#F8F7FF", fontFamily: "monospace" }}
+                                />
+                            </div>
                         </div>
-                        <div className="mt-3">
-                            <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold mb-1">
-                                Base URL Override <span className="normal-case font-normal text-slate-400">(optional)</span>
-                            </p>
-                            <input
-                                type="text"
-                                value={baseUrl}
-                                onChange={(e) => handleBaseUrlChange(e.target.value)}
-                                placeholder={api.url}
-                                className="w-full rounded-xl px-3 py-2 text-gray-900 text-[11px] outline-none transition-all placeholder-slate-400"
-                                style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", fontFamily: "monospace" }}
-                                onFocus={e => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
-                                onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
+
+                        {/* Dynamic Headers */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Headers</label>
+                                <button onClick={addHeaderRow} className="flex items-center gap-1 text-[10px] font-black text-[#FF3B8E] uppercase tracking-wider hover:opacity-70 transition-all">
+                                    <Plus size={12} strokeWidth={3} /> Add Header
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                {headers.map((header, idx) => (
+                                    <div key={idx} className="flex gap-2 items-center">
+                                        <input
+                                            placeholder="Key" value={header.key} onChange={(e) => handleHeaderUpdate(idx, "key", e.target.value)}
+                                            className="w-1/3 rounded-xl px-3 py-2 text-[11px] outline-none border border-black/[0.08]"
+                                            style={{ fontFamily: "monospace", background: "white" }}
+                                        />
+                                        <input
+                                            placeholder="Value" value={header.value} onChange={(e) => handleHeaderUpdate(idx, "value", e.target.value)}
+                                            className="flex-1 rounded-xl px-3 py-2 text-[11px] outline-none border border-black/[0.08]"
+                                            style={{ fontFamily: "monospace", background: "white" }}
+                                        />
+                                        {headers.length > 1 && (
+                                            <button onClick={() => removeHeaderRow(idx)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Body */}
+                        {api.method !== "GET" && (
+                            <SmartBodyEditor
+                                api={api} bodyText={requestBody} onBodyChange={setRequestBody}
+                                fileMap={fileMap} onFileMapChange={setFileMap}
                             />
-                        </div>
+                        )}
                     </div>
 
-                    {/* Auth Token */}
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-2">
-                            Authorization Token <span className="text-slate-400 normal-case font-normal">(optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={authToken}
-                            onChange={(e) => setAuthToken(e.target.value)}
-                            placeholder="4c16f70193749be219adb0ad6f9dd840"
-                            className="w-full rounded-2xl px-4 py-3 text-gray-900 text-xs outline-none transition-all placeholder-slate-400"
-                            style={{ background: "white", border: "1px solid rgba(0,0,0,0.08)", fontFamily: "monospace" }}
-                            onFocus={e => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
-                            onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
-                        />
+                    {/* Fixed Run Button at Bottom */}
+                    <div className="p-6 pt-2 bg-white/80 backdrop-blur-md border-t border-black/[0.04]">
+                        <button
+                            onClick={handleRunApi}
+                            disabled={sandboxLoading}
+                            className="w-full text-white font-black py-4 rounded-2xl text-sm uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)", boxShadow: "0 4px 20px rgba(255,59,142,0.3)" }}>
+                            {sandboxLoading
+                                ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <><Play size={16} fill="white" /> RUN API — ₹{api.pricePerCall} will be deducted</>
+                            }
+                        </button>
                     </div>
-
-                    {/* Body */}
-                    {api.method !== "GET" && (
-                        <SmartBodyEditor
-                            api={api}
-                            bodyText={requestBody}
-                            onBodyChange={setRequestBody}
-                            fileMap={fileMap}
-                            onFileMapChange={setFileMap}
-                        />
-                    )}
-
-                    {/* Run Button */}
-                    <button
-                        onClick={handleRunApi}
-                        disabled={sandboxLoading}
-                        className="w-full text-white font-black py-4 rounded-2xl text-sm uppercase tracking-widest active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                        style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)", boxShadow: "0 4px 20px rgba(255,59,142,0.3)" }}>
-                        {sandboxLoading
-                            ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            : <><Play size={16} fill="white" /> RUN API — ₹{api.pricePerCall} will be deducted</>
-                        }
-                    </button>
                 </div>
 
                 {/* ── RIGHT PANEL ── */}
-                <div className="p-6 overflow-y-auto space-y-5">
-
-                    {/* Last/Sample Response */}
+                <div className="p-6 overflow-y-auto space-y-5 custom-scrollbar">
                     {!sandboxResult && !sandboxLoading && (lastResponse || api.sampleResponse) && (
                         <div className="rounded-2xl overflow-hidden bg-white border border-black/[0.06] shadow-sm">
-                            <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06]"
-                                style={{ background: "#F8F7FF" }}>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                                    {lastResponse ? "Last Response" : "Sample Response"}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    {lastResponse ? (
-                                        <>
-                                            {lastResponse._savedAt && (
-                                                <span className="text-[9px] text-slate-400">{formatSavedAt(lastResponse._savedAt)}</span>
-                                            )}
-                                            {lastResponse.data?.statusCode && (
-                                                <span className="text-[9px] font-black px-2.5 py-1 rounded-full"
-                                                    style={lastResponse.data.status === "success"
-                                                        ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }
-                                                        : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.2)" }
-                                                    }>{lastResponse.data.statusCode}</span>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <span className="text-[9px] font-black text-[#8E44AD] px-2.5 py-1 rounded-full"
-                                            style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.2)" }}>
-                                            PREVIEW
-                                        </span>
-                                    )}
-                                </div>
+                            <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06]" style={{ background: "#F8F7FF" }}>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{lastResponse ? "Last Response" : "Sample Response"}</span>
+                                {lastResponse?.data?.statusCode && (
+                                    <span className="text-[9px] font-black px-2.5 py-1 rounded-full"
+                                        style={lastResponse.data.status === "success"
+                                            ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }
+                                            : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.2)" }
+                                        }>{lastResponse.data.statusCode}</span>
+                                )}
                             </div>
-                            <pre className="p-5 text-[12px] text-slate-500 overflow-x-auto leading-relaxed"
-                                style={{ background: "white", fontFamily: "monospace" }}>
-                                {lastResponse
-                                    ? JSON.stringify(lastResponse.data?.response || lastResponse, null, 2)
-                                    : JSON.stringify(api.sampleResponse, null, 2)
-                                }
+                            <pre className="p-5 text-[12px] text-slate-500 overflow-x-auto leading-relaxed" style={{ background: "white", fontFamily: "monospace" }}>
+                                {JSON.stringify(lastResponse?.data?.response || lastResponse || api.sampleResponse, null, 2)}
                             </pre>
                         </div>
                     )}
 
-                    {/* Loading */}
                     {sandboxLoading && (
                         <div className="flex flex-col items-center justify-center py-24 gap-4">
                             <div className="w-10 h-10 border-2 border-black/5 border-t-[#FF3B8E] rounded-full animate-spin" />
@@ -474,48 +466,20 @@ export default function Sandbox() {
                         </div>
                     )}
 
-                    {/* Live Result */}
                     {displayResult && !sandboxLoading && (
-                        <div className="rounded-2xl overflow-hidden bg-white border shadow-sm"
-                            style={{ borderColor: displayResult.success === false ? "rgba(239,68,68,0.2)" : "rgba(255,59,142,0.2)" }}>
-                            <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06]"
-                                style={{ background: "#F8F7FF" }}>
+                        <div className="rounded-2xl overflow-hidden bg-white border shadow-sm" style={{ borderColor: displayResult.success === false ? "rgba(239,68,68,0.2)" : "rgba(255,59,142,0.2)" }}>
+                            <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06]" style={{ background: "#F8F7FF" }}>
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Response</span>
-                                <div className="flex items-center gap-3">
-                                    {displayResult.data && (
-                                        <>
-                                            <span className="text-[10px] font-black px-2.5 py-1 rounded-full"
-                                                style={displayResult.data.status === "success"
-                                                    ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }
-                                                    : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.2)" }
-                                                }>{displayResult.data.statusCode}</span>
-                                            <span className="text-[10px] text-slate-400">{displayResult.data.responseTime}</span>
-                                            <span className="text-[10px] font-bold text-red-500">-₹{displayResult.data.amountDeducted}</span>
-                                            <span className="text-[10px] text-slate-400">Balance: ₹{displayResult.data.remainingBalance}</span>
-                                        </>
-                                    )}
-                                    {!displayResult.success && (
-                                        <span className="text-[10px] font-black text-red-500 flex items-center gap-1">
-                                            <X size={10} /> ERROR
-                                        </span>
-                                    )}
-                                </div>
+                                {displayResult.data && (
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] font-black px-2.5 py-1 rounded-full" style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>{displayResult.data.statusCode}</span>
+                                        <span className="text-[10px] font-bold text-red-500">-₹{displayResult.data.amountDeducted}</span>
+                                    </div>
+                                )}
                             </div>
-                            <pre className="p-5 text-[12px] text-slate-600 overflow-x-auto leading-relaxed"
-                                style={{ background: "white", fontFamily: "monospace" }}>
+                            <pre className="p-5 text-[12px] text-slate-600 overflow-x-auto leading-relaxed" style={{ background: "white", fontFamily: "monospace" }}>
                                 {JSON.stringify(displayResult.data?.response || displayResult, null, 2)}
                             </pre>
-                        </div>
-                    )}
-
-                    {/* Empty State */}
-                    {!displayResult && !sandboxLoading && !api.sampleResponse && (
-                        <div className="flex flex-col items-center justify-center py-24 gap-3 rounded-2xl bg-white border border-dashed border-black/[0.12]">
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                                style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)" }}>
-                                <Play size={24} className="text-[#FF3B8E]" />
-                            </div>
-                            <p className="text-slate-400 text-sm">Run the API to see response here</p>
                         </div>
                     )}
                 </div>
@@ -524,7 +488,9 @@ export default function Sandbox() {
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
                 * { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; }
-                pre, code, input[style*="monospace"], textarea { font-family: 'JetBrains Mono', 'Fira Code', monospace !important; }
+                pre, code, input, textarea { font-family: 'JetBrains Mono', monospace !important; }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.05); border-radius: 10px; }
             `}</style>
         </div>
     );

@@ -3,7 +3,8 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     History, Search,
-    CheckCircle2, XCircle, IndianRupee, User, X, ChevronDown
+    CheckCircle2, XCircle, IndianRupee, User, X, ChevronDown,
+    Activity, TrendingUp, AlertCircle, Wallet, Phone, Globe, Clock
 } from "lucide-react";
 import Navbar from "./Navbar";
 import { getAllHistoryAPI, getCustomerHistoryAPI, getAllUsersAPI } from "../services/admin.service";
@@ -28,8 +29,86 @@ const timeAgo = (iso) => {
     return `${Math.floor(s / 86400)}d ago`;
 };
 
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, borderHover, Icon, badge }) {
+    const [hovered, setHovered] = useState(false);
+    return (
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                background: "white",
+                border: `1px solid ${hovered ? borderHover : "rgba(0,0,0,0.06)"}`,
+                borderRadius: 20,
+                padding: "18px 20px 16px",
+                cursor: "default",
+                position: "relative",
+                overflow: "hidden",
+                transition: "transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease",
+                transform: hovered ? "translateY(-3px)" : "translateY(0)",
+                boxShadow: hovered ? `0 12px 32px ${glowColor}` : "0 1px 4px rgba(0,0,0,0.04)",
+            }}
+        >
+            {/* Top accent bar */}
+            <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                background: accentColor, borderRadius: "20px 20px 0 0",
+                opacity: hovered ? 1 : 0, transition: "opacity 0.22s ease",
+            }} />
+
+            {/* Header row: icon + badge */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div style={{
+                    width: 34, height: 34, borderRadius: 11,
+                    background: glowColor, border: `1px solid ${borderHover}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                    <Icon size={15} style={{ color: accentColor }} />
+                </div>
+                {badge && (
+                    <span style={{
+                        fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 100,
+                        background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`,
+                        letterSpacing: "0.04em", whiteSpace: "nowrap",
+                    }}>{badge.text}</span>
+                )}
+            </div>
+
+            {/* Value */}
+            <p style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, margin: "0 0 4px", color: accentColor }}>
+                {value}
+            </p>
+
+            {/* Label */}
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", margin: "0 0 12px" }}>
+                {label}
+            </p>
+
+            {/* Divider */}
+            <div style={{ height: 1, background: "rgba(0,0,0,0.05)", margin: "0 0 10px" }} />
+
+            {/* Sub rows */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {subtext && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext.label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext.color || "#64748b" }}>{subtext.value}</span>
+                    </div>
+                )}
+                {subtext2 && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext2.label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext2.color || "#64748b" }}>{subtext2.value}</span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 // ─── History Row ──────────────────────────────────────────────────────────────
 function HistoryRow({ record, isAdmin }) {
+    const [hovered, setHovered] = useState(false);
     const mc      = METHOD_COLORS[record.method] || METHOD_COLORS.POST;
     const success = record.status === "success";
 
@@ -42,76 +121,114 @@ function HistoryRow({ record, isAdmin }) {
 
     return (
         <div
-            className="relative flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 overflow-hidden group border hover:shadow-md hover:-translate-y-0.5"
-            style={{ background: "white", borderColor: "rgba(0,0,0,0.06)" }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "13px 16px",
+                borderRadius: 14,
+                background: hovered ? "rgba(255,59,142,0.02)" : "rgba(248,247,255,0.6)",
+                border: `1px solid ${hovered ? "rgba(255,59,142,0.18)" : "rgba(0,0,0,0.05)"}`,
+                transform: hovered ? "translateX(3px)" : "translateX(0)",
+                transition: "all 0.2s ease",
+                overflow: "hidden",
+                cursor: "default",
+                minWidth: 0,
+            }}
         >
-            {/* Hover glow */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
-                style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
-            {/* Bottom accent */}
-            <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
-                style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
+            {/* Left accent bar */}
+            <div style={{
+                position: "absolute", left: 0, top: 0, bottom: 0, width: 3,
+                background: success ? "linear-gradient(180deg,#22c55e,#16a34a)" : "linear-gradient(180deg,#ef4444,#dc2626)",
+                borderRadius: "14px 0 0 14px",
+                opacity: hovered ? 1 : 0.3,
+                transition: "opacity 0.2s ease",
+            }} />
 
             {/* Status icon */}
-            <div className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{
-                    background: success ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                    border: success ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(239,68,68,0.2)",
-                }}>
-                {success
-                    ? <CheckCircle2 size={15} className="text-green-500" />
-                    : <XCircle size={15} className="text-red-500" />}
+            <div style={{
+                flexShrink: 0, width: 32, height: 32, borderRadius: 10,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: success ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                border: success ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(239,68,68,0.2)",
+            }}>
+                {success ? <CheckCircle2 size={14} color="#22c55e" /> : <XCircle size={14} color="#ef4444" />}
             </div>
 
             {/* Method badge */}
-            <span className="text-[9px] font-black px-2.5 py-1.5 rounded-xl flex-shrink-0"
-                style={{ background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40` }}>
+            <span style={{
+                fontSize: 9, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
+                background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`,
+                letterSpacing: "0.04em", whiteSpace: "nowrap",
+            }}>
                 {record.method}
             </span>
 
             {/* Main info */}
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <p className="font-black text-sm text-gray-900">{apiName}</p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
+                    <p style={{ fontWeight: 800, fontSize: 13, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {apiName}
+                    </p>
                     {isAdmin && customerName !== "—" && (
-                        <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                            style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.2)", color: "#8E44AD" }}>
-                            <User size={9} /> {customerName}
+                        <span style={{
+                            display: "flex", alignItems: "center", gap: 3, fontSize: 9, fontWeight: 700,
+                            padding: "2px 7px", borderRadius: 100,
+                            background: "rgba(142,68,173,0.07)", border: "1px solid rgba(142,68,173,0.18)", color: "#8E44AD",
+                            flexShrink: 0, whiteSpace: "nowrap",
+                        }}>
+                            <User size={8} /> {customerName}
                         </span>
                     )}
                     {timestamp && (
-                        <span className="text-[10px] font-bold text-slate-400 flex-shrink-0">{formatDate(timestamp)}</span>
+                        <span className="ah-hide-xs" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", flexShrink: 0, whiteSpace: "nowrap" }}>
+                            {formatDate(timestamp)}
+                        </span>
                     )}
                 </div>
-                <code className="text-[10px] text-slate-400 truncate block">{url}</code>
+                <code style={{ fontSize: 10, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {url}
+                </code>
             </div>
 
             {/* Status code */}
-            <span className="text-[10px] font-black px-3 py-1.5 rounded-full flex-shrink-0"
-                style={success
+            <span className="ah-hide-xs" style={{
+                fontSize: 10, fontWeight: 900, padding: "4px 10px", borderRadius: 100, flexShrink: 0, whiteSpace: "nowrap",
+                ...(success
                     ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.25)" }
-                    : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" }}>
+                    : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" })
+            }}>
                 {statusCode}
             </span>
 
             {/* Amount */}
-            <div className="flex items-center gap-1 flex-shrink-0 px-3 py-1.5 rounded-full"
-                style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
-                <IndianRupee size={11} className="text-[#FF3B8E]" />
-                <span className="text-sm font-black text-[#FF3B8E]">{amount}</span>
+            <div style={{
+                display: "flex", alignItems: "center", gap: 3, flexShrink: 0,
+                padding: "4px 10px", borderRadius: 100,
+                background: hovered ? "rgba(255,59,142,0.1)" : "rgba(255,59,142,0.06)",
+                border: "1px solid rgba(255,59,142,0.15)", transition: "background 0.18s ease",
+                whiteSpace: "nowrap",
+            }}>
+                <IndianRupee size={10} color="#FF3B8E" />
+                <span style={{ fontSize: 13, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
             </div>
 
             {/* Time */}
             {timestamp && (
-                <div className="hidden sm:block text-right flex-shrink-0">
-                    <p className="text-[11px] font-bold text-slate-400">{formatTime(timestamp)}</p>
-                </div>
+                <p className="ah-hide-xs" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", flexShrink: 0 }}>
+                    {formatTime(timestamp)}
+                </p>
             )}
 
             {/* Time ago */}
             {timestamp && (
-                <span className="text-[10px] font-bold px-3 py-1.5 rounded-full flex-shrink-0 text-slate-400"
-                    style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
+                <span style={{
+                    fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 100, flexShrink: 0,
+                    color: "#94a3b8", background: "white", border: "1px solid rgba(0,0,0,0.07)", whiteSpace: "nowrap",
+                }}>
                     {timeAgo(timestamp)}
                 </span>
             )}
@@ -138,67 +255,61 @@ function CustomerDropdown({ customers, value, onChange }) {
     ];
 
     return (
-        <div ref={ref} className="relative w-full" style={{ overflow: "visible" }}>
-            <button onClick={() => setOpen(!open)}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all"
-                style={{
-                    background: "white",
-                    border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
-                    color: selected ? "#FF3B8E" : "#94a3b8",
-                    boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
-                }}>
+        <div ref={ref} style={{ position: "relative", width: "100%", overflow: "visible" }}>
+            <button onClick={() => setOpen(!open)} style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 8,
+                padding: "10px 14px", borderRadius: 12,
+                background: "white",
+                border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
+                color: selected ? "#FF3B8E" : "#94a3b8",
+                boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
+                fontSize: 12, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Urbanist', sans-serif", transition: "all 0.18s ease",
+            }}>
                 {selected?.avatar
-                    ? <img src={selected.avatar} className="w-5 h-5 rounded-full object-cover flex-shrink-0" alt="" />
+                    ? <img src={selected.avatar} style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} alt="" />
                     : selected
-                        ? <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                            style={{ background: "rgba(255,59,142,0.12)", border: "1px solid rgba(255,59,142,0.3)" }}>
-                            <span className="text-[7px] font-black text-[#FF3B8E]">{initials}</span>
+                        ? <div style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(255,59,142,0.12)", border: "1px solid rgba(255,59,142,0.3)" }}>
+                            <span style={{ fontSize: 7, fontWeight: 900, color: "#FF3B8E" }}>{initials}</span>
                           </div>
-                        : <User size={12} className="text-slate-400 flex-shrink-0" />}
-                <span className="flex-1 text-left truncate">{label}</span>
-                <ChevronDown size={12} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
+                        : <User size={12} color="#94a3b8" style={{ flexShrink: 0 }} />}
+                <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                <ChevronDown size={12} color={open ? "#FF3B8E" : "#94a3b8"} style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s ease" }} />
             </button>
-
             {open && (
                 <div style={{
                     position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
                     zIndex: 9999, background: "white",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    borderRadius: "16px", overflow: "hidden",
-                    boxShadow: "0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,59,142,0.08)",
+                    border: "1px solid rgba(0,0,0,0.08)", borderRadius: 14, overflow: "hidden",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
                 }}>
                     {allOpts.map((opt, idx) => {
                         const isSel = value === opt.value;
                         const oi = opt.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
                         return (
-                            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
-                                style={{
-                                    background: isSel ? "rgba(255,59,142,0.05)" : "transparent",
-                                    borderLeft: isSel ? "2px solid #FF3B8E" : "2px solid transparent",
-                                    borderBottom: idx < allOpts.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
-                                }}
-                                onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
-                                onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
+                            <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }} style={{
+                                width: "100%", display: "flex", alignItems: "center", gap: 10,
+                                padding: "10px 14px", textAlign: "left",
+                                background: isSel ? "rgba(255,59,142,0.05)" : "transparent",
+                                borderLeft: isSel ? "2px solid #FF3B8E" : "2px solid transparent",
+                                borderBottom: idx < allOpts.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+                                borderTop: "none", borderRight: "none",
+                                cursor: "pointer", fontFamily: "'Urbanist', sans-serif", transition: "background 0.15s ease",
+                            }}
+                            onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
                                 {opt.value === "ALL"
-                                    ? <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-                                        style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
-                                        <User size={13} className="text-slate-400" />
-                                      </div>
+                                    ? <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}><User size={13} color="#94a3b8" /></div>
                                     : opt.avatar
-                                        ? <img src={opt.avatar} className="w-7 h-7 rounded-xl object-cover flex-shrink-0" alt="" />
-                                        : <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
-                                            style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
-                                            <span className="text-[9px] font-black text-[#FF3B8E]">{oi}</span>
+                                        ? <img src={opt.avatar} style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} alt="" />
+                                        : <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
+                                            <span style={{ fontSize: 9, fontWeight: 900, color: "#FF3B8E" }}>{oi}</span>
                                           </div>}
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold truncate"
-                                        style={{ color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>
-                                        {opt.label}
-                                    </p>
-                                    {opt.email && <p className="text-[10px] truncate text-slate-400">{opt.email}</p>}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <p style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", margin: 0, color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>{opt.label}</p>
+                                    {opt.email && <p style={{ fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#94a3b8", margin: 0 }}>{opt.email}</p>}
                                 </div>
-                                {isSel && <span className="text-[#FF3B8E] text-xs font-black">✓</span>}
+                                {isSel && <span style={{ color: "#FF3B8E", fontSize: 12, fontWeight: 900 }}>✓</span>}
                             </button>
                         );
                     })}
@@ -267,7 +378,10 @@ export default function APIHistory() {
 
     const totalCalls   = filtered.length;
     const successCalls = filtered.filter((r) => r.status === "success").length;
+    const failedCalls  = totalCalls - successCalls;
     const totalSpent   = filtered.reduce((s, r) => s + (parseFloat(r.amountDeducted || r.amount) || 0), 0);
+    const successRate  = totalCalls > 0 ? ((successCalls / totalCalls) * 100).toFixed(0) : 0;
+    const avgPerCall   = totalCalls > 0 ? (totalSpent / totalCalls).toFixed(2) : "0.00";
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -278,169 +392,246 @@ export default function APIHistory() {
 
     const hasFilters = search || filterMethod !== "ALL" || filterStatus !== "ALL" || filterCustomer !== "ALL";
 
+    const statCards = [
+        {
+            label: "Total Calls", value: totalCalls, Icon: Activity,
+            accentColor: "#FF3B8E", glowColor: "rgba(255,59,142,0.08)", borderHover: "rgba(255,59,142,0.25)",
+            badge: { text: "ALL TIME", bg: "rgba(255,59,142,0.07)", color: "#FF3B8E", border: "rgba(255,59,142,0.2)" },
+            subtext:  { label: "Total requests", value: rawHistory.length, color: "#0f172a" },
+            subtext2: { label: "Filtered showing", value: totalCalls, color: "#FF3B8E" },
+        },
+        {
+            label: "Successful", value: successCalls, Icon: TrendingUp,
+            accentColor: "#16a34a", glowColor: "rgba(34,197,94,0.08)", borderHover: "rgba(34,197,94,0.25)",
+            badge: { text: `${successRate}% RATE`, bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" },
+            subtext:  { label: "Success rate", value: `${successRate}%`, color: "#16a34a" },
+            subtext2: { label: "Out of total", value: totalCalls, color: "#64748b" },
+        },
+        {
+            label: "Failed", value: failedCalls, Icon: AlertCircle,
+            accentColor: "#dc2626", glowColor: "rgba(239,68,68,0.08)", borderHover: "rgba(239,68,68,0.25)",
+            badge: failedCalls === 0
+                ? { text: "ALL CLEAR", bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" }
+                : { text: "NEEDS ATTENTION", bg: "rgba(239,68,68,0.07)", color: "#dc2626", border: "rgba(239,68,68,0.2)" },
+            subtext:  { label: "Error rate", value: totalCalls > 0 ? `${((failedCalls / totalCalls) * 100).toFixed(0)}%` : "0%", color: failedCalls > 0 ? "#dc2626" : "#16a34a" },
+            subtext2: { label: "Status", value: failedCalls === 0 ? "No issues" : "Check logs", color: failedCalls > 0 ? "#dc2626" : "#16a34a" },
+        },
+        {
+            label: "Total Spent", value: `₹${totalSpent.toFixed(2)}`, Icon: Wallet,
+            accentColor: "#8E44AD", glowColor: "rgba(142,68,173,0.08)", borderHover: "rgba(142,68,173,0.25)",
+            badge: { text: "BILLING", bg: "rgba(142,68,173,0.07)", color: "#8E44AD", border: "rgba(142,68,173,0.2)" },
+            subtext:  { label: "Avg per call", value: `₹${avgPerCall}`, color: "#8E44AD" },
+            subtext2: { label: "Total calls billed", value: totalCalls, color: "#64748b" },
+        },
+    ];
+
     return (
-        <div className="min-h-screen relative overflow-x-hidden"
-            style={{ background: "#F8F7FF", color: "#334155", fontFamily: "'Urbanist', sans-serif" }}>
-
+        <div style={{
+            minHeight: "100vh", background: "#F8F7FF", color: "#334155",
+            fontFamily: "'Urbanist', sans-serif", position: "relative", overflowX: "hidden",
+        }}>
             {/* Glow blobs */}
-            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
-                style={{ background: "rgba(255,59,142,0.12)", filter: "blur(80px)" }} />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full z-0 pointer-events-none"
-                style={{ background: "rgba(142,68,173,0.1)", filter: "blur(80px)" }} />
+            <div style={{ position: "fixed", top: "-10%", left: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(255,59,142,0.1)", filter: "blur(80px)" }} />
+            <div style={{ position: "fixed", bottom: "-10%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(142,68,173,0.08)", filter: "blur(80px)" }} />
 
-            {/* ─── NAVBAR ─── */}
-            <Navbar
-                showDashboardLinks
-                showLogout
-                user={user}
-                onLogout={handleLogout}
-            />
+            <Navbar showDashboardLinks showLogout user={user} onLogout={handleLogout} />
 
-            <div className="relative z-10 px-6 md:px-10 pt-24 pb-16 max-w-6xl mx-auto">
+            <div className="ah-page" style={{ position: "relative", zIndex: 10, width: "100%", boxSizing: "border-box" }}>
 
-                {/* Page Title */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900 mb-1">
+                {/* ─── Header ─── */}
+                <div style={{ marginBottom: 24 }}>
+                    <div style={{
+                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700,
+                        letterSpacing: "0.08em", textTransform: "uppercase", color: "#FF3B8E",
+                        background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.18)",
+                        borderRadius: 100, padding: "4px 12px", marginBottom: 12,
+                    }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FF3B8E", animation: "ahPulse 2s ease-in-out infinite", display: "inline-block" }} />
+                        Live activity log
+                    </div>
+                    <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-0.03em", color: "#0f172a", margin: "0 0 8px", lineHeight: 1.15 }}>
                         {isAdmin ? "All Customers'" : "Your"}{" "}
-                        <span style={{ background: "linear-gradient(to right, #FF3B8E, #8E44AD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                        <span style={{ background: "linear-gradient(to right,#FF3B8E,#8E44AD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                             API History
                         </span>
                     </h1>
-                    <p className="text-slate-400 text-sm">
-                        {isAdmin ? "Complete log of all API calls made by all customers" : "Complete log of all your API calls"}
+                    <p style={{ fontSize: 14, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                        {isAdmin
+                            ? <>Every call across all customers — <strong style={{ color: "#0f172a", fontWeight: 700 }}>timestamped, searchable, and tracked.</strong></>
+                            : <>Every call you've made — <strong style={{ color: "#0f172a", fontWeight: 700 }}>timestamped, searchable, and tracked.</strong> Nothing slips through.</>
+                        }
                     </p>
                 </div>
 
                 {pageLoading ? (
-                    <div className="flex items-center justify-center py-32">
-                        <div className="w-8 h-8 border-2 border-black/5 border-t-[#FF3B8E] rounded-full animate-spin" />
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "120px 0" }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid rgba(0,0,0,0.05)", borderTopColor: "#FF3B8E", animation: "ahSpin 0.7s linear infinite" }} />
                     </div>
                 ) : (
                     <>
-                        {/* ─── Stats ─── */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                            {[
-                                { label: "Total Calls",  value: totalCalls,                  color: "#FF3B8E", glow: "rgba(255,59,142,0.1)" },
-                                { label: "Successful",   value: successCalls,                color: "#16a34a", glow: "rgba(34,197,94,0.1)"  },
-                                { label: "Failed",       value: totalCalls - successCalls,   color: "#dc2626", glow: "rgba(239,68,68,0.1)"  },
-                                { label: "Total Spent",  value: `₹${totalSpent.toFixed(2)}`, color: "#8E44AD", glow: "rgba(142,68,173,0.1)" },
-                            ].map((card, i) => (
-                                <div key={i}
-                                    className="bg-white rounded-2xl p-6 border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group relative overflow-hidden cursor-default">
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
-                                        style={{ background: `radial-gradient(ellipse at top left, ${card.glow}, transparent 70%)` }} />
-                                    <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
-                                        style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
-                                    <p className="text-3xl font-black mb-1.5" style={{ color: card.color }}>{card.value}</p>
-                                    <p className="text-[10px] text-slate-400 tracking-[0.2em] font-bold uppercase">{card.label}</p>
-                                </div>
-                            ))}
+                        {/* ─── Stat Cards ─── */}
+                        <div className="ah-stats-grid" style={{ display: "grid", gap: 14, marginBottom: 24 }}>
+                            {statCards.map((card, i) => <StatCard key={i} {...card} />)}
                         </div>
 
-                        {/* ─── Filters ─── */}
-                        <div className="flex flex-col gap-3 mb-6 p-4 rounded-2xl bg-white border border-black/[0.06] shadow-sm"
-                            style={{ overflow: "visible" }}>
-                            <div className="flex gap-3 items-center" style={{ overflow: "visible" }}>
-                                <div className="relative" style={{ flex: "0 0 calc(50% - 6px)" }}>
-                                    <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                                    <input type="text" placeholder="Search API name, URL..." value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        className="w-full rounded-2xl pl-9 pr-4 py-2.5 text-gray-900 text-sm outline-none transition-all placeholder-slate-400"
-                                        style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", fontFamily: "'Urbanist', sans-serif", caretColor: "#FF3B8E" }}
-                                        onFocus={e => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
-                                        onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
-                                    />
+                        {/* ─── Records Card ─── */}
+                        <div style={{
+                            background: "white",
+                            border: "1px solid rgba(0,0,0,0.06)",
+                            borderRadius: 22,
+                            boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
+                            overflow: "visible",
+                        }}>
+                            {/* Card Header */}
+                            <div style={{
+                                padding: "18px 20px 0",
+                                borderBottom: "1px solid rgba(0,0,0,0.05)",
+                                marginBottom: 0,
+                            }}>
+                                {/* Search + dropdown */}
+                                <div className="ah-filter-row" style={{ display: "flex", gap: 10, alignItems: "center", overflow: "visible", marginBottom: 14 }}>
+                                    <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+                                        <Search size={13} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
+                                        <input type="text" placeholder="Search API name, URL..." value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            style={{
+                                                width: "100%", borderRadius: 12, paddingLeft: 36, paddingRight: 14,
+                                                paddingTop: 9, paddingBottom: 9,
+                                                color: "#0f172a", fontSize: 13, outline: "none",
+                                                background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)",
+                                                fontFamily: "'Urbanist', sans-serif", caretColor: "#FF3B8E",
+                                                boxSizing: "border-box", transition: "border-color 0.18s, box-shadow 0.18s",
+                                            }}
+                                            onFocus={(e) => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
+                                            onBlur={(e) => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
+                                        />
+                                    </div>
+                                    {isAdmin && (
+                                        <div className="ah-dropdown-wrap" style={{ overflow: "visible" }}>
+                                            <CustomerDropdown customers={customers} value={filterCustomer} onChange={setFilterCustomer} />
+                                        </div>
+                                    )}
                                 </div>
-                                {isAdmin && (
-                                    <div style={{ flex: "0 0 calc(50% - 6px)", overflow: "visible" }}>
-                                        <CustomerDropdown customers={customers} value={filterCustomer} onChange={setFilterCustomer} />
+
+                                {/* Pills + count row */}
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, paddingBottom: 14 }}>
+                                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                                        {methods.map((m) => {
+                                            const mc = METHOD_COLORS[m];
+                                            const isActive = filterMethod === m;
+                                            return (
+                                                <button key={m} onClick={() => setFilterMethod(m)} style={{
+                                                    padding: "5px 12px", borderRadius: 100, fontSize: 10, fontWeight: 900,
+                                                    cursor: "pointer", fontFamily: "'Urbanist', sans-serif",
+                                                    transition: "all 0.18s ease", whiteSpace: "nowrap",
+                                                    ...(isActive && m !== "ALL"
+                                                        ? { background: mc.bg, border: `1px solid ${mc.border}`, color: mc.text }
+                                                        : isActive
+                                                            ? { background: "linear-gradient(to right,#FF3B8E,#8E44AD)", border: "none", color: "#fff", boxShadow: "0 4px 12px rgba(255,59,142,0.25)" }
+                                                            : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }),
+                                                }}>{m}</button>
+                                            );
+                                        })}
+                                        <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.08)", flexShrink: 0 }} />
+                                        {statuses.map((s) => {
+                                            const isActive = filterStatus === s;
+                                            return (
+                                                <button key={s} onClick={() => setFilterStatus(s)} style={{
+                                                    padding: "5px 12px", borderRadius: 100, fontSize: 10, fontWeight: 900,
+                                                    cursor: "pointer", fontFamily: "'Urbanist', sans-serif",
+                                                    transition: "all 0.18s ease", whiteSpace: "nowrap",
+                                                    ...(isActive
+                                                        ? s === "success"
+                                                            ? { background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.35)", color: "#16a34a" }
+                                                            : s === "error"
+                                                                ? { background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.35)", color: "#dc2626" }
+                                                                : { background: "linear-gradient(to right,#FF3B8E,#8E44AD)", border: "none", color: "#fff", boxShadow: "0 4px 12px rgba(255,59,142,0.25)" }
+                                                        : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }),
+                                                }}>
+                                                    {s === "ALL" ? "All Status" : s === "success" ? "Success" : "Error"}
+                                                </button>
+                                            );
+                                        })}
+                                        {hasFilters && (
+                                            <button onClick={() => { setSearch(""); setFilterMethod("ALL"); setFilterStatus("ALL"); setFilterCustomer("ALL"); }} style={{
+                                                display: "flex", alignItems: "center", gap: 4,
+                                                fontSize: 10, fontWeight: 700, padding: "5px 10px", borderRadius: 100,
+                                                color: "#dc2626", background: "rgba(239,68,68,0.07)",
+                                                border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
+                                                fontFamily: "'Urbanist', sans-serif",
+                                            }}>
+                                                <X size={10} /> Clear
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Record count badge */}
+                                    <div style={{
+                                        display: "flex", alignItems: "center", gap: 6,
+                                        padding: "5px 12px", borderRadius: 100,
+                                        background: "rgba(255,59,142,0.05)", border: "1px solid rgba(255,59,142,0.15)",
+                                    }}>
+                                        <History size={11} color="#FF3B8E" />
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: "#FF3B8E" }}>{filtered.length}</span>
+                                        <span style={{ fontSize: 11, color: "#94a3b8" }}>of {rawHistory.length} records</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Records list body */}
+                            <div style={{ padding: "14px 16px 16px" }}>
+                                {filtered.length === 0 ? (
+                                    <div style={{
+                                        padding: "60px 20px",
+                                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14,
+                                        border: "1px dashed rgba(0,0,0,0.1)", borderRadius: 16, background: "#FAFAFA",
+                                    }}>
+                                        <div style={{ width: 48, height: 48, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
+                                            <History size={20} color="#FF3B8E" />
+                                        </div>
+                                        <div style={{ textAlign: "center" }}>
+                                            <p style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", margin: "0 0 4px" }}>
+                                                {rawHistory.length === 0 ? "No API calls yet" : "No records match"}
+                                            </p>
+                                            <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                                                {rawHistory.length === 0 ? "Start testing your APIs to see activity here." : "Try adjusting your filters or search query."}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                        {filtered.map((record) => (
+                                            <HistoryRow key={record._id} record={record} isAdmin={isAdmin} />
+                                        ))}
                                     </div>
                                 )}
                             </div>
-
-                            <div className="flex gap-3 flex-wrap items-center">
-                                {/* Method filters */}
-                                <div className="flex gap-1.5">
-                                    {methods.map((m) => {
-                                        const mc = METHOD_COLORS[m];
-                                        const isActive = filterMethod === m;
-                                        return (
-                                            <button key={m} onClick={() => setFilterMethod(m)}
-                                                className="px-3 py-1.5 rounded-full text-[10px] font-black border transition-all"
-                                                style={isActive && m !== "ALL"
-                                                    ? { background: mc.bg, border: `1px solid ${mc.border}`, color: mc.text }
-                                                    : isActive && m === "ALL"
-                                                        ? { background: "linear-gradient(to right, #FF3B8E, #8E44AD)", border: "none", color: "#fff", boxShadow: "0 4px 12px rgba(255,59,142,0.2)" }
-                                                        : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }}>
-                                                {m}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Status filters */}
-                                <div className="flex gap-1.5">
-                                    {statuses.map((s) => {
-                                        const isActive = filterStatus === s;
-                                        return (
-                                            <button key={s} onClick={() => setFilterStatus(s)}
-                                                className="px-3 py-1.5 rounded-full text-[10px] font-black border transition-all"
-                                                style={isActive
-                                                    ? s === "success"
-                                                        ? { background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.35)", color: "#16a34a" }
-                                                        : s === "error"
-                                                            ? { background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.35)", color: "#dc2626" }
-                                                            : { background: "linear-gradient(to right, #FF3B8E, #8E44AD)", border: "none", color: "#fff", boxShadow: "0 4px 12px rgba(255,59,142,0.2)" }
-                                                    : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }}>
-                                                {s === "ALL" ? "ALL STATUS" : s.toUpperCase()}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {hasFilters && (
-                                    <button onClick={() => { setSearch(""); setFilterMethod("ALL"); setFilterStatus("ALL"); setFilterCustomer("ALL"); }}
-                                        className="flex items-center gap-1 text-[10px] font-bold px-3 py-1.5 rounded-full transition-all"
-                                        style={{ color: "#dc2626", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                                        <X size={10} /> Clear
-                                    </button>
-                                )}
-                            </div>
                         </div>
-
-                        {/* Count */}
-                        <div className="flex items-center justify-between mb-4">
-                            <p className="text-[11px] text-slate-400">
-                                Showing <span className="text-[#FF3B8E] font-bold">{filtered.length}</span> of {rawHistory.length} records
-                            </p>
-                        </div>
-
-                        {/* List */}
-                        {filtered.length === 0 ? (
-                            <div className="rounded-3xl p-20 flex flex-col items-center justify-center gap-4"
-                                style={{ border: "1px dashed rgba(0,0,0,0.12)", background: "white" }}>
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                                    style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)" }}>
-                                    <History size={24} className="text-[#FF3B8E]" />
-                                </div>
-                                <p className="text-slate-400 text-sm">
-                                    {rawHistory.length === 0 ? "No API calls yet. Start testing!" : "No records match your filters."}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="space-y-2.5">
-                                {filtered.map((record) => (
-                                    <HistoryRow key={record._id} record={record} isAdmin={isAdmin} />
-                                ))}
-                            </div>
-                        )}
                     </>
                 )}
             </div>
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
-                * { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; }
+                @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap');
+                *, *::before, *::after { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; box-sizing: border-box; }
+                @keyframes ahPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+                @keyframes ahSpin  { to { transform: rotate(360deg); } }
+
+                .ah-page { padding: 88px 40px 64px; }
+                @media (max-width: 768px) { .ah-page { padding: 80px 20px 48px; } }
+                @media (max-width: 480px) { .ah-page { padding: 76px 14px 40px; } }
+
+                .ah-stats-grid { grid-template-columns: repeat(4, 1fr); }
+                @media (max-width: 960px) { .ah-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+                @media (max-width: 400px) { .ah-stats-grid { grid-template-columns: repeat(1, 1fr); } }
+
+                .ah-dropdown-wrap { width: 220px; flex-shrink: 0; }
+                @media (max-width: 640px) {
+                    .ah-filter-row { flex-direction: column !important; }
+                    .ah-filter-row > * { width: 100% !important; }
+                    .ah-dropdown-wrap { width: 100%; }
+                }
+                @media (max-width: 540px) { .ah-hide-xs { display: none !important; } }
             `}</style>
         </div>
     );
