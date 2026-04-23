@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
     Zap, ArrowLeft, LogOut, ShieldCheck, History,
     CreditCard, Plus, User, Menu, X, LayoutDashboard
@@ -11,6 +11,7 @@ export default function Navbar({
     backTo             = null,
     badge              = null,
     badgeIcon          = null,
+    badgeExtra         = null,
     showAdminLinks     = false,
     showLogout         = true,
     onLogout           = null,
@@ -20,13 +21,19 @@ export default function Navbar({
     user               = null,
 }) {
     const navigate    = useNavigate();
+    const location    = useLocation();
     const storedUser  = user || JSON.parse(localStorage.getItem("user") || "null");
     const isAdmin     = storedUser?.role === "admin";
     const defaultBack = isAdmin ? "/admin" : "/dashboard";
 
+    // ── Admin ke liye dashboard route /admin, customer ke liye /dashboard ──
+    const dashboardRoute = isAdmin ? "/admin" : "/dashboard";
+
+    // ── Add Balance sirf /dashboard pe dikhega ──
+    const isDashboard = location.pathname === "/dashboard";
+
     const [menuOpen, setMenuOpen] = useState(false);
 
-    // Lock body scroll when drawer is open
     useEffect(() => {
         document.body.style.overflow = menuOpen ? "hidden" : "";
         return () => { document.body.style.overflow = ""; };
@@ -74,7 +81,6 @@ export default function Navbar({
                 .nb-btn-primary:hover { filter: brightness(1.1); }
                 .nb-btn-primary:active { transform: scale(0.95); }
 
-                /* Hamburger — hidden on desktop */
                 .nb-hamburger {
                     display: none;
                     align-items: center; justify-content: center;
@@ -85,7 +91,6 @@ export default function Navbar({
                 }
                 .nb-hamburger:hover { border-color: rgba(255,59,142,0.3); color: #FF3B8E; }
 
-                /* Desktop row — hidden on mobile */
                 .nb-desktop { display: flex; align-items: center; gap: 8px; }
 
                 @media (max-width: 768px) {
@@ -93,7 +98,6 @@ export default function Navbar({
                     .nb-hamburger { display: flex !important; }
                 }
 
-                /* ── Overlay ── */
                 .nb-overlay {
                     position: fixed; inset: 0; z-index: 48;
                     background: rgba(0,0,0,0.2);
@@ -103,7 +107,6 @@ export default function Navbar({
                 }
                 @keyframes nb-ov-in { from { opacity:0; } to { opacity:1; } }
 
-                /* ── Full-width drawer ── */
                 .nb-drawer {
                     position: fixed;
                     top: 57px;
@@ -119,7 +122,6 @@ export default function Navbar({
                     to   { opacity:1; transform: translateY(0); }
                 }
 
-                /* User pill inside drawer */
                 .nb-dr-user {
                     display: flex; align-items: center; gap: 12px;
                     margin: 12px 16px 4px;
@@ -129,7 +131,6 @@ export default function Navbar({
                     border: 1px solid rgba(255,59,142,0.12);
                 }
 
-                /* Nav rows */
                 .nb-dr-item {
                     display: flex; align-items: center; gap: 14px;
                     width: 100%; padding: 14px 20px;
@@ -234,20 +235,25 @@ export default function Navbar({
                             {badgeIcon} {badge}
                         </span>
                     )}
+                    {badgeExtra}
                 </div>
 
                 {/* RIGHT — Desktop */}
                 <div className="nb-desktop">
                     {showDashboardLinks && (
                         <>
-                            {/* ── DASHBOARD BUTTON (NEW) ── */}
-                            <button className="nb-btn" onClick={() => navigate("/dashboard")}>
+                            {/* DASHBOARD — admin ke liye /admin, customer ke liye /dashboard */}
+                            <button className="nb-btn" onClick={() => navigate(dashboardRoute)}>
                                 <LayoutDashboard size={13} /> DASHBOARD
                             </button>
 
-                            <button className="nb-btn-primary" onClick={onAddBalance}>
-                                <Plus size={13} /> ADD BALANCE
-                            </button>
+                            {/* ADD BALANCE — sirf customer ke liye aur sirf /dashboard pe */}
+                            {!isAdmin && isDashboard && (
+                                <button className="nb-btn-primary" onClick={onAddBalance}>
+                                    <Plus size={13} /> ADD BALANCE
+                                </button>
+                            )}
+
                             <button className="nb-btn" onClick={() => navigate("/history")}>
                                 <History size={13} /> HISTORY
                             </button>
@@ -313,13 +319,10 @@ export default function Navbar({
             {/* ── FULL-WIDTH MOBILE DRAWER ── */}
             {menuOpen && (
                 <>
-                    {/* Dim overlay — click to close */}
                     <div className="nb-overlay" onClick={() => setMenuOpen(false)} />
 
-                    {/* Drawer panel */}
                     <div className="nb-drawer">
 
-                        {/* User info */}
                         {storedUser && (
                             <div className="nb-dr-user">
                                 {storedUser?.avatar
@@ -340,25 +343,28 @@ export default function Navbar({
                             </div>
                         )}
 
-                        {/* Dashboard links */}
                         {showDashboardLinks && (
                             <>
-                                {/* ── DASHBOARD BUTTON (NEW) ── */}
-                                <button className="nb-dr-item" onClick={() => go("/dashboard")}>
+                                {/* DASHBOARD — admin ke liye /admin */}
+                                <button className="nb-dr-item" onClick={() => go(dashboardRoute)}>
                                     <div className="nb-dr-icon"><LayoutDashboard size={17} /></div>
                                     <div>
                                         <div className="nb-dr-label">Dashboard</div>
-                                        <div className="nb-dr-sublabel">Go to your sandbox</div>
+                                        <div className="nb-dr-sublabel">{isAdmin ? "Go to admin panel" : "Go to your sandbox"}</div>
                                     </div>
                                 </button>
 
-                                <button className="nb-dr-item nb-dr-item-primary" onClick={() => { setMenuOpen(false); onAddBalance?.(); }}>
-                                    <div className="nb-dr-icon nb-dr-icon-primary"><Plus size={17} /></div>
-                                    <div>
-                                        <div className="nb-dr-label">Add Balance</div>
-                                        <div className="nb-dr-sublabel">Top up your wallet</div>
-                                    </div>
-                                </button>
+                                {/* ADD BALANCE — sirf customer ke liye aur sirf /dashboard pe */}
+                                {!isAdmin && isDashboard && (
+                                    <button className="nb-dr-item nb-dr-item-primary" onClick={() => { setMenuOpen(false); onAddBalance?.(); }}>
+                                        <div className="nb-dr-icon nb-dr-icon-primary"><Plus size={17} /></div>
+                                        <div>
+                                            <div className="nb-dr-label">Add Balance</div>
+                                            <div className="nb-dr-sublabel">Top up your wallet</div>
+                                        </div>
+                                    </button>
+                                )}
+
                                 <button className="nb-dr-item" onClick={() => go("/history")}>
                                     <div className="nb-dr-icon"><History size={17} /></div>
                                     <div>
@@ -383,7 +389,6 @@ export default function Navbar({
                             </>
                         )}
 
-                        {/* Admin links */}
                         {showAdminLinks && (
                             <>
                                 <button className="nb-dr-item" onClick={() => go("/history")}>
@@ -403,12 +408,10 @@ export default function Navbar({
                             </>
                         )}
 
-                        {/* Custom right content */}
                         {rightContent && (
                             <div style={{ padding: "8px 20px" }}>{rightContent}</div>
                         )}
 
-                        {/* Logout */}
                         {showLogout && (
                             <div className="nb-dr-footer">
                                 <div className="nb-dr-divider" />

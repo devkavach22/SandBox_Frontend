@@ -14,6 +14,12 @@ const METHOD_COLORS = {
     DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#DC2626" },
 };
 
+// ── Default headers — always pre-filled ──
+const DEFAULT_HEADERS = [
+    { key: "ClientId",   value: "84fd2189afae0d53e7025a35ec76b70cfb0a48d67ec72f3b78f2a2ce5f9297f2" },
+    { key: "SecreteKey", value: "c1cf43a7c4d7f9984d3cf703083732ae6b54ef772a3f3f5d9b4f0dc0f302e263" },
+];
+
 function formatBytes(bytes) {
     if (!bytes) return "";
     if (bytes < 1024) return `${bytes} B`;
@@ -230,15 +236,24 @@ export default function Sandbox() {
     const headersKey      = `sandbox_headers_${api._id}`;
 
     const savedLastResponse = (() => { try { return JSON.parse(localStorage.getItem(lastResponseKey)); } catch { return null; } })();
-    const savedHeaders      = (() => { try { return JSON.parse(localStorage.getItem(headersKey)) || [{ key: "authorization", value: "" }]; } catch { return [{ key: "authorization", value: "" }]; } })();
+
+    // ── Load saved headers; if none saved yet, use DEFAULT_HEADERS ──
+    const savedHeaders = (() => {
+        try {
+            const stored = JSON.parse(localStorage.getItem(headersKey));
+            return stored && stored.length > 0 ? stored : DEFAULT_HEADERS;
+        } catch {
+            return DEFAULT_HEADERS;
+        }
+    })();
 
     const [requestBody, setRequestBody] = useState(api?.sampleBody ? JSON.stringify(api.sampleBody, null, 2) : "");
-    const [headers, setHeaders] = useState(savedHeaders);
-    const [baseUrl, setBaseUrl] = useState(localStorage.getItem(baseUrlKey) || "");
+    const [headers, setHeaders]         = useState(savedHeaders);
+    const [baseUrl, setBaseUrl]         = useState(localStorage.getItem(baseUrlKey) || "");
     const [sandboxResult, setSandboxResult] = useState(null);
     const [sandboxLoading, setSandboxLoading] = useState(false);
-    const [lastResponse, setLastResponse] = useState(savedLastResponse);
-    const [fileMap, setFileMap] = useState({});
+    const [lastResponse, setLastResponse]     = useState(savedLastResponse);
+    const [fileMap, setFileMap]               = useState({});
 
     // Save headers to localStorage whenever they change
     useEffect(() => {
@@ -250,14 +265,14 @@ export default function Sandbox() {
         localStorage.setItem(baseUrlKey, val);
     };
 
-    const effectiveUrl = baseUrl.trim() || api?.url;
-    const mc         = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
-    const fileFields = detectFileFields(api?.sampleBody);
+    const effectiveUrl  = baseUrl.trim() || api?.url;
+    const mc            = METHOD_COLORS[api.method] || METHOD_COLORS.POST;
+    const fileFields    = detectFileFields(api?.sampleBody);
     const hasFileFields = fileFields.length > 0;
-    const userId = user?._id || user?.id;
+    const userId        = user?._id || user?.id;
 
     // Header Handlers
-    const addHeaderRow = () => setHeaders([...headers, { key: "", value: "" }]);
+    const addHeaderRow    = () => setHeaders([...headers, { key: "", value: "" }]);
     const removeHeaderRow = (idx) => setHeaders(headers.filter((_, i) => i !== idx));
     const handleHeaderUpdate = (idx, field, val) => {
         const updated = [...headers];
@@ -362,7 +377,7 @@ export default function Sandbox() {
 
                 {/* ── LEFT PANEL ── */}
                 <div className="flex flex-col h-full border-r border-black/[0.06] bg-white/60 backdrop-blur-sm overflow-hidden">
-                    
+
                     {/* Scrollable Area */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                         {/* API Info */}
