@@ -294,7 +294,7 @@ const features = [
         innerBg: "#F8F5FF",
         desc: "No more overpriced subscriptions. With our micro-billing engine you pay down to the 6th decimal per API request — meaning a slow month costs you almost nothing. Wallets auto-top-up and spending caps keep you in full control.",
         bullets: ["6-decimal billing", "Auto top-up", "Spending caps", "Invoice export"],
-        stat: "$0.000001", statLabel: "Minimum charge",
+        stat: "₹ 10", statLabel: "Minimum charge",
     },
     {
         icon: <Terminal size={26} />,

@@ -67,7 +67,7 @@ function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, bor
                 </div>
                 {badge && (
                     <span style={{
-                        fontSize: 9, fontWeight: 800, padding: "3px 8px", borderRadius: 100,
+                        fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 100,
                         background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`,
                         letterSpacing: "0.04em", whiteSpace: "nowrap",
                     }}>{badge.text}</span>
@@ -80,7 +80,7 @@ function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, bor
             </p>
 
             {/* Label */}
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", margin: "0 0 12px" }}>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", margin: "0 0 12px" }}>
                 {label}
             </p>
 
@@ -91,14 +91,14 @@ function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, bor
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {subtext && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext.label}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext.color || "#64748b" }}>{subtext.value}</span>
+                        <span style={{ fontSize: 13, color: "#94a3b8" }}>{subtext.label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: subtext.color || "#64748b" }}>{subtext.value}</span>
                     </div>
                 )}
                 {subtext2 && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{subtext2.label}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: subtext2.color || "#64748b" }}>{subtext2.value}</span>
+                        <span style={{ fontSize: 13, color: "#94a3b8" }}>{subtext2.label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: subtext2.color || "#64748b" }}>{subtext2.value}</span>
                     </div>
                 )}
             </div>
@@ -160,7 +160,7 @@ function HistoryRow({ record, isAdmin }) {
 
             {/* Method badge */}
             <span style={{
-                fontSize: 9, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
+                fontSize: 11, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
                 background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`,
                 letterSpacing: "0.04em", whiteSpace: "nowrap",
             }}>
@@ -170,33 +170,33 @@ function HistoryRow({ record, isAdmin }) {
             {/* Main info */}
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
-                    <p style={{ fontWeight: 800, fontSize: 13, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <p style={{ fontWeight: 800, fontSize: 14, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {apiName}
                     </p>
                     {isAdmin && customerName !== "—" && (
                         <span style={{
-                            display: "flex", alignItems: "center", gap: 3, fontSize: 9, fontWeight: 700,
+                            display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700,
                             padding: "2px 7px", borderRadius: 100,
                             background: "rgba(142,68,173,0.07)", border: "1px solid rgba(142,68,173,0.18)", color: "#8E44AD",
                             flexShrink: 0, whiteSpace: "nowrap",
                         }}>
-                            <User size={8} /> {customerName}
+                            <User size={9} /> {customerName}
                         </span>
                     )}
                     {timestamp && (
-                        <span className="ah-hide-xs" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", flexShrink: 0, whiteSpace: "nowrap" }}>
+                        <span className="ah-hide-xs" style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", flexShrink: 0, whiteSpace: "nowrap" }}>
                             {formatDate(timestamp)}
                         </span>
                     )}
                 </div>
-                <code style={{ fontSize: 10, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <code style={{ fontSize: 12, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {url}
                 </code>
             </div>
 
             {/* Status code */}
             <span className="ah-hide-xs" style={{
-                fontSize: 10, fontWeight: 900, padding: "4px 10px", borderRadius: 100, flexShrink: 0, whiteSpace: "nowrap",
+                fontSize: 12, fontWeight: 900, padding: "4px 10px", borderRadius: 100, flexShrink: 0, whiteSpace: "nowrap",
                 ...(success
                     ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.25)" }
                     : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" })
@@ -212,13 +212,13 @@ function HistoryRow({ record, isAdmin }) {
                 border: "1px solid rgba(255,59,142,0.15)", transition: "background 0.18s ease",
                 whiteSpace: "nowrap",
             }}>
-                <IndianRupee size={10} color="#FF3B8E" />
-                <span style={{ fontSize: 13, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
+                <IndianRupee size={12} color="#FF3B8E" />
+                <span style={{ fontSize: 14, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
             </div>
 
             {/* Time */}
             {timestamp && (
-                <p className="ah-hide-xs" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", flexShrink: 0 }}>
+                <p className="ah-hide-xs" style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", flexShrink: 0 }}>
                     {formatTime(timestamp)}
                 </p>
             )}
@@ -226,7 +226,7 @@ function HistoryRow({ record, isAdmin }) {
             {/* Time ago */}
             {timestamp && (
                 <span style={{
-                    fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 100, flexShrink: 0,
+                    fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 100, flexShrink: 0,
                     color: "#94a3b8", background: "white", border: "1px solid rgba(0,0,0,0.07)", whiteSpace: "nowrap",
                 }}>
                     {timeAgo(timestamp)}
@@ -263,18 +263,18 @@ function CustomerDropdown({ customers, value, onChange }) {
                 border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
                 color: selected ? "#FF3B8E" : "#94a3b8",
                 boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
-                fontSize: 12, fontWeight: 700, cursor: "pointer",
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
                 fontFamily: "'Urbanist', sans-serif", transition: "all 0.18s ease",
             }}>
                 {selected?.avatar
                     ? <img src={selected.avatar} style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} alt="" />
                     : selected
                         ? <div style={{ width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(255,59,142,0.12)", border: "1px solid rgba(255,59,142,0.3)" }}>
-                            <span style={{ fontSize: 7, fontWeight: 900, color: "#FF3B8E" }}>{initials}</span>
+                            <span style={{ fontSize: 8, fontWeight: 900, color: "#FF3B8E" }}>{initials}</span>
                           </div>
-                        : <User size={12} color="#94a3b8" style={{ flexShrink: 0 }} />}
+                        : <User size={13} color="#94a3b8" style={{ flexShrink: 0 }} />}
                 <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-                <ChevronDown size={12} color={open ? "#FF3B8E" : "#94a3b8"} style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s ease" }} />
+                <ChevronDown size={13} color={open ? "#FF3B8E" : "#94a3b8"} style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s ease" }} />
             </button>
             {open && (
                 <div style={{
@@ -303,13 +303,13 @@ function CustomerDropdown({ customers, value, onChange }) {
                                     : opt.avatar
                                         ? <img src={opt.avatar} style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} alt="" />
                                         : <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
-                                            <span style={{ fontSize: 9, fontWeight: 900, color: "#FF3B8E" }}>{oi}</span>
+                                            <span style={{ fontSize: 10, fontWeight: 900, color: "#FF3B8E" }}>{oi}</span>
                                           </div>}
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <p style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", margin: 0, color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>{opt.label}</p>
-                                    {opt.email && <p style={{ fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#94a3b8", margin: 0 }}>{opt.email}</p>}
+                                    <p style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", margin: 0, color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>{opt.label}</p>
+                                    {opt.email && <p style={{ fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#94a3b8", margin: 0 }}>{opt.email}</p>}
                                 </div>
-                                {isSel && <span style={{ color: "#FF3B8E", fontSize: 12, fontWeight: 900 }}>✓</span>}
+                                {isSel && <span style={{ color: "#FF3B8E", fontSize: 13, fontWeight: 900 }}>✓</span>}
                             </button>
                         );
                     })}
@@ -441,7 +441,7 @@ export default function APIHistory() {
                 {/* ─── Header ─── */}
                 <div style={{ marginBottom: 24 }}>
                     <div style={{
-                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700,
+                        display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700,
                         letterSpacing: "0.08em", textTransform: "uppercase", color: "#FF3B8E",
                         background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.18)",
                         borderRadius: 100, padding: "4px 12px", marginBottom: 12,
@@ -491,11 +491,11 @@ export default function APIHistory() {
                                 {/* Search + dropdown */}
                                 <div className="ah-filter-row" style={{ display: "flex", gap: 10, alignItems: "center", overflow: "visible", marginBottom: 14 }}>
                                     <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
-                                        <Search size={13} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
+                                        <Search size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
                                         <input type="text" placeholder="Search API name, URL..." value={search}
                                             onChange={(e) => setSearch(e.target.value)}
                                             style={{
-                                                width: "100%", borderRadius: 12, paddingLeft: 36, paddingRight: 14,
+                                                width: "100%", borderRadius: 12, paddingLeft: 38, paddingRight: 14,
                                                 paddingTop: 9, paddingBottom: 9,
                                                 color: "#0f172a", fontSize: 13, outline: "none",
                                                 background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)",
@@ -521,7 +521,7 @@ export default function APIHistory() {
                                             const isActive = filterMethod === m;
                                             return (
                                                 <button key={m} onClick={() => setFilterMethod(m)} style={{
-                                                    padding: "5px 12px", borderRadius: 100, fontSize: 10, fontWeight: 900,
+                                                    padding: "5px 14px", borderRadius: 100, fontSize: 12, fontWeight: 900,
                                                     cursor: "pointer", fontFamily: "'Urbanist', sans-serif",
                                                     transition: "all 0.18s ease", whiteSpace: "nowrap",
                                                     ...(isActive && m !== "ALL"
@@ -537,7 +537,7 @@ export default function APIHistory() {
                                             const isActive = filterStatus === s;
                                             return (
                                                 <button key={s} onClick={() => setFilterStatus(s)} style={{
-                                                    padding: "5px 12px", borderRadius: 100, fontSize: 10, fontWeight: 900,
+                                                    padding: "5px 14px", borderRadius: 100, fontSize: 12, fontWeight: 900,
                                                     cursor: "pointer", fontFamily: "'Urbanist', sans-serif",
                                                     transition: "all 0.18s ease", whiteSpace: "nowrap",
                                                     ...(isActive
@@ -555,12 +555,12 @@ export default function APIHistory() {
                                         {hasFilters && (
                                             <button onClick={() => { setSearch(""); setFilterMethod("ALL"); setFilterStatus("ALL"); setFilterCustomer("ALL"); }} style={{
                                                 display: "flex", alignItems: "center", gap: 4,
-                                                fontSize: 10, fontWeight: 700, padding: "5px 10px", borderRadius: 100,
+                                                fontSize: 12, fontWeight: 700, padding: "5px 12px", borderRadius: 100,
                                                 color: "#dc2626", background: "rgba(239,68,68,0.07)",
                                                 border: "1px solid rgba(239,68,68,0.2)", cursor: "pointer",
                                                 fontFamily: "'Urbanist', sans-serif",
                                             }}>
-                                                <X size={10} /> Clear
+                                                <X size={11} /> Clear
                                             </button>
                                         )}
                                     </div>
@@ -571,9 +571,9 @@ export default function APIHistory() {
                                         padding: "5px 12px", borderRadius: 100,
                                         background: "rgba(255,59,142,0.05)", border: "1px solid rgba(255,59,142,0.15)",
                                     }}>
-                                        <History size={11} color="#FF3B8E" />
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: "#FF3B8E" }}>{filtered.length}</span>
-                                        <span style={{ fontSize: 11, color: "#94a3b8" }}>of {rawHistory.length} records</span>
+                                        <History size={12} color="#FF3B8E" />
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: "#FF3B8E" }}>{filtered.length}</span>
+                                        <span style={{ fontSize: 13, color: "#94a3b8" }}>of {rawHistory.length} records</span>
                                     </div>
                                 </div>
                             </div>
@@ -590,10 +590,10 @@ export default function APIHistory() {
                                             <History size={20} color="#FF3B8E" />
                                         </div>
                                         <div style={{ textAlign: "center" }}>
-                                            <p style={{ fontWeight: 700, fontSize: 14, color: "#0f172a", margin: "0 0 4px" }}>
+                                            <p style={{ fontWeight: 700, fontSize: 15, color: "#0f172a", margin: "0 0 4px" }}>
                                                 {rawHistory.length === 0 ? "No API calls yet" : "No records match"}
                                             </p>
-                                            <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                                            <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>
                                                 {rawHistory.length === 0 ? "Start testing your APIs to see activity here." : "Try adjusting your filters or search query."}
                                             </p>
                                         </div>

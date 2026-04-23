@@ -35,17 +35,17 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
     return (
         <div ref={ref} className="relative" style={{ overflow: "visible" }}>
             <button onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap"
                 style={{
                     background: "white",
                     border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
                     color: value !== "ALL" ? "#FF3B8E" : "#94a3b8",
-                    minWidth: "130px",
+                    minWidth: "140px",
                     boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
                 }}>
-                {Icon && <Icon size={12} className="flex-shrink-0" style={{ color: value !== "ALL" ? "#FF3B8E" : "#94a3b8" }} />}
+                {Icon && <Icon size={14} className="flex-shrink-0" style={{ color: value !== "ALL" ? "#FF3B8E" : "#94a3b8" }} />}
                 <span className="flex-1 text-left truncate">{selected?.label || placeholder}</span>
-                <ChevronDown size={11} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
+                <ChevronDown size={13} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
             </button>
             {open && (
                 <div style={{
@@ -59,7 +59,7 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
                         const isSel = value === opt.value;
                         return (
                             <button key={opt.value} onClick={() => { onChange(opt.value); setOpen(false); }}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
+                                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
                                 style={{
                                     background: isSel ? "rgba(255,59,142,0.05)" : "transparent",
                                     borderLeft: isSel ? "2px solid #FF3B8E" : "2px solid transparent",
@@ -68,8 +68,8 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
                                 }}
                                 onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                                 onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
-                                <p className="text-xs font-bold" style={{ color: isSel ? "#FF3B8E" : "#1e293b" }}>{opt.label}</p>
-                                {isSel && <span className="ml-auto text-[#FF3B8E] text-xs font-black">✓</span>}
+                                <p className="text-sm font-bold" style={{ color: isSel ? "#FF3B8E" : "#1e293b" }}>{opt.label}</p>
+                                {isSel && <span className="ml-auto text-[#FF3B8E] text-sm font-black">✓</span>}
                             </button>
                         );
                     })}
@@ -100,7 +100,7 @@ function CustomerDropdown({ customers, value, onChange }) {
     return (
         <div ref={ref} className="relative w-full" style={{ overflow: "visible" }}>
             <button onClick={() => setOpen(!open)}
-                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all"
+                className="w-full flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all"
                 style={{
                     background: "white",
                     border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
@@ -112,11 +112,11 @@ function CustomerDropdown({ customers, value, onChange }) {
                     : selected
                         ? <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                             style={{ background: "rgba(255,59,142,0.12)", border: "1px solid rgba(255,59,142,0.3)" }}>
-                            <span className="text-[7px] font-black text-[#FF3B8E]">{initials}</span>
+                            <span className="text-[9px] font-black text-[#FF3B8E]">{initials}</span>
                           </div>
-                        : <User size={12} className="text-slate-400 flex-shrink-0" />}
+                        : <User size={14} className="text-slate-400 flex-shrink-0" />}
                 <span className="flex-1 text-left truncate">{label}</span>
-                <ChevronDown size={12} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
+                <ChevronDown size={13} className={`flex-shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-[#FF3B8E]" : "text-slate-400"}`} />
             </button>
             {open && (
                 <div style={{
@@ -140,24 +140,24 @@ function CustomerDropdown({ customers, value, onChange }) {
                                 onMouseEnter={(e) => { if (!isSel) e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                                 onMouseLeave={(e) => { if (!isSel) e.currentTarget.style.background = "transparent"; }}>
                                 {opt.value === "ALL"
-                                    ? <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+                                    ? <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                                         style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.07)" }}>
-                                        <User size={13} className="text-slate-400" />
+                                        <User size={14} className="text-slate-400" />
                                       </div>
                                     : opt.avatar
-                                        ? <img src={opt.avatar} className="w-7 h-7 rounded-xl object-cover flex-shrink-0" alt="" />
-                                        : <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+                                        ? <img src={opt.avatar} className="w-8 h-8 rounded-xl object-cover flex-shrink-0" alt="" />
+                                        : <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                                             style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
-                                            <span className="text-[9px] font-black text-[#FF3B8E]">{oi}</span>
+                                            <span className="text-[10px] font-black text-[#FF3B8E]">{oi}</span>
                                           </div>}
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold truncate"
+                                    <p className="text-sm font-bold truncate"
                                         style={{ color: isSel ? "#FF3B8E" : opt.value === "ALL" ? "#94a3b8" : "#1e293b" }}>
                                         {opt.label}
                                     </p>
-                                    {opt.email && <p className="text-[10px] truncate text-slate-400">{opt.email}</p>}
+                                    {opt.email && <p className="text-xs truncate text-slate-400">{opt.email}</p>}
                                 </div>
-                                {isSel && <span className="text-[#FF3B8E] text-xs font-black">✓</span>}
+                                {isSel && <span className="text-[#FF3B8E] text-sm font-black">✓</span>}
                             </button>
                         );
                     })}
@@ -196,32 +196,32 @@ function PaymentRow({ record, isAdmin }) {
                 style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
 
             {/* Icon */}
-            <div className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+            <div className="relative flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
                 style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
-                <CheckCircle2 size={16} className="text-[#FF3B8E]" />
+                <CheckCircle2 size={18} className="text-[#FF3B8E]" />
             </div>
 
             {/* Customer info (admin only) */}
             {isAdmin && (
-                <div className="relative flex items-center gap-2 flex-shrink-0 w-36">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="relative flex items-center gap-2 flex-shrink-0 w-40">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.18)" }}>
-                        <span className="text-[9px] font-black text-[#8E44AD]">{initials || "?"}</span>
+                        <span className="text-xs font-black text-[#8E44AD]">{initials || "?"}</span>
                     </div>
                     <div className="min-w-0">
-                        <p className="text-xs font-black truncate text-gray-900">{customerName}</p>
-                        <p className="text-[9px] truncate text-slate-400">{customerEmail}</p>
+                        <p className="text-sm font-black truncate text-gray-900">{customerName}</p>
+                        <p className="text-xs truncate text-slate-400">{customerEmail}</p>
                     </div>
                 </div>
             )}
 
             {/* Payment ID */}
             <div className="relative flex-1 min-w-0">
-                <p className="text-[10px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
+                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
                 <div className="flex items-center gap-2">
-                    <code className="text-xs text-slate-500 truncate">{paymentId || "—"}</code>
+                    <code className="text-sm text-slate-500 truncate">{paymentId || "—"}</code>
                     <button onClick={copyId}
-                        className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-lg border transition-all"
+                        className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-lg border transition-all"
                         style={copied
                             ? { color: "#16a34a", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.08)" }
                             : { color: "#94a3b8", border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF" }}>
@@ -233,10 +233,10 @@ function PaymentRow({ record, isAdmin }) {
             {/* Amount */}
             <div className="relative flex-shrink-0 text-center px-3 py-2 rounded-2xl"
                 style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
-                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
+                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
                 <div className="flex items-center gap-0.5 justify-center">
-                    <IndianRupee size={12} className="text-[#FF3B8E]" />
-                    <span className="text-base font-black text-[#FF3B8E]">
+                    <IndianRupee size={14} className="text-[#FF3B8E]" />
+                    <span className="text-lg font-black text-[#FF3B8E]">
                         {parseFloat(record.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </span>
                 </div>
@@ -244,8 +244,8 @@ function PaymentRow({ record, isAdmin }) {
 
             {/* Status */}
             <div className="relative flex-shrink-0 text-center hidden md:block">
-                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Status</p>
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Status</p>
+                <span className="text-xs font-bold px-3 py-1 rounded-full"
                     style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>
                     {record.status || "Success"}
                 </span>
@@ -253,17 +253,17 @@ function PaymentRow({ record, isAdmin }) {
 
             {/* Date */}
             <div className="relative flex-shrink-0 text-right hidden sm:block">
-                <p className="text-[9px] text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Date</p>
-                <p className="text-[11px] font-bold text-slate-500">{timestamp ? formatDate(timestamp) : "—"}</p>
+                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Date</p>
+                <p className="text-sm font-bold text-slate-500">{timestamp ? formatDate(timestamp) : "—"}</p>
             </div>
 
             {/* Time ago */}
             <div className="relative flex-shrink-0 flex flex-col items-end gap-1">
-                <span className="text-[10px] font-bold px-3 py-1.5 rounded-full text-slate-400"
+                <span className="text-xs font-bold px-3 py-1.5 rounded-full text-slate-500"
                     style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
                     {timestamp ? timeAgo(timestamp) : "—"}
                 </span>
-                <span className="text-[9px] text-slate-400">{timestamp ? formatTime(timestamp) : ""}</span>
+                <span className="text-xs text-slate-400">{timestamp ? formatTime(timestamp) : ""}</span>
             </div>
         </div>
     );
@@ -411,12 +411,12 @@ export default function Payment() {
     };
 
     const stats = [
-        { label: "Total Transactions", value: totalTxns,   color: "#FF3B8E", glow: "rgba(255,59,142,0.1)",  icon: <CreditCard size={18} /> },
-        { label: "Total Collected",    value: `₹${totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#16a34a", glow: "rgba(34,197,94,0.1)", icon: <TrendingUp size={18} /> },
-        { label: "Avg Transaction",    value: `₹${avgAmount.toFixed(2)}`, color: "#4F46E5", glow: "rgba(99,102,241,0.1)", icon: <Wallet size={18} /> },
+        { label: "Total Transactions", value: totalTxns,   color: "#FF3B8E", glow: "rgba(255,59,142,0.1)",  icon: <CreditCard size={20} /> },
+        { label: "Total Collected",    value: `₹${totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, color: "#16a34a", glow: "rgba(34,197,94,0.1)", icon: <TrendingUp size={20} /> },
+        { label: "Avg Transaction",    value: `₹${avgAmount.toFixed(2)}`, color: "#4F46E5", glow: "rgba(99,102,241,0.1)", icon: <Wallet size={20} /> },
         isAdmin
-            ? { label: "Unique Customers", value: uniqueCustomers, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <User size={18} /> }
-            : { label: "Total Added",      value: `₹${totalAmount.toFixed(2)}`, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <Wallet size={18} /> },
+            ? { label: "Unique Customers", value: uniqueCustomers, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <User size={20} /> }
+            : { label: "Total Added",      value: `₹${totalAmount.toFixed(2)}`, color: "#8E44AD", glow: "rgba(142,68,173,0.1)", icon: <Wallet size={20} /> },
     ];
 
     return (
@@ -447,7 +447,7 @@ export default function Payment() {
                             Payment History
                         </span>
                     </h1>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-slate-400 text-base">
                         {isAdmin ? "Complete payment log of all customers" : "All your wallet top-up transactions"}
                     </p>
                 </div>
@@ -468,13 +468,13 @@ export default function Payment() {
                                     <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
                                         style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
                                     <div className="flex justify-between items-start mb-5">
-                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                                        <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
                                             style={{ background: card.glow, border: `1px solid ${card.color}30` }}>
                                             <span style={{ color: card.color }}>{card.icon}</span>
                                         </div>
                                     </div>
                                     <p className="text-3xl font-black mb-1.5" style={{ color: card.color }}>{card.value}</p>
-                                    <p className="text-[10px] text-slate-400 tracking-[0.2em] font-bold uppercase">{card.label}</p>
+                                    <p className="text-xs text-slate-400 tracking-[0.15em] font-bold uppercase">{card.label}</p>
                                 </div>
                             ))}
                         </div>
@@ -486,10 +486,10 @@ export default function Payment() {
                             {/* Row 1: Search + Customer */}
                             <div className="flex gap-3 items-center flex-wrap" style={{ overflow: "visible" }}>
                                 <div className="relative flex-1 min-w-[180px]">
-                                    <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     <input type="text" placeholder="Search payment ID or customer..." value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="w-full rounded-2xl pl-9 pr-4 py-2.5 text-gray-900 text-sm outline-none transition-all placeholder-slate-400"
+                                        className="w-full rounded-2xl pl-10 pr-4 py-2.5 text-gray-900 text-sm outline-none transition-all placeholder-slate-400"
                                         style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", fontFamily: "'Urbanist', sans-serif", caretColor: "#FF3B8E" }}
                                         onFocus={e => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; }}
                                         onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
@@ -502,26 +502,26 @@ export default function Payment() {
                                 )}
                                 {hasFilters && (
                                     <button onClick={clearAll}
-                                        className="flex items-center gap-1 text-[10px] font-bold px-3 py-2 rounded-full transition-all flex-shrink-0"
+                                        className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all flex-shrink-0"
                                         style={{ color: "#dc2626", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                                        <X size={10} /> Clear All
+                                        <X size={12} /> Clear All
                                     </button>
                                 )}
                             </div>
 
                             {/* Row 2: Amount pills */}
                             <div className="flex items-center gap-2 flex-wrap">
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
-                                    <IndianRupee size={10} /> Amt
+                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
+                                    <IndianRupee size={11} /> Amt
                                 </div>
                                 {AMOUNT_OPTIONS.map((opt) => {
                                     const isActive = filterAmount === opt.value;
                                     return (
                                         <button key={opt.value} onClick={() => setFilterAmount(opt.value)}
-                                            className="px-3 py-1.5 rounded-full text-[10px] font-black border transition-all"
+                                            className="px-3.5 py-1.5 rounded-full text-xs font-black border transition-all"
                                             style={isActive
                                                 ? { background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.35)", color: "#FF3B8E", boxShadow: "0 0 8px rgba(255,59,142,0.1)" }
-                                                : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#94a3b8" }}>
+                                                : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b" }}>
                                             {opt.value === "ALL" ? "All" : opt.label}
                                         </button>
                                     );
@@ -530,8 +530,8 @@ export default function Payment() {
 
                             {/* Row 3: Date dropdowns */}
                             <div className="flex items-center gap-2 flex-wrap" style={{ overflow: "visible" }}>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
-                                    <Calendar size={10} /> Date
+                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
+                                    <Calendar size={11} /> Date
                                 </div>
                                 <CustomDropdown options={monthOptions} value={filterMonth} onChange={handleMonthChange} icon={Calendar} placeholder="All Months" />
                                 {filterMonth !== "ALL" && (
@@ -542,19 +542,19 @@ export default function Payment() {
                             {/* Active date filter pills */}
                             {(filterMonth !== "ALL" || filterDate !== "ALL") && (
                                 <div className="flex gap-2 flex-wrap pt-2" style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase self-center">Active:</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase self-center">Active:</span>
                                     {filterMonth !== "ALL" && (
-                                        <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full"
+                                        <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full"
                                             style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", color: "#4F46E5" }}>
-                                            <Calendar size={9} /> {monthOptions.find(o => o.value === filterMonth)?.label}
-                                            <button onClick={() => { setFilterMonth("ALL"); setFilterDate("ALL"); }}><X size={9} /></button>
+                                            <Calendar size={11} /> {monthOptions.find(o => o.value === filterMonth)?.label}
+                                            <button onClick={() => { setFilterMonth("ALL"); setFilterDate("ALL"); }}><X size={11} /></button>
                                         </span>
                                     )}
                                     {filterDate !== "ALL" && (
-                                        <span className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full"
+                                        <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full"
                                             style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.2)", color: "#8E44AD" }}>
-                                            <Calendar size={9} /> {dateOptions.find(o => o.value === filterDate)?.label}
-                                            <button onClick={() => setFilterDate("ALL")}><X size={9} /></button>
+                                            <Calendar size={11} /> {dateOptions.find(o => o.value === filterDate)?.label}
+                                            <button onClick={() => setFilterDate("ALL")}><X size={11} /></button>
                                         </span>
                                     )}
                                 </div>
@@ -563,11 +563,11 @@ export default function Payment() {
 
                         {/* Count + total */}
                         <div className="flex items-center justify-between mb-4">
-                            <p className="text-[11px] text-slate-400">
+                            <p className="text-sm text-slate-400">
                                 Showing <span className="text-[#FF3B8E] font-bold">{filtered.length}</span> of {rawPayments.length} transactions
                             </p>
                             {totalAmount > 0 && (
-                                <p className="text-[11px] text-slate-400">
+                                <p className="text-sm text-slate-400">
                                     Filtered Total:{" "}
                                     <span className="font-bold text-[#FF3B8E]">
                                         ₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
@@ -584,7 +584,7 @@ export default function Payment() {
                                     style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)" }}>
                                     <CreditCard size={24} className="text-[#FF3B8E]" />
                                 </div>
-                                <p className="text-slate-400 text-sm">
+                                <p className="text-slate-400 text-base">
                                     {rawPayments.length === 0 ? "No payments yet. Add balance to get started!" : "No records match your filters."}
                                 </p>
                             </div>
