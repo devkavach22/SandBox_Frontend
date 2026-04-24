@@ -1,6 +1,6 @@
 import axios from "axios";
 const axiosInstance = axios.create({
-    baseURL: "http://192.168.11.53:6001/api",
+    baseURL: "https://sandbox.kavachglobal.com/api",
 
   // baseURL: "http://localhost:5001/api"
 
