@@ -49,14 +49,11 @@ function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, bor
                 boxShadow: hovered ? `0 12px 32px ${glowColor}` : "0 1px 4px rgba(0,0,0,0.04)",
             }}
         >
-            {/* Top accent bar */}
             <div style={{
                 position: "absolute", top: 0, left: 0, right: 0, height: 3,
                 background: accentColor, borderRadius: "20px 20px 0 0",
                 opacity: hovered ? 1 : 0, transition: "opacity 0.22s ease",
             }} />
-
-            {/* Header row: icon + badge */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
                 <div style={{
                     width: 34, height: 34, borderRadius: 11,
@@ -73,21 +70,13 @@ function StatCard({ label, value, subtext, subtext2, accentColor, glowColor, bor
                     }}>{badge.text}</span>
                 )}
             </div>
-
-            {/* Value */}
             <p style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, margin: "0 0 4px", color: accentColor }}>
                 {value}
             </p>
-
-            {/* Label */}
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#94a3b8", margin: "0 0 12px" }}>
                 {label}
             </p>
-
-            {/* Divider */}
             <div style={{ height: 1, background: "rgba(0,0,0,0.05)", margin: "0 0 10px" }} />
-
-            {/* Sub rows */}
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {subtext && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -125,10 +114,6 @@ function HistoryRow({ record, isAdmin }) {
             onMouseLeave={() => setHovered(false)}
             style={{
                 position: "relative",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "13px 16px",
                 borderRadius: 14,
                 background: hovered ? "rgba(255,59,142,0.02)" : "rgba(248,247,255,0.6)",
                 border: `1px solid ${hovered ? "rgba(255,59,142,0.18)" : "rgba(0,0,0,0.05)"}`,
@@ -136,7 +121,6 @@ function HistoryRow({ record, isAdmin }) {
                 transition: "all 0.2s ease",
                 overflow: "hidden",
                 cursor: "default",
-                minWidth: 0,
             }}
         >
             {/* Left accent bar */}
@@ -148,90 +132,155 @@ function HistoryRow({ record, isAdmin }) {
                 transition: "opacity 0.2s ease",
             }} />
 
-            {/* Status icon */}
-            <div style={{
-                flexShrink: 0, width: 32, height: 32, borderRadius: 10,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: success ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                border: success ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(239,68,68,0.2)",
+            {/* ── Desktop layout ── */}
+            <div className="ah-row-desktop" style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "13px 16px", minWidth: 0,
             }}>
-                {success ? <CheckCircle2 size={14} color="#22c55e" /> : <XCircle size={14} color="#ef4444" />}
+                <div style={{
+                    flexShrink: 0, width: 32, height: 32, borderRadius: 10,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    background: success ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                    border: success ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(239,68,68,0.2)",
+                }}>
+                    {success ? <CheckCircle2 size={14} color="#22c55e" /> : <XCircle size={14} color="#ef4444" />}
+                </div>
+                <span style={{
+                    fontSize: 12, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
+                    background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`,
+                    letterSpacing: "0.04em", whiteSpace: "nowrap",
+                }}>
+                    {record.method}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
+                        <p style={{ fontWeight: 800, fontSize: 16, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {apiName}
+                        </p>
+                        {isAdmin && customerName !== "—" && (
+                            <span style={{
+                                display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700,
+                                padding: "2px 7px", borderRadius: 100,
+                                background: "rgba(142,68,173,0.07)", border: "1px solid rgba(142,68,173,0.18)", color: "#8E44AD",
+                                flexShrink: 0, whiteSpace: "nowrap",
+                            }}>
+                                <User size={9} /> {customerName}
+                            </span>
+                        )}
+                        {timestamp && (
+                            <span className="ah-hide-xs" style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", flexShrink: 0, whiteSpace: "nowrap" }}>
+                                {formatDate(timestamp)}
+                            </span>
+                        )}
+                    </div>
+                    <code style={{ fontSize: 13, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {url}
+                    </code>
+                </div>
+                <span className="ah-hide-xs" style={{
+                    fontSize: 13, fontWeight: 900, padding: "4px 10px", borderRadius: 100, flexShrink: 0, whiteSpace: "nowrap",
+                    ...(success
+                        ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.25)" }
+                        : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" })
+                }}>
+                    {statusCode}
+                </span>
+                <div style={{
+                    display: "flex", alignItems: "center", gap: 3, flexShrink: 0,
+                    padding: "4px 10px", borderRadius: 100,
+                    background: hovered ? "rgba(255,59,142,0.1)" : "rgba(255,59,142,0.06)",
+                    border: "1px solid rgba(255,59,142,0.15)", transition: "background 0.18s ease",
+                    whiteSpace: "nowrap",
+                }}>
+                    <IndianRupee size={12} color="#FF3B8E" />
+                    <span style={{ fontSize: 16, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
+                </div>
+                {timestamp && (
+                    <p className="ah-hide-xs" style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", flexShrink: 0 }}>
+                        {formatTime(timestamp)}
+                    </p>
+                )}
+                {timestamp && (
+                    <span style={{
+                        fontSize: 13, fontWeight: 700, padding: "4px 10px", borderRadius: 100, flexShrink: 0,
+                        color: "#94a3b8", background: "white", border: "1px solid rgba(0,0,0,0.07)", whiteSpace: "nowrap",
+                    }}>
+                        {timeAgo(timestamp)}
+                    </span>
+                )}
             </div>
 
-            {/* Method badge */}
-            <span style={{
-                fontSize: 11, fontWeight: 900, padding: "4px 9px", borderRadius: 8, flexShrink: 0,
-                background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`,
-                letterSpacing: "0.04em", whiteSpace: "nowrap",
-            }}>
-                {record.method}
-            </span>
-
-            {/* Main info */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
-                    <p style={{ fontWeight: 800, fontSize: 14, color: "#0f172a", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {/* ── Mobile layout ── */}
+            <div className="ah-row-mobile" style={{ padding: "12px 14px 12px 18px" }}>
+                {/* Row 1: icon + method + name + time ago */}
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+                    <div style={{
+                        flexShrink: 0, width: 26, height: 26, borderRadius: 8,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        background: success ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                        border: success ? "1px solid rgba(34,197,94,0.2)" : "1px solid rgba(239,68,68,0.2)",
+                    }}>
+                        {success ? <CheckCircle2 size={11} color="#22c55e" /> : <XCircle size={11} color="#ef4444" />}
+                    </div>
+                    <span style={{
+                        fontSize: 10, fontWeight: 900, padding: "3px 7px", borderRadius: 6, flexShrink: 0,
+                        background: mc.bg, color: mc.text, border: `1px solid ${mc.border}40`,
+                        letterSpacing: "0.04em",
+                    }}>
+                        {record.method}
+                    </span>
+                    <p style={{ fontWeight: 800, fontSize: 14, color: "#0f172a", margin: 0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {apiName}
                     </p>
+                    <span style={{
+                        fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 100, flexShrink: 0,
+                        color: "#94a3b8", background: "white", border: "1px solid rgba(0,0,0,0.07)", whiteSpace: "nowrap",
+                    }}>
+                        {timestamp ? timeAgo(timestamp) : ""}
+                    </span>
+                </div>
+
+                {/* Row 2: URL */}
+                <code style={{ fontSize: 11, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 7 }}>
+                    {url}
+                </code>
+
+                {/* Row 3: badges */}
+                <div style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
                     {isAdmin && customerName !== "—" && (
                         <span style={{
                             display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700,
                             padding: "2px 7px", borderRadius: 100,
                             background: "rgba(142,68,173,0.07)", border: "1px solid rgba(142,68,173,0.18)", color: "#8E44AD",
-                            flexShrink: 0, whiteSpace: "nowrap",
+                            whiteSpace: "nowrap",
                         }}>
                             <User size={9} /> {customerName}
                         </span>
                     )}
+                    <span style={{
+                        fontSize: 11, fontWeight: 900, padding: "3px 9px", borderRadius: 100, whiteSpace: "nowrap",
+                        ...(success
+                            ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.25)" }
+                            : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" })
+                    }}>
+                        {statusCode}
+                    </span>
+                    <div style={{
+                        display: "flex", alignItems: "center", gap: 2,
+                        padding: "3px 9px", borderRadius: 100,
+                        background: "rgba(255,59,142,0.06)", border: "1px solid rgba(255,59,142,0.15)",
+                        whiteSpace: "nowrap",
+                    }}>
+                        <IndianRupee size={11} color="#FF3B8E" />
+                        <span style={{ fontSize: 13, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
+                    </div>
                     {timestamp && (
-                        <span className="ah-hide-xs" style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", flexShrink: 0, whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: "auto", whiteSpace: "nowrap", fontWeight: 600 }}>
                             {formatDate(timestamp)}
                         </span>
                     )}
                 </div>
-                <code style={{ fontSize: 12, color: "#94a3b8", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {url}
-                </code>
             </div>
-
-            {/* Status code */}
-            <span className="ah-hide-xs" style={{
-                fontSize: 12, fontWeight: 900, padding: "4px 10px", borderRadius: 100, flexShrink: 0, whiteSpace: "nowrap",
-                ...(success
-                    ? { background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.25)" }
-                    : { background: "rgba(239,68,68,0.08)", color: "#dc2626", border: "1px solid rgba(239,68,68,0.25)" })
-            }}>
-                {statusCode}
-            </span>
-
-            {/* Amount */}
-            <div style={{
-                display: "flex", alignItems: "center", gap: 3, flexShrink: 0,
-                padding: "4px 10px", borderRadius: 100,
-                background: hovered ? "rgba(255,59,142,0.1)" : "rgba(255,59,142,0.06)",
-                border: "1px solid rgba(255,59,142,0.15)", transition: "background 0.18s ease",
-                whiteSpace: "nowrap",
-            }}>
-                <IndianRupee size={12} color="#FF3B8E" />
-                <span style={{ fontSize: 14, fontWeight: 900, color: "#FF3B8E" }}>{amount}</span>
-            </div>
-
-            {/* Time */}
-            {timestamp && (
-                <p className="ah-hide-xs" style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", margin: 0, whiteSpace: "nowrap", flexShrink: 0 }}>
-                    {formatTime(timestamp)}
-                </p>
-            )}
-
-            {/* Time ago */}
-            {timestamp && (
-                <span style={{
-                    fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 100, flexShrink: 0,
-                    color: "#94a3b8", background: "white", border: "1px solid rgba(0,0,0,0.07)", whiteSpace: "nowrap",
-                }}>
-                    {timeAgo(timestamp)}
-                </span>
-            )}
         </div>
     );
 }
@@ -430,7 +479,6 @@ export default function APIHistory() {
             minHeight: "100vh", background: "#F8F7FF", color: "#334155",
             fontFamily: "'Urbanist', sans-serif", position: "relative", overflowX: "hidden",
         }}>
-            {/* Glow blobs */}
             <div style={{ position: "fixed", top: "-10%", left: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(255,59,142,0.1)", filter: "blur(80px)" }} />
             <div style={{ position: "fixed", bottom: "-10%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", zIndex: 0, pointerEvents: "none", background: "rgba(142,68,173,0.08)", filter: "blur(80px)" }} />
 
@@ -438,7 +486,6 @@ export default function APIHistory() {
 
             <div className="ah-page" style={{ position: "relative", zIndex: 10, width: "100%", boxSizing: "border-box" }}>
 
-                {/* ─── Header ─── */}
                 <div style={{ marginBottom: 24 }}>
                     <div style={{
                         display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700,
@@ -469,26 +516,15 @@ export default function APIHistory() {
                     </div>
                 ) : (
                     <>
-                        {/* ─── Stat Cards ─── */}
                         <div className="ah-stats-grid" style={{ display: "grid", gap: 14, marginBottom: 24 }}>
                             {statCards.map((card, i) => <StatCard key={i} {...card} />)}
                         </div>
 
-                        {/* ─── Records Card ─── */}
                         <div style={{
-                            background: "white",
-                            border: "1px solid rgba(0,0,0,0.06)",
-                            borderRadius: 22,
-                            boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
-                            overflow: "visible",
+                            background: "white", border: "1px solid rgba(0,0,0,0.06)",
+                            borderRadius: 22, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", overflow: "visible",
                         }}>
-                            {/* Card Header */}
-                            <div style={{
-                                padding: "18px 20px 0",
-                                borderBottom: "1px solid rgba(0,0,0,0.05)",
-                                marginBottom: 0,
-                            }}>
-                                {/* Search + dropdown */}
+                            <div style={{ padding: "18px 20px 0", borderBottom: "1px solid rgba(0,0,0,0.05)", marginBottom: 0 }}>
                                 <div className="ah-filter-row" style={{ display: "flex", gap: 10, alignItems: "center", overflow: "visible", marginBottom: 14 }}>
                                     <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
                                         <Search size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }} />
@@ -513,7 +549,6 @@ export default function APIHistory() {
                                     )}
                                 </div>
 
-                                {/* Pills + count row */}
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, paddingBottom: 14 }}>
                                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                                         {methods.map((m) => {
@@ -565,7 +600,6 @@ export default function APIHistory() {
                                         )}
                                     </div>
 
-                                    {/* Record count badge */}
                                     <div style={{
                                         display: "flex", alignItems: "center", gap: 6,
                                         padding: "5px 12px", borderRadius: 100,
@@ -578,7 +612,6 @@ export default function APIHistory() {
                                 </div>
                             </div>
 
-                            {/* Records list body */}
                             <div style={{ padding: "14px 16px 16px" }}>
                                 {filtered.length === 0 ? (
                                     <div style={{
@@ -632,6 +665,14 @@ export default function APIHistory() {
                     .ah-dropdown-wrap { width: 100%; }
                 }
                 @media (max-width: 540px) { .ah-hide-xs { display: none !important; } }
+
+                /* Mobile row toggle — only change for mobile */
+                .ah-row-mobile  { display: none; }
+                .ah-row-desktop { display: flex; }
+                @media (max-width: 600px) {
+                    .ah-row-mobile  { display: block; }
+                    .ah-row-desktop { display: none !important; }
+                }
             `}</style>
         </div>
     );

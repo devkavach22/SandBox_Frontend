@@ -40,7 +40,7 @@ function CustomDropdown({ options, value, onChange, icon: Icon, placeholder }) {
                     background: "white",
                     border: `1px solid ${open ? "rgba(255,59,142,0.4)" : "rgba(0,0,0,0.08)"}`,
                     color: value !== "ALL" ? "#FF3B8E" : "#94a3b8",
-                    minWidth: "140px",
+                    minWidth: "150px",
                     boxShadow: open ? "0 0 0 3px rgba(255,59,142,0.08)" : "none",
                 }}>
                 {Icon && <Icon size={14} className="flex-shrink-0" style={{ color: value !== "ALL" ? "#FF3B8E" : "#94a3b8" }} />}
@@ -184,88 +184,146 @@ function PaymentRow({ record, isAdmin }) {
     };
 
     return (
-        <div
-            className="relative flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 overflow-hidden group border hover:shadow-md hover:-translate-y-0.5"
-            style={{ background: "white", borderColor: "rgba(0,0,0,0.06)" }}
-        >
-            {/* Hover glow */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
-                style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
-            {/* Bottom accent */}
-            <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
-                style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
+        <>
+            {/* ── DESKTOP layout (sm and above) ── */}
+            <div
+                className="relative hidden sm:flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 overflow-hidden group border hover:shadow-md hover:-translate-y-0.5"
+                style={{ background: "white", borderColor: "rgba(0,0,0,0.06)" }}
+            >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
+                    style={{ background: "radial-gradient(ellipse at top left, rgba(255,59,142,0.05), transparent 70%)" }} />
+                <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
+                    style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
 
-            {/* Icon */}
-            <div className="relative flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-                style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
-                <CheckCircle2 size={18} className="text-[#FF3B8E]" />
-            </div>
+                {/* Icon */}
+                <div className="relative flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                    style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
+                    <CheckCircle2 size={18} className="text-[#FF3B8E]" />
+                </div>
 
-            {/* Customer info (admin only) */}
-            {isAdmin && (
-                <div className="relative flex items-center gap-2 flex-shrink-0 w-40">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.18)" }}>
-                        <span className="text-xs font-black text-[#8E44AD]">{initials || "?"}</span>
+                {/* Customer info (admin only) */}
+                {isAdmin && (
+                    <div className="relative flex items-center gap-2 flex-shrink-0 w-44">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style={{ background: "rgba(142,68,173,0.08)", border: "1px solid rgba(142,68,173,0.18)" }}>
+                            <span className="text-xs font-black text-[#8E44AD]">{initials || "?"}</span>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-black truncate text-gray-900">{customerName}</p>
+                            <p className="text-xs truncate text-slate-400">{customerEmail}</p>
+                        </div>
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-sm font-black truncate text-gray-900">{customerName}</p>
-                        <p className="text-xs truncate text-slate-400">{customerEmail}</p>
+                )}
+
+                {/* Payment ID */}
+                <div className="relative flex-1 min-w-0">
+                    <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
+                    <div className="flex items-center gap-2">
+                        <code className="text-sm text-slate-500 truncate">{paymentId || "—"}</code>
+                        <button onClick={copyId}
+                            className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-lg border transition-all"
+                            style={copied
+                                ? { color: "#16a34a", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.08)" }
+                                : { color: "#94a3b8", border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF" }}>
+                            {copied ? "✓ Copied" : "Copy"}
+                        </button>
                     </div>
                 </div>
-            )}
 
-            {/* Payment ID */}
-            <div className="relative flex-1 min-w-0">
-                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Payment ID</p>
-                <div className="flex items-center gap-2">
-                    <code className="text-sm text-slate-500 truncate">{paymentId || "—"}</code>
+                {/* Amount */}
+                <div className="relative flex-shrink-0 text-center px-3 py-2 rounded-2xl"
+                    style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
+                    <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
+                    <div className="flex items-center gap-0.5 justify-center">
+                        <IndianRupee size={14} className="text-[#FF3B8E]" />
+                        <span className="text-lg font-black text-[#FF3B8E]">
+                            {parseFloat(record.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Status */}
+                <div className="relative flex-shrink-0 text-center hidden md:block">
+                    <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Status</p>
+                    <span className="text-xs font-bold px-3 py-1 rounded-full"
+                        style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>
+                        {record.status || "Success"}
+                    </span>
+                </div>
+
+                {/* Date */}
+                <div className="relative flex-shrink-0 text-right hidden sm:block">
+                    <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Date</p>
+                    <p className="text-sm font-bold text-slate-500">{timestamp ? formatDate(timestamp) : "—"}</p>
+                </div>
+
+                {/* Time ago */}
+                <div className="relative flex-shrink-0 flex flex-col items-end gap-1">
+                    <span className="text-xs font-bold px-3 py-1.5 rounded-full text-slate-500"
+                        style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
+                        {timestamp ? timeAgo(timestamp) : "—"}
+                    </span>
+                    <span className="text-xs text-slate-400">{timestamp ? formatTime(timestamp) : ""}</span>
+                </div>
+            </div>
+
+            {/* ── MOBILE layout (below sm) ── */}
+            <div
+                className="relative flex sm:hidden flex-col rounded-2xl border overflow-hidden transition-all duration-300"
+                style={{ background: "white", borderColor: "rgba(0,0,0,0.06)" }}
+            >
+                {/* Top accent bar */}
+                <div className="h-[3px] w-full" style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
+
+                {/* Main row */}
+                <div className="flex items-center gap-3 px-4 pt-3 pb-3">
+                    {/* Left icon */}
+                    <div className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+                        style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.18)" }}>
+                        <CheckCircle2 size={16} className="text-[#FF3B8E]" />
+                    </div>
+
+                    {/* Middle: name + payment ID */}
+                    <div className="flex-1 min-w-0">
+                        {isAdmin && (
+                            <p className="text-sm font-black text-gray-900 truncate leading-tight">{customerName}</p>
+                        )}
+                        <p className="text-xs text-slate-400 truncate mt-0.5">{paymentId || "—"}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{timestamp ? formatDate(timestamp) : "—"}</p>
+                    </div>
+
+                    {/* Right: amount + time ago */}
+                    <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+                        <div className="flex items-center gap-0.5 px-2.5 py-1 rounded-xl"
+                            style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
+                            <IndianRupee size={12} className="text-[#FF3B8E]" />
+                            <span className="text-sm font-black text-[#FF3B8E]">
+                                {parseFloat(record.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 px-2 py-0.5 rounded-full"
+                            style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
+                            {timestamp ? timeAgo(timestamp) : "—"}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Bottom row: status + copy */}
+                <div className="flex items-center justify-between px-4 pb-3 gap-2">
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full"
+                        style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>
+                        {record.status || "Success"}
+                    </span>
                     <button onClick={copyId}
-                        className="flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-lg border transition-all"
+                        className="text-[11px] font-bold px-3 py-1 rounded-full border transition-all"
                         style={copied
                             ? { color: "#16a34a", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.08)" }
                             : { color: "#94a3b8", border: "1px solid rgba(0,0,0,0.08)", background: "#F8F7FF" }}>
-                        {copied ? "✓ Copied" : "Copy"}
+                        {copied ? "✓ Copied" : "Copy ID"}
                     </button>
                 </div>
             </div>
-
-            {/* Amount */}
-            <div className="relative flex-shrink-0 text-center px-3 py-2 rounded-2xl"
-                style={{ background: "rgba(255,59,142,0.07)", border: "1px solid rgba(255,59,142,0.15)" }}>
-                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Amount</p>
-                <div className="flex items-center gap-0.5 justify-center">
-                    <IndianRupee size={14} className="text-[#FF3B8E]" />
-                    <span className="text-lg font-black text-[#FF3B8E]">
-                        {parseFloat(record.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </span>
-                </div>
-            </div>
-
-            {/* Status */}
-            <div className="relative flex-shrink-0 text-center hidden md:block">
-                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Status</p>
-                <span className="text-xs font-bold px-3 py-1 rounded-full"
-                    style={{ background: "rgba(34,197,94,0.08)", color: "#16a34a", border: "1px solid rgba(34,197,94,0.2)" }}>
-                    {record.status || "Success"}
-                </span>
-            </div>
-
-            {/* Date */}
-            <div className="relative flex-shrink-0 text-right hidden sm:block">
-                <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-wider font-bold">Date</p>
-                <p className="text-sm font-bold text-slate-500">{timestamp ? formatDate(timestamp) : "—"}</p>
-            </div>
-
-            {/* Time ago */}
-            <div className="relative flex-shrink-0 flex flex-col items-end gap-1">
-                <span className="text-xs font-bold px-3 py-1.5 rounded-full text-slate-500"
-                    style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)" }}>
-                    {timestamp ? timeAgo(timestamp) : "—"}
-                </span>
-                <span className="text-xs text-slate-400">{timestamp ? formatTime(timestamp) : ""}</span>
-            </div>
-        </div>
+        </>
     );
 }
 
@@ -437,7 +495,8 @@ export default function Payment() {
                 onLogout={handleLogout}
             />
 
-            <div className="relative z-10 px-6 md:px-10 pt-24 pb-16 max-w-6xl mx-auto">
+            {/* ── Full-width container, matches AdminPanel padding ── */}
+            <div className="relative z-10 pt-24 pb-16" style={{ padding: "88px 5vw 64px" }}>
 
                 {/* Page Title */}
                 <div className="mb-8">
@@ -459,7 +518,7 @@ export default function Payment() {
                 ) : (
                     <>
                         {/* ─── Stats ─── */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 28 }}>
                             {stats.map((card, i) => (
                                 <div key={i}
                                     className="bg-white rounded-2xl p-6 border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group relative overflow-hidden cursor-default">
@@ -480,12 +539,13 @@ export default function Payment() {
                         </div>
 
                         {/* ─── Filters ─── */}
-                        <div className="flex flex-col gap-4 mb-6 p-5 rounded-2xl bg-white border border-black/[0.06] shadow-sm"
+                        <div className="flex flex-col gap-4 mb-6 p-4 sm:p-5 rounded-2xl bg-white border border-black/[0.06] shadow-sm"
                             style={{ overflow: "visible" }}>
 
                             {/* Row 1: Search + Customer */}
-                            <div className="flex gap-3 items-center flex-wrap" style={{ overflow: "visible" }}>
-                                <div className="relative flex-1 min-w-[180px]">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:items-center" style={{ overflow: "visible" }}>
+                                {/* Search — full width on mobile */}
+                                <div className="relative w-full sm:flex-1">
                                     <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                     <input type="text" placeholder="Search payment ID or customer..." value={search}
                                         onChange={(e) => setSearch(e.target.value)}
@@ -495,48 +555,67 @@ export default function Payment() {
                                         onBlur={e => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; }}
                                     />
                                 </div>
-                                {isAdmin && (
-                                    <div style={{ flex: "0 0 calc(38% - 6px)", overflow: "visible" }}>
-                                        <CustomerDropdown customers={customers} value={filterCustomer} onChange={setFilterCustomer} />
-                                    </div>
-                                )}
-                                {hasFilters && (
+                                {/* Customer + Clear row on mobile */}
+                                <div className="flex gap-2 items-center" style={{ overflow: "visible" }}>
+                                    {isAdmin && (
+                                        <div className="flex-1 sm:flex-none" style={{ overflow: "visible", minWidth: 0, width: "100%", maxWidth: "100%" }}>
+                                            <CustomerDropdown customers={customers} value={filterCustomer} onChange={setFilterCustomer} />
+                                        </div>
+                                    )}
+                                    {hasFilters && (
+                                        <button onClick={clearAll}
+                                            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all flex-shrink-0"
+                                            style={{ color: "#dc2626", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                                            <X size={12} /> <span className="hidden xs:inline">Clear All</span>
+                                        </button>
+                                    )}
+                                </div>
+                                {/* Clear button on desktop when no admin */}
+                                {!isAdmin && hasFilters && (
                                     <button onClick={clearAll}
-                                        className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all flex-shrink-0"
+                                        className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full transition-all flex-shrink-0 hidden sm:flex"
                                         style={{ color: "#dc2626", background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)" }}>
                                         <X size={12} /> Clear All
                                     </button>
                                 )}
                             </div>
 
-                            {/* Row 2: Amount pills */}
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
-                                    <IndianRupee size={11} /> Amt
+                            {/* Row 2: Amount pills — wraps naturally on mobile */}
+                            <div className="flex items-start gap-2 flex-wrap">
+                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-10 sm:w-16 pt-1.5">
+                                    <IndianRupee size={11} /> <span className="hidden sm:inline">Amt</span>
                                 </div>
-                                {AMOUNT_OPTIONS.map((opt) => {
-                                    const isActive = filterAmount === opt.value;
-                                    return (
-                                        <button key={opt.value} onClick={() => setFilterAmount(opt.value)}
-                                            className="px-3.5 py-1.5 rounded-full text-xs font-black border transition-all"
-                                            style={isActive
-                                                ? { background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.35)", color: "#FF3B8E", boxShadow: "0 0 8px rgba(255,59,142,0.1)" }
-                                                : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b" }}>
-                                            {opt.value === "ALL" ? "All" : opt.label}
-                                        </button>
-                                    );
-                                })}
+                                <div className="flex flex-wrap gap-2 flex-1">
+                                    {AMOUNT_OPTIONS.map((opt) => {
+                                        const isActive = filterAmount === opt.value;
+                                        return (
+                                            <button key={opt.value} onClick={() => setFilterAmount(opt.value)}
+                                                className="px-3 py-1.5 rounded-full text-xs font-black border transition-all"
+                                                style={isActive
+                                                    ? { background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.35)", color: "#FF3B8E", boxShadow: "0 0 8px rgba(255,59,142,0.1)" }
+                                                    : { background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.08)", color: "#64748b" }}>
+                                                {opt.value === "ALL" ? "All" : opt.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
                             {/* Row 3: Date dropdowns */}
                             <div className="flex items-center gap-2 flex-wrap" style={{ overflow: "visible" }}>
-                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-16">
-                                    <Calendar size={11} /> Date
+                                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-wider flex-shrink-0 w-10 sm:w-16">
+                                    <Calendar size={11} /> <span className="hidden sm:inline">Date</span>
                                 </div>
-                                <CustomDropdown options={monthOptions} value={filterMonth} onChange={handleMonthChange} icon={Calendar} placeholder="All Months" />
-                                {filterMonth !== "ALL" && (
-                                    <CustomDropdown options={dateOptions} value={filterDate} onChange={setFilterDate} icon={Calendar} placeholder="All Dates" />
-                                )}
+                                <div className="flex gap-2 flex-wrap flex-1" style={{ overflow: "visible" }}>
+                                    <div style={{ flex: "1 1 140px", overflow: "visible" }}>
+                                        <CustomDropdown options={monthOptions} value={filterMonth} onChange={handleMonthChange} icon={Calendar} placeholder="All Months" />
+                                    </div>
+                                    {filterMonth !== "ALL" && (
+                                        <div style={{ flex: "1 1 140px", overflow: "visible" }}>
+                                            <CustomDropdown options={dateOptions} value={filterDate} onChange={setFilterDate} icon={Calendar} placeholder="All Dates" />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Active date filter pills */}
@@ -562,12 +641,12 @@ export default function Payment() {
                         </div>
 
                         {/* Count + total */}
-                        <div className="flex items-center justify-between mb-4">
-                            <p className="text-sm text-slate-400">
+                        <div className="flex items-center justify-between mb-4 gap-2">
+                            <p className="text-xs sm:text-sm text-slate-400">
                                 Showing <span className="text-[#FF3B8E] font-bold">{filtered.length}</span> of {rawPayments.length} transactions
                             </p>
                             {totalAmount > 0 && (
-                                <p className="text-sm text-slate-400">
+                                <p className="text-xs sm:text-sm text-slate-400">
                                     Filtered Total:{" "}
                                     <span className="font-bold text-[#FF3B8E]">
                                         ₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
@@ -584,7 +663,7 @@ export default function Payment() {
                                     style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.15)" }}>
                                     <CreditCard size={24} className="text-[#FF3B8E]" />
                                 </div>
-                                <p className="text-slate-400 text-base">
+                                <p className="text-slate-400 text-base text-center">
                                     {rawPayments.length === 0 ? "No payments yet. Add balance to get started!" : "No records match your filters."}
                                 </p>
                             </div>
@@ -602,6 +681,24 @@ export default function Payment() {
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;900&display=swap');
                 * { font-family: 'Urbanist', sans-serif; letter-spacing: -0.02em; }
+                @media (max-width: 960px) {
+                    .relative.z-10 { padding: 80px 3vw 48px !important; }
+                }
+                @media (max-width: 560px) {
+                    .relative.z-10 { padding: 76px 14px 40px !important; }
+                }
+                @media (max-width: 480px) {
+                    /* Stats grid: 2 columns on small phones */
+                    div[style*="minmax(220px"] {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                        gap: 10px !important;
+                    }
+                    /* Tighten stat cards */
+                    div[style*="minmax(220px"] > div { padding: 14px !important; }
+                    div[style*="minmax(220px"] > div > p:first-of-type { font-size: 1.4rem !important; }
+                    div[style*="minmax(220px"] > div > div:first-child { margin-bottom: 12px !important; }
+                    div[style*="minmax(220px"] > div .w-11 { width: 36px !important; height: 36px !important; border-radius: 10px !important; }
+                }
             `}</style>
         </div>
     );

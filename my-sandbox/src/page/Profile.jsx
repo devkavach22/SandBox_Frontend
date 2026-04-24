@@ -280,81 +280,95 @@ export default function Profile() {
 
             <Navbar
                 showBack
-                badge="Profile"
+                // badge="Profile"
                 badgeIcon={<User size={12} />}
                 onLogout={handleLogout}
                 user={storedUser}
             />
 
-            <main className="relative z-10 max-w-2xl mx-auto px-6 pt-24 pb-16">
+            <main className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-16">
                 {loading ? (
                     <div className="flex items-center justify-center py-40">
                         <div className="w-8 h-8 border-2 border-black/5 border-t-[#FF3B8E] rounded-full animate-spin" />
                     </div>
                 ) : (
-                    <div className="space-y-5">
-                        <div className="bg-white rounded-[2rem] p-7 border border-black/[0.06] shadow-sm">
+                    <div className="space-y-4 sm:space-y-5">
+                        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-7 border border-black/[0.06] shadow-sm">
 
-                            {/* Avatar + Name Header */}
-                            <div className="flex items-start justify-between mb-8 pb-6"
-                                style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-                                <div className="flex items-center gap-5">
+                            {/* ── Avatar + Name Header ── */}
+                            <div className="mb-6 pb-5 sm:mb-8 sm:pb-6" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+
+                                {/* Top row: avatar + edit button */}
+                                <div className="flex items-start justify-between mb-4">
+                                    {/* Avatar */}
                                     <div className="relative">
                                         {avatar || profile?.avatar ? (
                                             <img src={avatar || profile?.avatar} alt="pfp"
-                                                className="w-20 h-20 rounded-2xl object-cover border-2 shadow-md"
+                                                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 shadow-md"
                                                 style={{ borderColor: "rgba(255,59,142,0.3)" }} />
                                         ) : (
-                                            <div className="w-20 h-20 rounded-2xl flex items-center justify-center"
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center"
                                                 style={{ background: "rgba(255,59,142,0.08)", border: "2px dashed rgba(255,59,142,0.25)" }}>
-                                                <span className="text-2xl font-black text-[#FF3B8E]">{initials}</span>
+                                                <span className="text-xl sm:text-2xl font-black text-[#FF3B8E]">{initials}</span>
                                             </div>
                                         )}
                                         <div className="absolute inset-0 rounded-2xl pointer-events-none"
                                             style={{ boxShadow: "0 0 20px rgba(255,59,142,0.1)" }} />
                                     </div>
-                                    <div>
-                                        <h2 className="text-2xl font-black text-gray-900 mb-1">{profile?.name}</h2>
-                                        <p className="text-sm text-slate-400 mb-2" style={{ fontFamily: "monospace" }}>{profile?.email}</p>
-                                        <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase"
-                                            style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.2)", color: "#FF3B8E" }}>
-                                            {profile?.role}
-                                        </span>
-                                    </div>
+
+                                    {/* Edit button */}
+                                    <button onClick={() => editMode ? handleSave() : setEditMode(true)} disabled={saving}
+                                        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-black uppercase transition-all active:scale-95"
+                                        style={editMode
+                                            ? { background: "linear-gradient(to right, #FF3B8E, #8E44AD)", color: "#fff", boxShadow: "0 4px 16px rgba(255,59,142,0.25)" }
+                                            : { border: "1px solid rgba(255,59,142,0.3)", color: "#FF3B8E", background: "rgba(255,59,142,0.06)" }}>
+                                        {saving ? "..." : editMode ? <><Save size={12} /> Save</> : <><Edit3 size={12} /> Edit</>}
+                                    </button>
                                 </div>
 
-                                <button onClick={() => editMode ? handleSave() : setEditMode(true)} disabled={saving}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase transition-all active:scale-95"
-                                    style={editMode
-                                        ? { background: "linear-gradient(to right, #FF3B8E, #8E44AD)", color: "#fff", boxShadow: "0 4px 16px rgba(255,59,142,0.25)" }
-                                        : { border: "1px solid rgba(255,59,142,0.3)", color: "#FF3B8E", background: "rgba(255,59,142,0.06)" }}>
-                                    {saving ? "..." : editMode ? <><Save size={13} /> Save</> : <><Edit3 size={13} /> Edit</>}
-                                </button>
+                                {/* Name + email + role badge */}
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-0.5 leading-tight">{profile?.name}</h2>
+                                    <p className="text-xs sm:text-sm text-slate-400 mb-2 break-all" style={{ fontFamily: "monospace" }}>{profile?.email}</p>
+                                    <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase"
+                                        style={{ background: "rgba(255,59,142,0.08)", border: "1px solid rgba(255,59,142,0.2)", color: "#FF3B8E" }}>
+                                        {profile?.role}
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Stats */}
-                            <div className={`grid grid-cols-${stats.length} gap-4 mb-8`}>
+                            {/* ── Stats ── */}
+                            <div className="mb-6 sm:mb-8" style={{
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))`,
+                                gap: "10px",
+                            }}>
                                 {stats.map((s, i) => (
                                     <div key={i}
-                                        className="bg-white rounded-2xl p-5 border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group relative overflow-hidden cursor-default">
+                                        className="bg-white rounded-2xl border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group relative overflow-hidden cursor-default"
+                                        style={{ padding: "14px 12px" }}>
                                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
                                             style={{ background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%)` }} />
                                         <div className="absolute bottom-0 left-0 right-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 rounded-full"
                                             style={{ background: "linear-gradient(90deg, #FF3B8E, #8E44AD)" }} />
-                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-4"
+                                        {/* Icon */}
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3"
                                             style={{ background: s.glow, border: `1px solid ${s.color}30` }}>
                                             <span style={{ color: s.color }}>{s.icon}</span>
                                         </div>
-                                        <p className="text-2xl font-black mb-1" style={{ color: s.color }}>{s.value}</p>
-                                        <p className="text-[10px] text-slate-400 tracking-[0.2em] font-bold uppercase">{s.label}</p>
+                                        {/* Value — shrinks on mobile */}
+                                        <p className="font-black mb-1 leading-tight stat-value" style={{ color: s.color, fontSize: "clamp(0.95rem, 4vw, 1.5rem)" }}>
+                                            {s.value}
+                                        </p>
+                                        <p className="text-[9px] sm:text-[10px] text-slate-400 tracking-[0.15em] font-bold uppercase leading-tight">{s.label}</p>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Form Fields */}
-                            <div className="space-y-5">
+                            {/* ── Form Fields ── */}
+                            <div className="space-y-4 sm:space-y-5">
                                 {editMode && (
-                                    <div className="pb-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                                    <div className="pb-4 sm:pb-5" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] block mb-3">Update Photo</label>
                                         <AvatarPicker value={avatar} onChange={setAvatar} />
                                     </div>
@@ -364,12 +378,12 @@ export default function Profile() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Unique ID</label>
                                     <div className="relative group">
-                                        <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                        <Fingerprint className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                                         <input type="text" value={form.client_id} disabled
-                                            className="w-full rounded-2xl pl-11 pr-12 py-3.5 text-sm text-slate-400 outline-none"
-                                            style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)", fontFamily: "monospace" }} />
+                                            className="w-full rounded-2xl pl-10 sm:pl-11 pr-10 sm:pr-12 py-3 sm:py-3.5 text-sm text-slate-400 outline-none"
+                                            style={{ background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.07)", fontFamily: "monospace", fontSize: "12px" }} />
                                         <button onClick={copyId}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF3B8E] transition-colors">
+                                            className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF3B8E] transition-colors">
                                             <Copy size={14} />
                                         </button>
                                     </div>
@@ -379,10 +393,10 @@ export default function Profile() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Full Name</label>
                                     <div className="relative">
-                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                        <User className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                                         <input type="text" value={form.name} disabled={!editMode}
                                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                            className="w-full rounded-2xl pl-11 pr-4 py-3.5 text-sm outline-none transition-all"
+                                            className="w-full rounded-2xl pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 text-sm outline-none transition-all"
                                             style={{
                                                 background: editMode ? "white" : "#F8F7FF",
                                                 border: editMode ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(0,0,0,0.07)",
@@ -399,14 +413,14 @@ export default function Profile() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Phone Number</label>
                                     <div className="relative">
-                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                                        <Phone className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                                         <input type="tel" value={form.phone} disabled={!editMode} maxLength={10}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, "");
                                                 setForm({ ...form, phone: value });
                                             }}
                                             placeholder="10-digit number"
-                                            className="w-full rounded-2xl pl-11 pr-4 py-3.5 text-sm outline-none transition-all placeholder-slate-400"
+                                            className="w-full rounded-2xl pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 text-sm outline-none transition-all placeholder-slate-400"
                                             style={{
                                                 background: editMode ? "white" : "#F8F7FF",
                                                 border: editMode ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(0,0,0,0.07)",
