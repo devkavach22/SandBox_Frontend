@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
     LogOut, Plus, X, Trash2, Edit3,
     ShieldCheck, ToggleLeft, ToggleRight,
-    IndianRupee, Save, Users, Eye, 
+    IndianRupee, Save, Users, Eye,
     Upload, FileText, Image, File, CheckCircle2, Activity,
     TrendingUp, AlertCircle
 } from "lucide-react";
@@ -14,16 +14,16 @@ import Navbar from "./Navbar";
 import { triggerAuthChange } from "../routes/AppRoutes";
 
 const METHOD_COLORS = {
-    GET:    { bg: "rgba(139,92,246,0.08)",  border: "#8B5CF6", text: "#7C3AED" },
-    POST:   { bg: "rgba(255,59,142,0.08)",  border: "#FF3B8E", text: "#FF3B8E" },
-    PUT:    { bg: "rgba(99,102,241,0.08)",  border: "#6366F1", text: "#4F46E5" },
-    DELETE: { bg: "rgba(239,68,68,0.08)",   border: "#EF4444", text: "#DC2626" },
+    GET: { bg: "rgba(139,92,246,0.08)", border: "#8B5CF6", text: "#7C3AED" },
+    POST: { bg: "rgba(255,59,142,0.08)", border: "#FF3B8E", text: "#FF3B8E" },
+    PUT: { bg: "rgba(99,102,241,0.08)", border: "#6366F1", text: "#4F46E5" },
+    DELETE: { bg: "rgba(239,68,68,0.08)", border: "#EF4444", text: "#DC2626" },
 };
 
 const CATEGORIES = [
-    { value: "konverthr_node",  label: "KonvertHR Node.js APIs", color: "#FF3B8E", glow: "rgba(255,59,142,0.08)" },
-    { value: "konverthr_odoo",  label: "KonvertHR Odoo APIs",    color: "#8B5CF6", glow: "rgba(139,92,246,0.08)" },
-    { value: "konverthr_other", label: "KonvertHR Other APIs",   color: "#16a34a", glow: "rgba(34,197,94,0.08)"  },
+    { value: "konverthr_node", label: "KonvertHR Node.js APIs", color: "#FF3B8E", glow: "rgba(255,59,142,0.08)" },
+    { value: "konverthr_odoo", label: "KonvertHR Odoo APIs", color: "#8B5CF6", glow: "rgba(139,92,246,0.08)" },
+    { value: "konverthr_other", label: "KonvertHR Other APIs", color: "#16a34a", glow: "rgba(34,197,94,0.08)" },
 ];
 
 const mkToast = (msg, shadow, iconBg) =>
@@ -49,8 +49,8 @@ const mkToast = (msg, shadow, iconBg) =>
     ), { duration: 3000 });
 
 const successToast = (msg) => mkToast(msg, "0 0 0 1px rgba(255,59,142,0.2), 0 8px 32px rgba(255,59,142,0.12)", "#FF3B8E");
-const errorToast   = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.2), 0 8px 32px rgba(239,68,68,0.12)", null);
-const infoToast    = (msg) => mkToast(msg, "0 0 0 1px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)", null);
+const errorToast = (msg) => mkToast(msg, "0 0 0 1px rgba(239,68,68,0.2), 0 8px 32px rgba(239,68,68,0.12)", null);
+const infoToast = (msg) => mkToast(msg, "0 0 0 1px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)", null);
 
 const EMPTY_FORM = {
     name: "", url: "", method: "POST", price: "0.10",
@@ -219,11 +219,11 @@ function ApiFormModal({ initial, onClose, onSave }) {
         boxSizing: "border-box", transition: "border-color 0.18s, box-shadow 0.18s",
     };
     const focusStyle = (e) => { e.target.style.borderColor = "rgba(255,59,142,0.4)"; e.target.style.boxShadow = "0 0 0 3px rgba(255,59,142,0.08)"; };
-    const blurStyle  = (e) => { e.target.style.borderColor = "rgba(0,0,0,0.08)";   e.target.style.boxShadow = "none"; };
+    const blurStyle = (e) => { e.target.style.borderColor = "rgba(0,0,0,0.08)"; e.target.style.boxShadow = "none"; };
 
     const handleSave = () => {
         if (!form.name.trim()) { errorToast("API name required."); return; }
-        if (!form.url.trim())  { errorToast("API URL required."); return; }
+        if (!form.url.trim()) { errorToast("API URL required."); return; }
         const price = parseFloat(form.price);
         if (isNaN(price) || price < 0) { errorToast("Valid price required."); return; }
         for (const file of files) {
@@ -232,11 +232,11 @@ function ApiFormModal({ initial, onClose, onSave }) {
         let parsedSampleBody = null, parsedSampleResponse = null;
         if (form.sampleBody.trim()) {
             try { parsedSampleBody = JSON.parse(form.sampleBody); }
-            catch { errorToast("Sample Body valid JSON nahi hai!"); return; }
+            catch { errorToast("Sample Body is not valid JSON!"); return; }
         }
         if (form.sampleResponse.trim()) {
             try { parsedSampleResponse = JSON.parse(form.sampleResponse); }
-            catch { errorToast("Sample Response valid JSON nahi hai!"); return; }
+            catch { errorToast("Sample Response is not valid JSON!"); return; }
         }
         onSave({ ...form, price: parseFloat(form.price), sampleBody: parsedSampleBody, sampleResponse: parsedSampleResponse, files });
         onClose();
@@ -545,9 +545,9 @@ function CustomerCard({ customer, onClick }) {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, textAlign: "center" }}>
                 {[
-                    { value: customer.selectedApis?.length || 0, label: "APIs",    color: "#8B5CF6" },
-                    { value: `₹${customer.balance || 0}`,        label: "Balance", color: "#FF3B8E" },
-                    { value: customer.totalCalls || 0,           label: "Calls",   color: "#4F46E5" },
+                    { value: customer.selectedApis?.length || 0, label: "APIs", color: "#8B5CF6" },
+                    { value: `₹${customer.balance || 0}`, label: "Balance", color: "#FF3B8E" },
+                    { value: customer.totalCalls || 0, label: "Calls", color: "#4F46E5" },
                 ].map((s, i) => (
                     <div key={i} style={{ padding: "10px 4px", borderRadius: 10, background: "#F8F7FF" }}>
                         <p style={{ fontSize: 20, fontWeight: 900, color: s.color, margin: 0, fontFamily: "monospace" }}>{s.value}</p>
@@ -595,9 +595,9 @@ function CustomerModal({ customer, onClose }) {
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 24 }}>
                     {[
-                        { label: "Wallet",    value: `₹${customer.balance || 0}`, color: "#FF3B8E" },
-                        { label: "API Calls", value: customer.totalCalls || 0,    color: "#4F46E5" },
-                        { label: "APIs",      value: customer.selectedApis?.length || 0, color: "#8B5CF6" },
+                        { label: "Wallet", value: `₹${customer.balance || 0}`, color: "#FF3B8E" },
+                        { label: "API Calls", value: customer.totalCalls || 0, color: "#4F46E5" },
+                        { label: "APIs", value: customer.selectedApis?.length || 0, color: "#8B5CF6" },
                     ].map((s) => (
                         <div key={s.label} style={{ borderRadius: 14, padding: "14px 10px", textAlign: "center", background: "#F8F7FF", border: "1px solid rgba(0,0,0,0.05)" }}>
                             <p style={{ fontWeight: 900, fontSize: 24, color: s.color, margin: "0 0 3px", fontFamily: "monospace" }}>{s.value}</p>
@@ -610,9 +610,9 @@ function CustomerModal({ customer, onClose }) {
                     <p style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>Contact Info</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                         {[
-                            { label: "Phone",     value: customer.phone || "—" },
+                            { label: "Phone", value: customer.phone || "—" },
                             { label: "Client ID", value: customer.client_id || "—" },
-                            { label: "Role",      value: customer.role || "—" },
+                            { label: "Role", value: customer.role || "—" },
                         ].map((row) => (
                             <div key={row.label} style={{
                                 display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -661,10 +661,10 @@ function ApiSection({ label, apis, color, glow, emptyText, onToggle, onEdit, onD
 export default function AdminPanel() {
     const navigate = useNavigate();
     const { apis, customers, stats, loading, addApi, updateApi, deleteApi, toggleApi } = useAdmin();
-    const [showForm,         setShowForm]         = useState(false);
-    const [editApi,          setEditApi]          = useState(null);
+    const [showForm, setShowForm] = useState(false);
+    const [editApi, setEditApi] = useState(null);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [activeTab,        setActiveTab]        = useState("apis");
+    const [activeTab, setActiveTab] = useState("apis");
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("user"));
@@ -686,7 +686,7 @@ export default function AdminPanel() {
                 fd.append("method", formData.method); fd.append("pricePerCall", formData.price);
                 fd.append("description", formData.description); fd.append("enabled", formData.enabled);
                 fd.append("category", formData.category);
-                if (formData.sampleBody)     fd.append("sampleBody",     JSON.stringify(formData.sampleBody));
+                if (formData.sampleBody) fd.append("sampleBody", JSON.stringify(formData.sampleBody));
                 if (formData.sampleResponse) fd.append("sampleResponse", JSON.stringify(formData.sampleResponse));
                 formData.files.forEach((file) => fd.append("attachments", file));
                 await addApi(fd, true);
@@ -705,7 +705,7 @@ export default function AdminPanel() {
                 fd.append("method", formData.method); fd.append("pricePerCall", formData.price);
                 fd.append("description", formData.description); fd.append("enabled", formData.enabled);
                 fd.append("category", formData.category);
-                if (formData.sampleBody)     fd.append("sampleBody",     JSON.stringify(formData.sampleBody));
+                if (formData.sampleBody) fd.append("sampleBody", JSON.stringify(formData.sampleBody));
                 if (formData.sampleResponse) fd.append("sampleResponse", JSON.stringify(formData.sampleResponse));
                 formData.files.forEach((file) => fd.append("attachments", file));
                 await updateApi(editApi._id, fd, true);
@@ -726,7 +726,7 @@ export default function AdminPanel() {
         catch { errorToast("Failed to toggle API."); }
     };
 
-    const enabledCount  = apis.filter((a) => a.enabled).length;
+    const enabledCount = apis.filter((a) => a.enabled).length;
     const disabledCount = (stats?.totalApis ?? apis.length) - enabledCount;
 
     const statCards = [
@@ -734,15 +734,15 @@ export default function AdminPanel() {
             label: "Total APIs", value: stats?.totalApis ?? apis.length, Icon: Activity,
             accentColor: "#FF3B8E", glowColor: "rgba(255,59,142,0.08)", borderHover: "rgba(255,59,142,0.25)",
             badge: { text: "ALL APIS", bg: "rgba(255,59,142,0.07)", color: "#FF3B8E", border: "rgba(255,59,142,0.2)" },
-            subtext:  { label: "Active APIs",   value: enabledCount,  color: "#16a34a" },
-            subtext2: { label: "Disabled APIs",  value: disabledCount, color: "#dc2626" },
+            subtext: { label: "Active APIs", value: enabledCount, color: "#16a34a" },
+            subtext2: { label: "Disabled APIs", value: disabledCount, color: "#dc2626" },
         },
         {
             label: "Active APIs", value: enabledCount, Icon: TrendingUp,
             accentColor: "#16a34a", glowColor: "rgba(34,197,94,0.08)", borderHover: "rgba(34,197,94,0.25)",
             badge: { text: "LIVE", bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" },
-            subtext:  { label: "Visible to customers", value: enabledCount, color: "#16a34a" },
-            subtext2: { label: "Out of total",          value: stats?.totalApis ?? apis.length, color: "#64748b" },
+            subtext: { label: "Visible to customers", value: enabledCount, color: "#16a34a" },
+            subtext2: { label: "Out of total", value: stats?.totalApis ?? apis.length, color: "#64748b" },
         },
         {
             label: "Disabled APIs", value: disabledCount, Icon: AlertCircle,
@@ -750,26 +750,26 @@ export default function AdminPanel() {
             badge: disabledCount === 0
                 ? { text: "ALL CLEAR", bg: "rgba(34,197,94,0.07)", color: "#16a34a", border: "rgba(34,197,94,0.2)" }
                 : { text: "HIDDEN", bg: "rgba(239,68,68,0.07)", color: "#dc2626", border: "rgba(239,68,68,0.2)" },
-            subtext:  { label: "Hidden from users", value: disabledCount, color: disabledCount > 0 ? "#dc2626" : "#16a34a" },
+            subtext: { label: "Hidden from users", value: disabledCount, color: disabledCount > 0 ? "#dc2626" : "#16a34a" },
             subtext2: { label: "Status", value: disabledCount === 0 ? "All live" : "Toggle to enable", color: "#64748b" },
         },
         {
             label: "Total Customers", value: stats?.totalCustomers ?? customers.length, Icon: Users,
             accentColor: "#8B5CF6", glowColor: "rgba(139,92,246,0.08)", borderHover: "rgba(139,92,246,0.25)",
             badge: { text: "USERS", bg: "rgba(139,92,246,0.07)", color: "#8B5CF6", border: "rgba(139,92,246,0.2)" },
-            subtext:  { label: "Registered users", value: stats?.totalCustomers ?? customers.length, color: "#8B5CF6" },
+            subtext: { label: "Registered users", value: stats?.totalCustomers ?? customers.length, color: "#8B5CF6" },
             subtext2: { label: "Access level", value: "Customer", color: "#64748b" },
         },
     ];
 
-    const nodeApis  = apis.filter((a) => a.category === "konverthr_node" || !a.category);
-    const odooApis  = apis.filter((a) => a.category === "konverthr_odoo");
+    const nodeApis = apis.filter((a) => a.category === "konverthr_node" || !a.category);
+    const odooApis = apis.filter((a) => a.category === "konverthr_odoo");
     const otherApis = apis.filter((a) => a.category === "konverthr_other");
 
     const API_SECTIONS = [
-        { key: "node",  label: "KonvertHR Node.js APIs", apis: nodeApis,  color: "#FF3B8E", glow: "rgba(255,59,142,0.06)",  emptyText: "No Node.js APIs yet." },
-        { key: "odoo",  label: "KonvertHR Odoo APIs",    apis: odooApis,  color: "#8B5CF6", glow: "rgba(139,92,246,0.06)", emptyText: "No Odoo APIs yet." },
-        { key: "other", label: "KonvertHR Other APIs",   apis: otherApis, color: "#16a34a", glow: "rgba(34,197,94,0.06)",  emptyText: "No Other APIs yet." },
+        { key: "node", label: "KonvertHR Node.js APIs", apis: nodeApis, color: "#FF3B8E", glow: "rgba(255,59,142,0.06)", emptyText: "No Node.js APIs yet." },
+        { key: "odoo", label: "KonvertHR Odoo APIs", apis: odooApis, color: "#8B5CF6", glow: "rgba(139,92,246,0.06)", emptyText: "No Odoo APIs yet." },
+        { key: "other", label: "KonvertHR Other APIs", apis: otherApis, color: "#16a34a", glow: "rgba(34,197,94,0.06)", emptyText: "No Other APIs yet." },
     ];
 
     return (
@@ -786,7 +786,7 @@ export default function AdminPanel() {
                         name: editApi.name, url: editApi.url, method: editApi.method,
                         price: editApi.pricePerCall?.toString(), description: editApi.description,
                         enabled: editApi.enabled, category: editApi.category || "konverthr_node",
-                        sampleBody:     editApi.sampleBody     ? JSON.stringify(editApi.sampleBody, null, 2)     : "",
+                        sampleBody: editApi.sampleBody ? JSON.stringify(editApi.sampleBody, null, 2) : "",
                         sampleResponse: editApi.sampleResponse ? JSON.stringify(editApi.sampleResponse, null, 2) : "",
                     } : null}
                     onClose={() => { setShowForm(false); setEditApi(null); }}
@@ -848,7 +848,7 @@ export default function AdminPanel() {
                 {/* Tabs */}
                 <div style={{ display: "flex", gap: 0, marginBottom: 24, borderBottom: "1px solid rgba(0,0,0,0.07)" }}>
                     {[
-                        { id: "apis",      label: "Manage APIs" },
+                        { id: "apis", label: "Manage APIs" },
                         { id: "customers", label: `Customers (${customers.length})` },
                     ].map((tab) => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
