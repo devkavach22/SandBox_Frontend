@@ -1,6 +1,7 @@
 
 services:
-  server:
+  Sandbox_Frontend_Server:
+    image: sandbox_frontend_image
     container_name: sandbox_frontend_container
     build:
       context: .
